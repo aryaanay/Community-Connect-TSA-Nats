@@ -83,6 +83,7 @@ export default function DocumentationPage() {
         staticTitle="Copyright &amp; References"
         subtitle="Student copyright checklist, work log, and all sources cited for Community Connect.
         * Note: This page does not have dark mode functionality so as to maintain clarity"
+        backgroundImage=""
       />
 
       <section className="py-24" style={{ backgroundColor: BG }}>
