@@ -294,7 +294,7 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.97 }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="w-full max-w-lg bg-white rounded-2xl overflow-hidden"
+        className="w-full max-w-lg bg-white rounded-2xl overflow-hidden event-modal-card"
         style={{ boxShadow: '0 32px 80px rgba(2,39,71,0.25)' }}
         onClick={e => e.stopPropagation()}
       >
@@ -324,8 +324,8 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
           >✕</button>
         </div>
 
-        <div className="p-8">
-          <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '24px' }}>
+        <div className="p-8 event-modal-body">
+          <p className="event-modal-desc" style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '24px' }}>
             {event.description}
           </p>
 
@@ -336,11 +336,11 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
               { label: 'Location', value: event.location.split(',')[0] },
               { label: 'Who', value: event.audience },
             ].map(item => (
-              <div key={item.label} className="rounded-xl p-3 border border-slate-100 bg-slate-50">
-                <div style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8', marginBottom: '4px' }}>
+              <div key={item.label} className="rounded-xl p-3 border border-slate-100 bg-slate-50 event-detail-item">
+                <div className="event-detail-label" style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8', marginBottom: '4px' }}>
                   {item.label}
                 </div>
-                <div style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>
+                <div className="event-detail-value" style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>
                   {item.value}
                 </div>
               </div>

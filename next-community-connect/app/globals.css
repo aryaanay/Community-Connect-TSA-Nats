@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Events modal dark mode ── */
+[data-theme="dark"] .event-modal-card {
+  background-color: #022747 !important;
+}
+[data-theme="dark"] .event-modal-body {
+  background-color: #022747 !important;
+}
+[data-theme="dark"] .event-modal-desc {
+  color: #90D4F7 !important;
+}
+[data-theme="dark"] .event-detail-item {
+  background-color: #011629 !important;
+  border-color: rgba(36,153,214,0.2) !important;
+}
+[data-theme="dark"] .event-detail-label {
+  color: #56BBF0 !important;
+}
+[data-theme="dark"] .event-detail-value {
+  color: #C6EBFF !important;
+}
+
 /* ── Resources page dark mode ── */
 [data-theme="dark"] section.resources-section {
   background: #011629 !important;
