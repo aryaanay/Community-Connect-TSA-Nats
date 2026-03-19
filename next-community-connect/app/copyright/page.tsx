@@ -248,7 +248,6 @@ export default function DocumentationPage() {
                   'Keyboard navigable interface',
                   'Screen reader compatible markup',
                   'Responsive design for all screen sizes',
-                  'High contrast mode',
                   'Dark mode',
                   'Adjustable font sizes (Small to X-Large)',
                   'Color blind mode and grayscale filter',

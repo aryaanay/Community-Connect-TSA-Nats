@@ -114,7 +114,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
 
     // Modes
-    ['colorBlind', 'reducedMotion'].forEach(key => {
+    ['reducedMotion'].forEach(key => {
       const attr = key.replace(/([A-Z])/g, '-$1').toLowerCase()
       if (settings[key as keyof SettingsState] as boolean) {
         html.setAttribute(`data-${attr}`, 'true')

@@ -94,7 +94,6 @@ export default function SettingsPage() {
               <Palette className="w-5 h-5 text-sky-500" /> Color Filters
             </h2>
             <div className="grid sm:grid-cols-2 gap-3 mb-6">
-              <ToggleBtn active={settings.colorBlind} onClick={() => toggle('TOGGLE_COLOR_BLIND')} icon={Palette} label="Color Blind Mode" />
               <ToggleBtn active={settings.invertColors} onClick={() => toggle('TOGGLE_INVERT_COLORS')} icon={EyeOff} label="Invert Colors" />
             </div>
             <div>
