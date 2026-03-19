@@ -594,9 +594,9 @@ export default function DonatePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x divide-slate-100">
             {[
-              { value: totalRaised, prefix: '$', label: 'Total Raised', sub: `across ${STATIC_CAUSES.length} active causes`, icon: <TrendingUp size={18} />, color: '#16919f' },
-              { value: totalSupporters, prefix: '', label: 'Community Donors', sub: 'and growing every day', icon: <Users size={18} />, color: '#16919f' },
-              { value: overallPercent, prefix: '', suffix: '%', label: 'Overall Goal Progress', sub: `$${totalGoal.toLocaleString()} total target`, icon: <Heart size={18} />, color: '#16919f' },
+              { value: totalRaised, prefix: '$', label: 'Total Raised', sub: `across ${STATIC_CAUSES.length} active causes`, icon: <TrendingUp size={18} />, color: '#008fb5' },
+              { value: totalSupporters, prefix: '', label: 'Community Donors', sub: 'and growing every day', icon: <Users size={18} />, color: '#008fb5' },
+              { value: overallPercent, prefix: '', suffix: '%', label: 'Overall Goal Progress', sub: `$${totalGoal.toLocaleString()} total target`, icon: <Heart size={18} />, color: '#008fb5' },
             ].map((stat, i) => (
               <motion.div key={stat.label}
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
@@ -608,7 +608,7 @@ export default function DonatePage() {
                   {dbLoading ? <Loader2 size={18} className="animate-spin opacity-50" /> : stat.icon}
                 </div>
                 <div>
-                  <div style={{ fontFamily: 'var(--font-space)', fontSize: '32px', fontWeight: 600, color: tc.h, lineHeight: 1, letterSpacing: '-1px' }}>
+                  <div style={{ fontFamily: 'var(--font-space)', fontSize: '32px', fontWeight: 600, color: '#008fb5', lineHeight: 1, letterSpacing: '-1px' }}>
                     {stat.prefix}<AnimatedNumber value={stat.value} />{stat.suffix ?? ''}
                   </div>
                   <div style={{ fontFamily: 'var(--font-space)', fontSize: '14px', fontWeight: 600, color: stat.color, marginTop: '4px', letterSpacing: '-0.2px' }}>
