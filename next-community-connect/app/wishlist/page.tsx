@@ -3,11 +3,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
-import { Heart, Users, TrendingUp, X, Check, ChevronRight, Sparkles, ImagePlus, LogIn, Loader2, RefreshCw, AlertCircle } from 'lucide-react'
+import { Heart, Users, TrendingUp, X, Check, ChevronRight, Sparkles, ImagePlus, LogIn, Loader2, RefreshCw, AlertCircle, Lock } from 'lucide-react'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -217,6 +221,80 @@ function ProgressBar({ percent, color }: { percent: number; color: string }) {
   )
 }
 
+// ─── Stripe payment form (inner, must be inside <Elements>) ──────────────────
+
+function StripePaymentForm({ cause, amount, onSuccess, onBack, tc, dark }: {
+  cause: Cause
+  amount: number
+  onSuccess: () => void
+  onBack: () => void
+  tc: Record<string, string>
+  dark: boolean
+}) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [paying, setPaying] = useState(false)
+  const [payError, setPayError] = useState('')
+
+  const handlePay = async () => {
+    if (!stripe || !elements) return
+    setPaying(true)
+    setPayError('')
+    const { error } = await stripe.confirmPayment({
+      elements,
+      redirect: 'if_required',
+    })
+    if (error) {
+      setPayError(error.message ?? 'Payment failed.')
+      setPaying(false)
+    } else {
+      onSuccess()
+    }
+  }
+
+  return (
+    <div className="px-8 py-6">
+      <button onClick={onBack} className="flex items-center gap-1 text-xs mb-6 transition-opacity hover:opacity-70"
+        style={{ fontFamily: 'var(--font-dm-sans)', color: tc.m }}>
+        ← Back
+      </button>
+      <p style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
+        Donating <span style={{ color: cause.color }}>${amount}</span> to {cause.title}
+      </p>
+      <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginBottom: '24px' }}>
+        Enter your card details below. Powered by Stripe.
+      </p>
+
+      <div className="mb-5 rounded-2xl overflow-hidden" style={{ border: `1.5px solid ${dark ? 'rgba(36,153,214,0.25)' : '#E2E8F0'}`, padding: '16px', backgroundColor: dark ? 'rgba(2,39,71,0.6)' : '#F8FAFC' }}>
+        <PaymentElement options={{ layout: 'tabs' }} />
+      </div>
+
+      {payError && (
+        <p className="text-red-500 text-xs mb-4 flex items-center gap-1">
+          <AlertCircle size={12} /> {payError}
+        </p>
+      )}
+
+      <button
+        onClick={handlePay}
+        disabled={!stripe || paying}
+        className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all"
+        style={{
+          fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600,
+          backgroundColor: !stripe || paying ? '#CBD5E1' : cause.color,
+          boxShadow: !stripe || paying ? 'none' : `0 8px 24px ${cause.color}40`,
+          cursor: !stripe || paying ? 'not-allowed' : 'pointer',
+        }}
+      >
+        {paying ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <><Lock size={16} /> Pay ${amount}</>}
+      </button>
+      <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '10px' }}>
+        Secured by Stripe · SSL encrypted
+      </p>
+    </div>
+  )
+}
+
 // ─── Donation Modal ───────────────────────────────────────────────────────────
 
 function DonationModal({ cause, onClose, onDonate, saving }: {
@@ -227,8 +305,9 @@ function DonationModal({ cause, onClose, onDonate, saving }: {
 }) {
   const [amount, setAmount] = useState(25)
   const [custom, setCustom] = useState('')
-  const [step, setStep] = useState<'amount' | 'success'>('amount')
+  const [step, setStep] = useState<'amount' | 'payment' | 'success'>('amount')
   const [localSaving, setLocalSaving] = useState(false)
+  const [clientSecret, setClientSecret] = useState('')
   const finalAmount = custom ? Number(custom) : amount
   const { settings } = useSettings()
   const dark = settings.dark
@@ -247,8 +326,17 @@ function DonationModal({ cause, onClose, onDonate, saving }: {
     if (finalAmount <= 0) return
     setLocalSaving(true)
     try {
-      await onDonate(finalAmount)
-      setStep('success')
+      const res = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: finalAmount, causeId: cause.id, causeName: cause.title }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setClientSecret(data.clientSecret)
+      setStep('payment')
+    } catch (e: any) {
+      alert(e.message ?? 'Could not start payment. Please try again.')
     } finally {
       setLocalSaving(false)
     }
@@ -273,7 +361,18 @@ function DonationModal({ cause, onClose, onDonate, saving }: {
         onClick={e => e.stopPropagation()}
       >
         <AnimatePresence mode="wait">
-          {step === 'amount' ? (
+          {step === 'payment' && clientSecret ? (
+            <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: dark ? 'night' : 'stripe' } }}>
+              <StripePaymentForm
+                cause={cause}
+                amount={finalAmount}
+                onBack={() => setStep('amount')}
+                onSuccess={async () => { await onDonate(finalAmount); setStep('success') }}
+                tc={tc}
+                dark={dark}
+              />
+            </Elements>
+          ) : step === 'amount' ? (
             <motion.div key="amount" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="relative px-8 pt-8 pb-6" style={{ borderBottom: `1px solid ${tc.border}` }}>
                 <button
@@ -369,14 +468,14 @@ function DonationModal({ cause, onClose, onDonate, saving }: {
                   }}
                 >
                   {localSaving ? (
-                    <><Loader2 size={16} className="animate-spin" /> Saving…</>
+                    <><Loader2 size={16} className="animate-spin" /> Setting up payment…</>
                   ) : (
                     <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <ChevronRight size={16} /></>
                   )}
                 </button>
 
                 <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '12px' }}>
-                  Saved to Supabase · Your donation is recorded
+                  Secured by Stripe · SSL encrypted
                 </p>
               </div>
             </motion.div>
