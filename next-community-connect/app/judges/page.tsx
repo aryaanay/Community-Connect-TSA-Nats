@@ -22,7 +22,7 @@ export default function JudgesPage() {
   const handleJudgeSignIn = async () => {
     setLoading(true)
     await new Promise(r => setTimeout(r, 700))
-    signIn('judges@tsa.com', 'judges!', 'TSA Judge')
+    signIn('judges@tsa.com', 'judges!')
     setLoading(false)
     setDone(true)
   }
