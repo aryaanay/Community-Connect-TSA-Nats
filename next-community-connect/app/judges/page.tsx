@@ -89,7 +89,7 @@ export default function JudgesPage() {
           {done || isSignedIn ? (
             <div className="flex items-center justify-center gap-3 py-4 rounded-2xl" style={{ backgroundColor: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
               <CheckCircle className="w-5 h-5 text-emerald-400" />
-              <span className="font-outfit font-semibold text-emerald-300">Signed in as {user?.name ?? 'TSA Judge'}</span>
+              <span className="font-outfit font-semibold text-emerald-300">Signed in as {user?.email ?? 'TSA Judge'}</span>
             </div>
           ) : (
             <button
