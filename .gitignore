@@ -1,0 +1,5 @@
+.next/
+next-community-connect/tmp/
+node_modules/
+.env*
+*.log
