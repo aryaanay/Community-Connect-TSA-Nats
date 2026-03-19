@@ -127,17 +127,26 @@ const PRESET_AMOUNTS = [10, 25, 50, 100]
 
 // ─── Supabase helpers (inline so no external dep needed) ──────────────────────
 
+// Maps DB cause_name → static cause id
+const CAUSE_NAME_TO_ID: Record<string, string> = {
+  'Bothell Food Bank': 'food-bank',
+  'Youth Mentorship':  'youth',
+  'Senior Companions': 'seniors',
+  'Park Restoration':  'parks',
+  'Homeless Aid Fund': 'homeless',
+  'PAWS Pet Shelter':  'pets',
+}
+
 async function fetchCauseTotals(): Promise<Record<string, { raised: number; supporters: number }>> {
   const { data, error } = await supabase
-    .from('donations')
-    .select('cause_id, amount')
+    .from('wishlist_causes')
+    .select('cause_name, current_amount, supporter_count')
   if (error || !data) return {}
 
   const totals: Record<string, { raised: number; supporters: number }> = {}
   for (const row of data) {
-    if (!totals[row.cause_id]) totals[row.cause_id] = { raised: 0, supporters: 0 }
-    totals[row.cause_id].raised += row.amount
-    totals[row.cause_id].supporters += 1
+    const id = CAUSE_NAME_TO_ID[row.cause_name]
+    if (id) totals[id] = { raised: row.current_amount, supporters: row.supporter_count }
   }
   return totals
 }
@@ -156,11 +165,25 @@ async function fetchUserDonations(userId: string): Promise<Record<string, number
   return map
 }
 
-async function insertDonation(userId: string, causeId: string, amount: number) {
-  const { error } = await supabase
-    .from('donations')
-    .insert({ user_id: userId, cause_id: causeId, amount })
-  if (error) throw error
+async function insertDonation(_userId: string, causeId: string, amount: number) {
+  const causeName = Object.entries(CAUSE_NAME_TO_ID).find(([, id]) => id === causeId)?.[0]
+  if (!causeName) throw new Error('Unknown cause')
+
+  const { data, error: fetchError } = await supabase
+    .from('wishlist_causes')
+    .select('current_amount, supporter_count')
+    .eq('cause_name', causeName)
+    .single()
+  if (fetchError || !data) throw fetchError ?? new Error('Cause not found')
+
+  const { error: updateError } = await supabase
+    .from('wishlist_causes')
+    .update({
+      current_amount:  data.current_amount  + amount,
+      supporter_count: data.supporter_count + 1,
+    })
+    .eq('cause_name', causeName)
+  if (updateError) throw updateError
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -486,21 +509,20 @@ export default function DonatePage() {
     fetchUserDonations(user.id).then(setUserDonations)
   }, [isSignedIn, user?.id])
 
-  // ── Real-time subscription — update totals live ───────────
+  // ── Real-time subscription — watch wishlist_causes for live updates ──
   useEffect(() => {
     const channel = supabase
-      .channel('donations-realtime')
+      .channel('wishlist-causes-realtime')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'donations' },
+        { event: 'UPDATE', schema: 'public', table: 'wishlist_causes' },
         (payload) => {
-          const { cause_id, amount } = payload.new as { cause_id: string; amount: number }
+          const row = payload.new as { cause_name: string; current_amount: number; supporter_count: number }
+          const id = CAUSE_NAME_TO_ID[row.cause_name]
+          if (!id) return
           setDbTotals(prev => ({
             ...prev,
-            [cause_id]: {
-              raised: (prev[cause_id]?.raised || 0) + amount,
-              supporters: (prev[cause_id]?.supporters || 0) + 1,
-            },
+            [id]: { raised: row.current_amount, supporters: row.supporter_count },
           }))
         }
       )
@@ -508,11 +530,11 @@ export default function DonatePage() {
     return () => { supabase.removeChannel(channel) }
   }, [])
 
-  // ── Merge static + DB totals ──────────────────────────────
+  // ── Merge: use DB values directly (they are the totals, not increments) ──
   const causes = STATIC_CAUSES.map(c => ({
     ...c,
-    raised: c.raised + (dbTotals[c.id]?.raised || 0),
-    supporters: c.supporters + (dbTotals[c.id]?.supporters || 0),
+    raised:     dbTotals[c.id]?.raised     ?? c.raised,
+    supporters: dbTotals[c.id]?.supporters ?? c.supporters,
   }))
 
   // ── Donate handler ────────────────────────────────────────
