@@ -4,7 +4,6 @@ import { createContext, useContext, useReducer, useEffect, ReactNode, Dispatch }
 
 interface SettingsState {
   dark: boolean
-  highContrast: boolean
   colorBlind: boolean
   fontSize: 'small' | 'medium' | 'large' | 'xlarge'
   reducedMotion: boolean
@@ -17,9 +16,8 @@ interface SettingsState {
   zoom: number
 }
 
-type SettingsAction = 
+type SettingsAction =
   | { type: 'TOGGLE_DARK' }
-  | { type: 'TOGGLE_HIGH_CONTRAST' }
   | { type: 'TOGGLE_COLOR_BLIND' }
   | { type: 'SET_FONT_SIZE'; payload: SettingsState['fontSize'] }
   | { type: 'TOGGLE_REDUCED_MOTION' }
@@ -36,7 +34,6 @@ const SETTINGS_KEY = 'community-connect-settings'
 
 const initialState: SettingsState = {
   dark: false,
-  highContrast: false,
   colorBlind: false,
   fontSize: 'medium',
   reducedMotion: false,
@@ -55,8 +52,6 @@ function settingsReducer(state: SettingsState, action: SettingsAction): Settings
       return { ...state, ...action.payload }
     case 'TOGGLE_DARK':
       return { ...state, dark: !state.dark }
-    case 'TOGGLE_HIGH_CONTRAST':
-      return { ...state, highContrast: !state.highContrast }
     case 'TOGGLE_COLOR_BLIND':
       return { ...state, colorBlind: !state.colorBlind }
     case 'SET_FONT_SIZE':
@@ -119,7 +114,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
 
     // Modes
-    ['highContrast', 'colorBlind', 'reducedMotion'].forEach(key => {
+    ['colorBlind', 'reducedMotion'].forEach(key => {
       const attr = key.replace(/([A-Z])/g, '-$1').toLowerCase()
       if (settings[key as keyof SettingsState] as boolean) {
         html.setAttribute(`data-${attr}`, 'true')

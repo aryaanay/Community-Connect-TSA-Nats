@@ -48,7 +48,7 @@ function ServiceCard({ service }: { service: typeof services[0] }) {
     <Link href={service.href}>
         <motion.div
           className="group relative rounded-3xl border border-white/95 bg-white/80 backdrop-blur-xl p-8 lg:p-10 overflow-hidden cursor-pointer min-h-48 lg:min-h-56 shadow-lg hover:shadow-2xl"
-        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.18)' }}
+        whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
       >
         {/* Default state - icon + title */}

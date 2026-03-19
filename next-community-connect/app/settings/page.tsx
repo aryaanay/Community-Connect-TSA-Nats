@@ -2,7 +2,7 @@
 
 import { useSettings } from '@/context/SettingsContext'
 import { motion } from 'framer-motion'
-import { Maximize2, Minimize2, Moon, Sun, Contrast, Palette, EyeOff, Hash, ZoomIn } from 'lucide-react'
+import { Maximize2, Minimize2, Moon, Sun, Palette, EyeOff, Hash, ZoomIn } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 
 const fontSizes = [
@@ -61,9 +61,8 @@ export default function SettingsPage() {
             <h2 className="font-syne text-xl font-bold text-sky-900 mb-6 flex items-center gap-2">
               <Sun className="w-5 h-5 text-sky-500" /> Display & Theme
             </h2>
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid gap-3">
               <ToggleBtn active={settings.dark} onClick={() => toggle('TOGGLE_DARK')} icon={Moon} label="Dark Mode" />
-              <ToggleBtn active={settings.highContrast} onClick={() => toggle('TOGGLE_HIGH_CONTRAST')} icon={Contrast} label="High Contrast" />
             </div>
           </motion.div>
 

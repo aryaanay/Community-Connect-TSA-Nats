@@ -151,7 +151,7 @@
 [data-theme="dark"] .section-eyebrow { color: #56BBF0 !important; }
 
 /* ── Named page sections ── */
-[data-theme="dark"] .resources-section { background-color: #011629 !important; }
+[data-theme="dark"] .resources-section { background: #011629 !important; }
 [data-theme="dark"] .events-bento-section { background-color: #011629 !important; }
 [data-theme="dark"] .events-calendar-section { background: #011629 !important; }
 [data-theme="dark"] .events-calendar-section .bg-white { background-color: #022747 !important; }
@@ -172,6 +172,13 @@
 [data-theme="dark"] .resources-section h3 { color: #C6EBFF !important; }
 [data-theme="dark"] .resources-section p { color: #90D4F7 !important; }
 [data-theme="dark"] .resources-section .border-sky-100 { border-color: rgba(36,153,214,0.2) !important; }
+[data-theme="dark"] .resources-section div[style] { color: #90D4F7 !important; }
+[data-theme="dark"] .resources-section label[style] { color: #90D4F7 !important; }
+[data-theme="dark"] .resources-section a[style] { color: #90D4F7 !important; }
+[data-theme="dark"] .resources-section button[style] { color: #90D4F7 !important; border-color: rgba(36,153,214,0.2) !important; }
+
+/* ── Services cards border ── */
+[data-theme="dark"] .border-white\/95 { border-color: rgba(36,153,214,0.3) !important; }
 
 /* ── Calendar widget (inside calendar section) ── */
 [data-theme="dark"] .events-calendar-section .border-sky-100 { border-color: rgba(36,153,214,0.2) !important; }
@@ -196,23 +203,6 @@
 [data-theme="dark"] footer a { color: rgba(198,235,255,0.95) !important; }
 [data-theme="dark"] footer h4 { color: #56BBF0 !important; }
 [data-theme="dark"] footer .border-sky-400\/20 { border-color: rgba(86,187,240,0.35) !important; }
-
-[data-high-contrast] {
-  --glass-bg: rgba(255,255,255,1);
-  --glass-bg-md: rgba(0,0,0,1);
-  --glass-border: #000;
-  --glass-border-md: #000;
-  --glass-blur: none;
-  --glass-shadow: 0 0 0 #000;
-  filter: contrast(2) !important;
-}
-
-[data-high-contrast] * {
-  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #000 !important;
-  border-color: #000 !important;
-  box-shadow: 0 0 0 2px #000 !important;
-  backdrop-filter: none !important;
-}
 
 [data-color-blind] {
   --sky-300: #ff8c00;
@@ -439,6 +429,15 @@ html {
   }
   .shadow-glow {
     box-shadow: 0 25px 50px -12px rgba(255, 255, 255, 0.25);
+  }
+  .glass-bg {
+    background: var(--glass-bg);
+  }
+  .glass-bg-md {
+    background: var(--glass-bg-md);
+  }
+  .glass-bg-lg {
+    background: var(--glass-bg-alt);
   }
 }
 

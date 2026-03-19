@@ -254,7 +254,7 @@ export default function ResourcesPage() {
       <ZoomParallax images={communityImages} />
 
       <section className="py-24 resources-section" id="directory"
-        style={{ background: 'linear-gradient(160deg, #EBF7FF 0%, #F0F9FF 50%, #E0F2FE 100%)' }}>
+        style={{ background: 'var(--section-bg)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Testing banner */}
@@ -295,7 +295,7 @@ export default function ResourcesPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="rounded-3xl p-8 lg:p-10 mb-12 border shadow-xl"
-            style={{ backgroundColor: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(16px)', borderColor: '#BFDBFE' }}
+            style={{ backgroundColor: 'var(--glass-bg-md)', backdropFilter: 'blur(16px)', borderColor: 'var(--border-sharp)' }}
           >
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
@@ -305,15 +305,15 @@ export default function ResourcesPage() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full px-5 py-4 rounded-2xl border font-dm-sans text-sm outline-none focus:border-sky-400 transition-all shadow-sm focus:shadow-md"
-                  style={{ backgroundColor: '#ffffff', color: '#022747', borderColor: '#BFDBFE' }}
+                  style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-dark)', borderColor: 'var(--border-sharp)' }}
                 />
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-500" size={18} />
               </div>
               <div className="flex items-center gap-3">
-                <label className="font-dm-sans text-sm font-semibold" style={{ color: '#044069' }}>Sort:</label>
+                <label className="font-dm-sans text-sm font-semibold" style={{ color: 'var(--text-dark)' }}>Sort:</label>
                 <select value={sortBy} onChange={e => setSortBy(e.target.value)}
                   className="px-4 py-3 rounded-xl border font-dm-sans text-sm cursor-pointer focus:border-sky-400 outline-none shadow-sm"
-                  style={{ backgroundColor: '#ffffff', color: '#022747', borderColor: '#BFDBFE' }}>
+                  style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-dark)', borderColor: 'var(--border-sharp)' }}>
                   <option value="default">Default</option>
                   <option value="az">A to Z</option>
                   <option value="za">Z to A</option>
@@ -330,7 +330,7 @@ export default function ResourcesPage() {
                       ? 'bg-sky-500 text-white shadow-sky-500/25 border border-sky-400'
                       : 'border hover:border-sky-300 hover:shadow-lg'
                   }`}
-                  style={activeCategory !== cat.id ? { backgroundColor: '#ffffff', color: '#044069', borderColor: '#BFDBFE' } : {}}>
+                  style={activeCategory !== cat.id ? { backgroundColor: 'var(--card-bg)', color: 'var(--text-dark)', borderColor: 'var(--border-sharp)' } : {}}>
                   {cat.label}
                 </button>
               ))}
@@ -339,11 +339,11 @@ export default function ResourcesPage() {
 
           {/* Results count */}
           <div className="flex justify-between items-center mb-8">
-            <p className="font-dm-sans text-base font-semibold" style={{ color: '#022747' }}>
+            <p className="font-dm-sans text-base font-semibold" style={{ color: 'var(--text-dark)' }}>
               Showing <strong>{filtered.length}</strong> of <strong>{allResources.length}</strong> resources
             </p>
             {loading && (
-              <div className="flex items-center gap-2 text-sm font-dm-sans" style={{ color: '#085D8A' }}>
+              <div className="flex items-center gap-2 text-sm font-dm-sans" style={{ color: 'var(--text-body)' }}>
                 <Loader2 size={14} className="animate-spin" /> Loading live data…
               </div>
             )}
@@ -367,8 +367,8 @@ export default function ResourcesPage() {
           ) : filtered.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
               <Search size={64} className="text-sky-300 mx-auto mb-6" />
-              <h3 className="font-syne text-3xl font-bold mb-3" style={{ color: '#022747' }}>No resources found</h3>
-              <p className="font-dm-sans text-lg max-w-md mx-auto" style={{ color: '#044069' }}>
+              <h3 className="font-syne text-3xl font-bold mb-3" style={{ color: 'var(--text-dark)' }}>No resources found</h3>
+              <p className="font-dm-sans text-lg max-w-md mx-auto" style={{ color: 'var(--text-body)' }}>
                 Try a different keyword or category filter.
               </p>
             </motion.div>
@@ -386,9 +386,9 @@ export default function ResourcesPage() {
                     transition={{ duration: 0.6, delay: (i % 6) * 0.1 }}
                     className="group rounded-3xl border overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl"
                     style={{
-                      backgroundColor: 'rgba(255,255,255,0.82)',
+                      backgroundColor: 'var(--card-bg)',
                       backdropFilter: 'blur(12px)',
-                      borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
+                      borderColor: resource.isSubmission ? '#FCD34D' : 'var(--border-sharp)',
                     }}
                   >
                     {/* Accent strip */}
@@ -425,26 +425,26 @@ export default function ResourcesPage() {
                         <Icon className="w-7 h-7 text-white" strokeWidth={1.5} />
                       </div>
 
-                      <h3 className="font-syne text-2xl font-bold mb-3 leading-tight" style={{ color: '#022747' }}>
+                      <h3 className="font-syne text-2xl font-bold mb-3 leading-tight" style={{ color: 'var(--text-dark)' }}>
                         {resource.title}
                       </h3>
-                      <p className="font-dm-sans text-base leading-relaxed mb-6 line-clamp-3" style={{ color: '#044069' }}>
+                      <p className="font-dm-sans text-base leading-relaxed mb-6 line-clamp-3" style={{ color: 'var(--text-body)' }}>
                         {resource.description}
                       </p>
 
                       {/* Expandable details */}
                       <div className={`overflow-hidden transition-all duration-500 ${expandedCard === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="rounded-2xl p-6 mb-4 border" style={{ backgroundColor: '#EBF7FF', borderColor: '#BFDBFE' }}>
+                        <div className="rounded-2xl p-6 mb-4 border" style={{ backgroundColor: 'var(--off-white)', borderColor: 'var(--border-sharp)' }}>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
 
                             {resource.location && (
                               <div className="flex items-start gap-3">
                                 <MapPin size={16} className="text-sky-400 mt-1 flex-shrink-0" />
                                 <div>
-                                  <div className="font-semibold mb-1" style={{ color: '#022747' }}>Location</div>
+                                  <div className="font-semibold mb-1" style={{ color: 'var(--text-dark)' }}>Location</div>
                                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(resource.location)}`}
                                     target="_blank" rel="noopener noreferrer"
-                                    className="hover:underline" style={{ color: '#085D8A' }}>
+                                    className="hover:underline" style={{ color: 'var(--text-body)' }}>
                                     {resource.location}
                                   </a>
                                 </div>
@@ -455,9 +455,9 @@ export default function ResourcesPage() {
                               <div className="flex items-start gap-3">
                                 <Phone size={16} className="text-sky-400 mt-1 flex-shrink-0" />
                                 <div>
-                                  <div className="font-semibold mb-1" style={{ color: '#022747' }}>Phone</div>
+                                  <div className="font-semibold mb-1" style={{ color: 'var(--text-dark)' }}>Phone</div>
                                   <a href={`tel:${resource.phone.replace(/\D/g, '')}`}
-                                    className="hover:underline" style={{ color: '#085D8A' }}>
+                                    className="hover:underline" style={{ color: 'var(--text-body)' }}>
                                     {resource.phone}
                                   </a>
                                 </div>
@@ -468,8 +468,8 @@ export default function ResourcesPage() {
                               <div className="flex items-start gap-3">
                                 <Clock size={16} className="text-sky-400 mt-1 flex-shrink-0" />
                                 <div>
-                                  <div className="font-semibold mb-1" style={{ color: '#022747' }}>Hours</div>
-                                  <div style={{ color: '#044069' }}>{resource.hours}</div>
+                                  <div className="font-semibold mb-1" style={{ color: 'var(--text-dark)' }}>Hours</div>
+                                  <div style={{ color: 'var(--text-body)' }}>{resource.hours}</div>
                                 </div>
                               </div>
                             )}
@@ -478,9 +478,9 @@ export default function ResourcesPage() {
                               <div className="flex items-start gap-3">
                                 <Mail size={16} className="text-sky-400 mt-1 flex-shrink-0" />
                                 <div>
-                                  <div className="font-semibold mb-1" style={{ color: '#022747' }}>Email</div>
+                                  <div className="font-semibold mb-1" style={{ color: 'var(--text-dark)' }}>Email</div>
                                   <a href={`mailto:${resource.email}`}
-                                    className="hover:underline break-all" style={{ color: '#085D8A' }}>
+                                    className="hover:underline break-all" style={{ color: 'var(--text-body)' }}>
                                     {resource.email}
                                   </a>
                                 </div>
@@ -491,9 +491,9 @@ export default function ResourcesPage() {
                               <div className="flex items-start gap-3 md:col-span-2">
                                 <ExternalLink size={16} className="text-sky-400 mt-1 flex-shrink-0" />
                                 <div>
-                                  <div className="font-semibold mb-1" style={{ color: '#022747' }}>Website</div>
+                                  <div className="font-semibold mb-1" style={{ color: 'var(--text-dark)' }}>Website</div>
                                   <a href={resource.website} target="_blank" rel="noopener noreferrer"
-                                    className="hover:underline break-all" style={{ color: '#085D8A' }}>
+                                    className="hover:underline break-all" style={{ color: 'var(--text-body)' }}>
                                     {resource.website}
                                   </a>
                                 </div>
@@ -515,7 +515,7 @@ export default function ResourcesPage() {
                       <button
                         onClick={() => setExpandedCard(expandedCard === i ? null : i)}
                         className="flex items-center justify-between w-full pt-4 border-t cursor-pointer font-dm-sans text-base font-semibold transition-all group-hover:scale-[1.02]"
-                        style={{ borderColor: '#BFDBFE', color: '#044069', background: 'none' }}
+                        style={{ borderColor: 'var(--border-sharp)', color: 'var(--text-body)', background: 'none' }}
                       >
                         <span>{expandedCard === i ? 'Hide Details' : 'View Full Details'}</span>
                         <ChevronDown size={20} className={`transition-transform duration-300 ${expandedCard === i ? 'rotate-180' : ''}`} />
