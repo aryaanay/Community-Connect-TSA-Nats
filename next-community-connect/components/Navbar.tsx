@@ -144,7 +144,7 @@ export function Navbar() {
             <div className="hidden sm:flex items-center gap-1">
               {isSignedIn ? (
                 <>
-                  <span className="font-outfit text-xs text-white/60 px-2">{user?.name}</span>
+                  <span className="font-outfit text-xs text-white/60 px-2">{user?.email ?? 'User'}</span>
                   <button
                     onClick={signOut}
                     className="text-white/75 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
