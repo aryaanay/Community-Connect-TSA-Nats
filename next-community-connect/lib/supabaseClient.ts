@@ -1,21 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fbcqspgmrfmraxbghdpe.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiY3FzcGdtcmZtcmF4YmdoZHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMzAyMjEsImV4cCI6MjA5MjkwNjIyMX0.PrLAaYAoAOf0A8wSGdi08QpJq-vSZt5gnCcrZj4lMU8'
+
 // Lazy initialization to avoid build-time errors
 export function getSupabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    // Return a mock client during build, actual client at runtime
-    return createClient('https://placeholder.supabase.co', 'placeholder')
-  }
-
   return createClient(supabaseUrl, supabaseAnonKey)
 }
 
 // Default export for backward compatibility
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
