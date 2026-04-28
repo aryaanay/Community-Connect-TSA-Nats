@@ -18,6 +18,11 @@ type AuthContextType = {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const DEMO_JUDGE_USER: User = {
+  id: 'demo-judge-001',
+  email: 'judges@tsa.com',
+}
+const DEMO_JUDGE_STORAGE_KEY = 'community-connect-demo-judge'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -30,10 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const sessionUser = data.session?.user
 
       if (sessionUser) {
+        localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
         setUser({
           id: sessionUser.id,
           email: sessionUser.email,
         })
+      } else if (localStorage.getItem(DEMO_JUDGE_STORAGE_KEY) === 'true') {
+        setUser(DEMO_JUDGE_USER)
       }
 
       setLoading(false)
@@ -47,10 +55,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const sessionUser = session?.user
 
         if (sessionUser) {
+          localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
           setUser({
             id: sessionUser.id,
             email: sessionUser.email,
           })
+        } else if (localStorage.getItem(DEMO_JUDGE_STORAGE_KEY) === 'true') {
+          setUser(DEMO_JUDGE_USER)
         } else {
           setUser(null)
         }
@@ -66,10 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     // Demo account bypass - works without Supabase user
     if (email === 'judges@tsa.com' && password === 'judges!') {
-      setUser({
-        id: 'demo-judge-001',
-        email: 'judges@tsa.com',
-      })
+      localStorage.setItem(DEMO_JUDGE_STORAGE_KEY, 'true')
+      setUser(DEMO_JUDGE_USER)
       return
     }
 
@@ -94,9 +103,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 🔄 Ensure session is fresh
     await supabase.auth.refreshSession()
+    localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
 
     const sessionUser = data.user
     if (sessionUser) {
+      localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
       setUser({
         id: sessionUser.id,
         email: sessionUser.email,
@@ -118,6 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If email confirm is OFF → user is instantly usable
     const sessionUser = data.user
     if (sessionUser) {
+      localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
       setUser({
         id: sessionUser.id,
         email: sessionUser.email,
@@ -129,9 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     // Handle demo user sign out
     if (user?.id === 'demo-judge-001') {
+      localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
       setUser(null)
       return
     }
+    localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
     await supabase.auth.signOut()
     setUser(null)
   }
