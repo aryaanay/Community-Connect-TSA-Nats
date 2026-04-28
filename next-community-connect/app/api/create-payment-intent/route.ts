@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+// Initialize Stripe only when needed (lazy initialization)
+function getStripe() {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+  if (!secretKey) {
+    throw new Error('STRIPE_SECRET_KEY is not configured')
+  }
+  return new Stripe(secretKey)
+}
 
 export async function POST(req: NextRequest) {
   try {
+    const stripe = getStripe()
     const { amount, causeId, causeName } = await req.json()
 
     if (!amount || amount < 1) {
