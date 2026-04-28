@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle, AlertCircle, Mail, Phone, MapPin, Send, X, LogIn, FlaskConical } from 'lucide-react'
+import { CheckCircle, AlertCircle, Mail, Phone, MapPin, Send, X, LogIn, FlaskConical, Sparkles, ArrowRight } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
@@ -88,69 +88,100 @@ async function submitResourceToDb(data: FormData) {
 }
 
 function PlaneSuccess() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700 px-4 relative overflow-hidden">
-      <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full bg-sky-400/10 blur-[80px]" />
-      <div className="absolute bottom-[-80px] left-[-80px] w-[350px] h-[350px] rounded-full bg-sky-600/20 blur-[80px]" />
+  const confetti = Array.from({ length: 18 }, (_, i) => ({
+    left: `${12 + (i * 43) % 76}%`,
+    delay: i * 0.06,
+    color: ['#56BBF0', '#90D4F7', '#FF8C42', '#10B981'][i % 4],
+  }))
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center max-w-lg w-full relative z-10">
-        <div className="relative h-44 mb-2">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 440 180" preserveAspectRatio="none">
+  return (
+    <div className="min-h-screen flex items-center justify-center kinetic-gradient px-4 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #011629 0%, #044069 46%, #0D7BB5 100%)' }}>
+      <motion.div
+        aria-hidden="true"
+        className="absolute left-[-10%] top-[18%] h-24 w-[58%] rounded-full border border-white/10 bg-white/5"
+        animate={{ x: [0, 34, 0], rotate: [-8, -3, -8] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        aria-hidden="true"
+        className="absolute right-[-14%] bottom-[20%] h-24 w-[48%] rounded-full border border-sky-100/10 bg-sky-100/5"
+        animate={{ x: [0, -28, 0], rotate: [8, 4, 8] }}
+        transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {confetti.map((piece, i) => (
+        <motion.span
+          key={i}
+          className="absolute top-[18%] h-3 w-1.5 rounded-sm"
+          style={{ left: piece.left, backgroundColor: piece.color }}
+          initial={{ y: -30, opacity: 0, rotate: 0 }}
+          animate={{ y: [0, 180, 320], opacity: [0, 1, 0], rotate: [0, 140, 260] }}
+          transition={{ duration: 2.4, delay: 0.9 + piece.delay, ease: 'easeOut' }}
+        />
+      ))}
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center max-w-xl w-full relative z-10">
+        <div className="relative h-48 mb-2">
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 520 190" preserveAspectRatio="none">
             <motion.path
-              d="M -10 150 Q 110 110 220 80 Q 330 50 460 10"
-              stroke="rgba(144,212,247,0.7)" strokeWidth="2.5" strokeDasharray="12 9"
+              d="M 10 155 C 120 118, 155 130, 238 82 S 392 34, 510 26"
+              stroke="rgba(198,235,255,0.72)" strokeWidth="3" strokeDasharray="12 10"
               fill="none" strokeLinecap="round"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: [0, 0.9, 0.9, 0.4] }}
-              transition={{ duration: 2, ease: "easeOut" }}
+              animate={{ pathLength: 1, opacity: [0, 1, 1, 0.5] }}
+              transition={{ duration: 1.7, ease: "easeOut" }}
             />
             <motion.path
-              d="M -10 160 Q 110 122 220 94 Q 330 64 460 24"
-              stroke="rgba(86,187,240,0.4)" strokeWidth="1.5" strokeDasharray="7 12"
+              d="M 16 166 C 136 130, 164 144, 246 98 S 392 56, 506 44"
+              stroke="rgba(86,187,240,0.34)" strokeWidth="2" strokeDasharray="7 12"
               fill="none" strokeLinecap="round"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: [0, 0.5, 0.5, 0.1] }}
-              transition={{ duration: 2, ease: "easeOut", delay: 0.15 }}
-            />
-            <motion.path
-              d="M -10 165 Q 110 128 220 100 Q 330 70 460 32"
-              stroke="rgba(36,153,214,0.3)" strokeWidth="1" strokeDasharray="5 15"
-              fill="none" strokeLinecap="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: [0, 0.3, 0.3, 0.05] }}
-              transition={{ duration: 2, ease: "easeOut", delay: 0.3 }}
+              transition={{ duration: 1.9, ease: "easeOut", delay: 0.12 }}
             />
           </svg>
           <motion.div
             className="absolute"
-            initial={{ left: '-5%', top: '78%', opacity: 0 }}
-            animate={{ left: '108%', top: '2%', opacity: [0, 1, 1, 0.6] }}
-            transition={{ duration: 2, ease: "easeOut" }}
+            initial={{ left: '0%', top: '76%', opacity: 0, scale: 0.75 }}
+            animate={{ left: '88%', top: '4%', opacity: [0, 1, 1], scale: [0.75, 1.05, 1] }}
+            transition={{ duration: 1.75, ease: [0.16, 1, 0.3, 1] }}
             style={{ position: 'absolute' }}
           >
-            <motion.div animate={{ rotate: [-20, -28, -20] }} transition={{ duration: 0.4, repeat: 3, repeatType: 'mirror' }}>
-              <Send className="w-10 h-10 text-sky-300" />
+            <motion.div animate={{ rotate: [-18, -25, -18] }} transition={{ duration: 0.38, repeat: 4, repeatType: 'mirror' }} className="liquid-glass rounded-2xl p-3">
+              <span className="liquid-content block">
+                <Send className="w-8 h-8 text-sky-100" />
+              </span>
             </motion.div>
           </motion.div>
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          initial={{ opacity: 0, y: 28, scale: 0.94 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 1.8, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          className="backdrop-blur-md rounded-3xl p-10"
-          style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+          transition={{ delay: 1.45, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="liquid-glass rounded-[32px] p-8 sm:p-10"
         >
+          <div className="liquid-content">
           <motion.div
-            initial={{ scale: 0 }} animate={{ scale: 1 }}
-            transition={{ delay: 2, type: 'spring', stiffness: 200, damping: 12 }}
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-            style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+            initial={{ scale: 0, rotate: -14 }} animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 1.72, type: 'spring', stiffness: 220, damping: 13 }}
+            className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5 success-pop"
+            style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(86,187,240,0.95))', boxShadow: '0 20px 60px rgba(16,185,129,0.35)' }}
           >
-            <CheckCircle className="w-8 h-8 text-sky-200" />
+            <CheckCircle className="w-10 h-10 text-white" />
           </motion.div>
 
-          <h1 className="font-syne text-3xl font-bold text-white mb-3">Submission Sent!</h1>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.9 }}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 mb-4"
+            style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.16)' }}
+          >
+            <Sparkles className="w-4 h-4 text-sky-200" />
+            <span className="font-space text-xs uppercase tracking-[0.14em] text-sky-100/80">Request received</span>
+          </motion.div>
+
+          <h1 className="font-syne text-3xl sm:text-4xl font-bold text-white mb-3">Submission Sent!</h1>
           <p className="font-dm-sans text-base mb-5" style={{ color: 'rgba(198,235,255,0.75)' }}>
             Our team will review your resource within 2-3 business days and add it to the directory.
           </p>
@@ -175,8 +206,9 @@ function PlaneSuccess() {
             </Link>
             <Link href="/resources" className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
               style={{ border: '2px solid rgba(255,255,255,0.3)' }}>
-              Browse Resources
+              <span className="inline-flex items-center gap-2">Browse Resources <ArrowRight className="w-4 h-4" /></span>
             </Link>
+          </div>
           </div>
         </motion.div>
       </motion.div>

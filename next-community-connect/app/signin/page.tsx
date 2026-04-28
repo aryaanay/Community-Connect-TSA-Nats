@@ -1,13 +1,19 @@
 'use client'
 
 import { useState, Suspense, useTransition } from 'react'
-import { Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Eye, EyeOff, AlertCircle, Sparkles, ShieldCheck, HeartHandshake, CalendarDays } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const JUDGE_EMAIL = 'judges@tsa.com'
 const JUDGE_PASSWORD = 'judges!'
+const previewCards = [
+  { icon: HeartHandshake, label: 'Submit local resources', value: 'Reviewed fast' },
+  { icon: CalendarDays, label: 'Save community events', value: 'Always current' },
+  { icon: ShieldCheck, label: 'Judge demo ready', value: 'One-click access' },
+]
 
 function SignInForm() {
   const [email, setEmail] = useState('')
@@ -73,11 +79,28 @@ function SignInForm() {
   const isDisabled = loading || isPending || authLoading
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: '#044069' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden kinetic-gradient" style={{ background: 'linear-gradient(145deg, #011629 0%, #044069 48%, #0D7BB5 110%)' }}>
+      <motion.div
+        aria-hidden="true"
+        className="absolute left-[-10%] top-[12%] h-24 w-[55%] rounded-full border border-white/10 bg-white/5"
+        animate={{ x: [0, 32, 0], rotate: [-8, -4, -8] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        aria-hidden="true"
+        className="absolute right-[-16%] bottom-[18%] h-24 w-[50%] rounded-full border border-sky-100/10 bg-sky-100/5"
+        animate={{ x: [0, -28, 0], rotate: [8, 4, 8] }}
+        transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
+      />
       {/* Left column */}
-      <div className="flex-1 flex flex-col justify-center px-12 lg:px-20 py-16">
+      <motion.div
+        className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-20 py-16 relative z-10"
+        initial={{ opacity: 0, x: -28 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
         {/* Logo */}
-        <Link href="/" className="inline-flex items-center gap-2.5 mb-16">
+        <Link href="/" className="inline-flex items-center gap-2.5 mb-16 w-fit">
           <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
             <circle cx="14" cy="14" r="12.5" stroke="#56BBF0" strokeWidth="1.5"/>
             <circle cx="14" cy="14" r="3" fill="#56BBF0"/>
@@ -93,19 +116,68 @@ function SignInForm() {
           </span>
         </Link>
 
-        <h1 className="font-syne text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight">
+        <motion.div
+          className="inline-flex items-center gap-2 liquid-glass rounded-full px-4 py-2 mb-6 w-fit"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+        >
+          <span className="liquid-content inline-flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-sky-200" />
+            <span className="font-space text-xs uppercase tracking-[0.14em] text-white/85">Access hub</span>
+          </span>
+        </motion.div>
+
+        <motion.h1
+          className="font-syne text-4xl lg:text-6xl font-bold text-white mb-5 leading-tight"
+          initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.72, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
+        >
           Community Connect
-        </h1>
-        <p className="font-outfit text-base leading-relaxed mb-12 max-w-md" style={{ color: 'rgba(198,235,255,0.7)' }}>
+        </motion.h1>
+        <motion.p
+          className="font-outfit text-base leading-relaxed mb-10 max-w-md"
+          style={{ color: 'rgba(198,235,255,0.76)' }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+        >
           Sign in to submit resources, make donations to local causes, and fully explore the platform built for Bothell residents.
-        </p>
+        </motion.p>
+
+        <div className="grid sm:grid-cols-3 gap-3 max-w-2xl mb-8">
+          {previewCards.map(({ icon: Icon, label, value }, i) => (
+            <motion.div
+              key={label}
+              className="liquid-glass rounded-2xl p-4 glass-float"
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.36 + i * 0.08, duration: 0.5 }}
+              style={{ animationDelay: `${i * 0.45}s` }}
+            >
+              <div className="liquid-content">
+                <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center mb-3">
+                  <Icon className="w-4 h-4 text-sky-100" />
+                </div>
+                <p className="font-outfit text-xs text-sky-100/60">{label}</p>
+                <p className="font-space text-sm font-bold text-white">{value}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
 
         {/* Judge credentials box */}
-        <div
-          className="rounded-xl p-6 max-w-md cursor-pointer transition-colors hover:shadow-lg"
-          style={{ border: '1px solid rgba(86,187,240,0.5)', backgroundColor: 'rgba(36,153,214,0.15)' }}
+        <motion.div
+          className="liquid-glass rounded-2xl p-6 max-w-md cursor-pointer"
           onClick={handleJudgeAutoFill}
+          whileHover={{ y: -4, scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.58 }}
         >
+          <div className="liquid-content">
           <p className="font-syne text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#90D4F7' }}>
             For TSA Judges
           </p>
@@ -125,7 +197,8 @@ function SignInForm() {
               Judges are also welcome to create their own accounts using the Sign Up button to experience the full workflow.
             </p>
           </div>
-        </div>
+          </div>
+        </motion.div>
 
         {/* Error message */}
         {error && (
@@ -140,11 +213,18 @@ function SignInForm() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Right column */}
-      <div className="w-full max-w-sm lg:max-w-md flex flex-col justify-center px-10 lg:px-14 py-16" style={{ borderLeft: '1px solid rgba(86,187,240,0.2)', backgroundColor: 'rgba(2,39,71,0.5)' }}>
-        <div className="space-y-5">
+      <motion.div
+        className="w-full lg:max-w-md flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-16 relative z-10"
+        style={{ borderLeft: '1px solid rgba(86,187,240,0.2)' }}
+        initial={{ opacity: 0, x: 28 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="liquid-glass rounded-[28px] p-6 sm:p-7">
+        <div className="liquid-content space-y-5">
           <div>
             <label className="block font-outfit text-sm mb-2" style={{ color: 'rgba(198,235,255,0.7)' }}>Email</label>
             <input
@@ -194,7 +274,7 @@ function SignInForm() {
             <button
               onClick={handleSignUp}
               disabled={isDisabled}
-              className="flex-1 py-3.5 rounded-lg font-outfit font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3.5 rounded-xl font-outfit font-semibold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               style={{ background: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)', color: 'white' }}
             >
               {isPending ? '...' : authLoading ? 'Loading...' : 'Sign Up'}
@@ -202,18 +282,19 @@ function SignInForm() {
             <button
               onClick={handleLogin}
               disabled={isDisabled}
-              className="flex-1 py-3.5 rounded-lg font-outfit font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3.5 rounded-xl font-outfit font-semibold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(86,187,240,0.35)' }}
             >
               {isPending ? '...' : authLoading ? 'Loading...' : 'Login'}
             </button>
           </div>
         </div>
+        </div>
 
         <p className="mt-10 font-outfit text-xs text-center" style={{ color: 'rgba(198,235,255,0.3)' }}>
           <Link href="/" className="hover:text-white transition-colors">Back to home</Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   )
 }
