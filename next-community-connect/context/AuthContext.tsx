@@ -64,6 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 🔐 SIGN IN
   const signIn = async (email: string, password: string) => {
+    // Demo account bypass - works without Supabase user
+    if (email === 'judges@tsa.com' && password === 'judges!') {
+      setUser({
+        id: 'demo-judge-001',
+        email: 'judges@tsa.com',
+      })
+      return
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -118,6 +127,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 🚪 SIGN OUT
   const signOut = async () => {
+    // Handle demo user sign out
+    if (user?.id === 'demo-judge-001') {
+      setUser(null)
+      return
+    }
     await supabase.auth.signOut()
     setUser(null)
   }
