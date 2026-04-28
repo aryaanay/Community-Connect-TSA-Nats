@@ -4,6 +4,7 @@ import "./globals.css"
 import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
 import { Providers } from "@/components/Providers"
+import { AIChatWidget } from "@/components/AIChatWidget"
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
     <html lang="en" className={`${plusJakarta.variable} ${nunito.variable} ${dmSans.variable}`}>
       <body className="font-dm-sans antialiased">
         <Providers>
+          <AIChatWidget />
           <Navbar />
           <main>{children}</main>
           <Footer />
