@@ -9,8 +9,8 @@
     "lib": "js"
   },
   "scripts": {
-    "build": "uglifyjs js/sketch.js --comments /copy/i -cmo js/sketch.min.js",
-    "test": "echo \"visit ./tests/index.html in browser\""
+    "build": "echo 'No build required for this project'",
+    "test": "echo \"No tests configured\""
   },
   "repository": {
     "type": "git",
