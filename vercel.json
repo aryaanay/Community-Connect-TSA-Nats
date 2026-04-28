@@ -2,8 +2,5 @@
   "buildCommand": "cd next-community-connect && npm run build",
   "outputDirectory": "next-community-connect/.next",
   "installCommand": "cd next-community-connect && npm install",
-  "framework": "nextjs",
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "framework": "nextjs"
 }
