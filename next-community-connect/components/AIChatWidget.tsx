@@ -132,11 +132,13 @@ export function AIChatWidget() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}
             className={`fixed right-6 z-50 transition-all duration-300 ${
-              isMinimized ? 'bottom-24 w-80' : 'bottom-24 w-[min(24rem,calc(100vw-2rem))] h-[540px]'
+              isMinimized
+                ? 'bottom-24 w-80'
+                : 'bottom-24 top-24 w-[min(24rem,calc(100vw-2rem))] max-h-[calc(100vh-8rem)]'
             }`}
           >
-            <div className="liquid-glass rounded-[28px] overflow-hidden">
-              <div className="liquid-content">
+            <div className="liquid-glass rounded-[28px] overflow-hidden h-full">
+              <div className="liquid-content h-full flex flex-col min-h-0">
               {/* Header */}
               <div className="px-4 py-4 flex items-center justify-between border-b border-white/15">
                 <div className="flex items-center gap-2">
@@ -175,7 +177,7 @@ export function AIChatWidget() {
               {/* Messages */}
               {!isMinimized && (
                 <>
-                  <div className="h-[352px] overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-white/10 via-sky-950/10 to-sky-950/25">
+                  <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-white/10 via-sky-950/10 to-sky-950/25">
                     {messages.map((msg) => (
                       <motion.div
                         key={msg.id}
@@ -215,7 +217,7 @@ export function AIChatWidget() {
 
                   {/* Quick Suggestions */}
                   {messages.length <= 2 && (
-                    <div className="px-4 py-3 flex flex-wrap gap-2 border-t border-white/10">
+                    <div className="flex-shrink-0 px-4 py-3 flex flex-wrap gap-2 border-t border-white/10">
                       {AI_PERSONA.suggestions.map((suggestion, i) => (
                         <button
                           key={i}
@@ -229,7 +231,7 @@ export function AIChatWidget() {
                   )}
 
                   {/* Input */}
-                  <div className="p-3 border-t border-white/10 bg-white/5">
+                  <div className="flex-shrink-0 p-3 border-t border-white/10 bg-white/5">
                     <div className="flex gap-2">
                       <input
                         type="text"
