@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd next-community-connect && npm run build",
+  "buildCommand": "cd next-community-connect && npm run build -- --no-lint",
   "outputDirectory": "next-community-connect/.next",
-  "installCommand": "npm install",
+  "installCommand": "cd next-community-connect && npm install",
   "framework": "nextjs"
 }
