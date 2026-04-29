@@ -239,7 +239,7 @@ export function AIChatWidget() {
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyPress}
                         placeholder="Ask me anything..."
-                        className="flex-1 px-4 py-3 bg-white/12 border border-white/15 rounded-2xl text-sm text-white placeholder:text-sky-100/45 focus:outline-none focus:ring-2 focus:ring-sky-300/45"
+                        className="ai-chat-input flex-1 px-4 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/45"
                       />
                       <button
                         onClick={() => sendMessage()}

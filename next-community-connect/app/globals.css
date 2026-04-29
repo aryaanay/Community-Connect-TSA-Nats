@@ -82,6 +82,23 @@
   animation: success-pop 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.ai-chat-input,
+[data-theme="dark"] .ai-chat-input {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.05)),
+    rgba(1,22,41,0.72) !important;
+  color: #EEF8FF !important;
+  border: 1px solid rgba(198,235,255,0.22) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 28px rgba(1,22,41,0.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ai-chat-input::placeholder,
+[data-theme="dark"] .ai-chat-input::placeholder {
+  color: rgba(198,235,255,0.52) !important;
+}
+
 /* ── Events modal dark mode ── */
 [data-theme="dark"] .event-modal-card {
   background-color: #022747 !important;

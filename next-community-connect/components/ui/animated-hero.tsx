@@ -37,10 +37,10 @@ function Hero({
   const [titleNumber, setTitleNumber] = useState(0)
   const isHomeHero = backgroundImage === undefined
   const floatingCards = [
-    { icon: Search, label: 'Food assistance', value: '12 nearby', x: 'left-[7%]', y: 'top-[24%]', delay: 0 },
-    { icon: CalendarDays, label: 'This weekend', value: '4 events', x: 'right-[8%]', y: 'top-[30%]', delay: 0.15 },
-    { icon: HeartHandshake, label: 'Volunteer match', value: 'Open now', x: 'left-[12%]', y: 'bottom-[21%]', delay: 0.3 },
-    { icon: MapPin, label: 'Bothell hub', value: 'Live guide', x: 'right-[13%]', y: 'bottom-[18%]', delay: 0.45 },
+    { icon: Search, label: 'Food assistance', value: '12 nearby', delay: 0 },
+    { icon: CalendarDays, label: 'This weekend', value: '4 events', delay: 0.15 },
+    { icon: HeartHandshake, label: 'Volunteer match', value: 'Open now', delay: 0.3 },
+    { icon: MapPin, label: 'Bothell hub', value: 'Live guide', delay: 0.45 },
   ]
 
   useEffect(() => {
@@ -101,26 +101,6 @@ function Hero({
             animate={{ x: [0, -28, 0], rotate: [9, 5, 9] }}
             transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
           />
-          {floatingCards.map(({ icon: Icon, label, value, x, y, delay }) => (
-            <motion.div
-              key={label}
-              className={`hidden xl:flex absolute ${x} ${y} liquid-glass rounded-2xl px-4 py-3 items-center gap-3 glass-float`}
-              initial={{ opacity: 0, y: 18, scale: 0.94 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.8 + delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              style={{ animationDelay: `${delay * 3}s` }}
-            >
-              <div className="liquid-content flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-sky-100" />
-                </div>
-                <div>
-                  <p className="font-outfit text-[11px] uppercase tracking-[0.12em] text-sky-100/60">{label}</p>
-                  <p className="font-space text-sm font-semibold text-white">{value}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
         </>
       )}
 
@@ -132,7 +112,8 @@ function Hero({
       </div>
 
       <div className="container mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
-        <div className="flex gap-8 py-20 lg:py-40 items-center justify-center flex-col">
+        <div className="min-h-screen flex flex-col items-center justify-center py-24 lg:py-28">
+          <div className="flex gap-8 items-center justify-center flex-col w-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -269,6 +250,37 @@ function Hero({
                 </motion.div>
               ))}
             </motion.div>
+          </div>
+
+          {isHomeHero && (
+            <motion.div
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.82, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-10 hidden xl:grid grid-cols-4 gap-3 w-full max-w-5xl"
+            >
+              {floatingCards.map(({ icon: Icon, label, value, delay }) => (
+                <motion.div
+                  key={label}
+                  className="liquid-glass rounded-2xl px-4 py-3 glass-float"
+                  initial={{ opacity: 0, y: 14, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.9 + delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ animationDelay: `${delay * 2.5}s` }}
+                >
+                  <div className="liquid-content flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-sky-100" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-outfit text-[11px] uppercase tracking-[0.12em] text-sky-100/60 truncate">{label}</p>
+                      <p className="font-space text-sm font-semibold text-white truncate">{value}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </div>
 
