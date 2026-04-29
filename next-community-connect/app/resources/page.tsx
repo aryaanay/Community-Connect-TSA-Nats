@@ -439,7 +439,6 @@ export default function ResourcesPage() {
                               : 'linear-gradient(to right, #38BDF8, #0EA5E9)',
                           }}
                         />
-                    </div>
 
                     {/* Body */}
                     <div className="p-8 resource-card-body">
@@ -546,6 +545,7 @@ export default function ResourcesPage() {
                         <ChevronDown size={20} className={`transition-transform duration-300 ${expandedCard === i ? 'rotate-180' : ''}`} />
                       </button>
                     </div>
+                  </div>
                   </motion.div>
                 )
               })}
