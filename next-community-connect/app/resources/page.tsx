@@ -418,15 +418,20 @@ export default function ResourcesPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: (i % 6) * 0.1 }}
-                    className={`group rounded-3xl border overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl resource-card-outer`}
-                    style={{
-                      backdropFilter: 'blur(12px)',
-                      backgroundColor: 'rgba(255,255,255,0.82)',
-                      borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
-                    }}
+                    className="h-full"
+                    style={{ perspective: 1200 }}
                   >
-                    {/* Accent strip */}
-                    <div className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
+                    <div
+                      className="group rounded-3xl overflow-hidden h-full transition-all duration-500 transform-gpu will-change-transform hover:-translate-y-3 hover:shadow-2xl hover:[transform:rotateX(6deg)_rotateY(-6deg)] resource-card-outer"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        backdropFilter: 'blur(12px)',
+                        backgroundColor: 'rgba(255,255,255,0.82)',
+                        borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
+                      }}
+                    >
+                        {/* Accent strip */}
+                        <div className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
                       style={{ background: resource.isSubmission
                         ? 'linear-gradient(to right, #F59E0B, #FBBF24)'
                         : 'linear-gradient(to right, #38BDF8, #0EA5E9)' }} />

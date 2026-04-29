@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { MapPin, Clock, ArrowRight, BookOpen, Stethoscope, Home } from 'lucide-react'
 import Link from 'next/link'
+import TiltCard from '@/components/TiltCard'
 
 const spotlights = [
   {
@@ -63,9 +64,10 @@ export function Spotlights() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="group glass-bg-md rounded-xl border border-sky-200 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-glass-lg hover:border-sky-300"
             >
-              <div className={`h-52 bg-gradient-to-br ${gradients[i]} relative flex items-center justify-center`}>
+              <TiltCard className="rounded-xl h-full" intensity={10} glareOpacity={0.16}>
+                <div className={`group glass-bg-md rounded-xl border border-sky-200 overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-glass-lg hover:border-sky-300 h-full`}>
+                  <div className={`h-52 bg-gradient-to-br ${gradients[i]} relative flex items-center justify-center`}>
                 <item.Icon className="w-20 h-20 text-white/20" strokeWidth={1} />
                 <span className="absolute top-3.5 left-3.5 glass-bg-md text-sky-700 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full backdrop-blur-sm">
                   {item.category}
@@ -90,6 +92,8 @@ export function Spotlights() {
                   </span>
                 </div>
               </div>
+            </div>
+            </TiltCard>
             </motion.div>
           ))}
         </div>
