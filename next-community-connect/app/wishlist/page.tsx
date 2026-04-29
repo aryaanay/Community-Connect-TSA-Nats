@@ -462,7 +462,7 @@ function DonationModal({ cause, onClose, onDonate }: {
                   {localSaving ? (
                     <><Loader2 size={16} className="animate-spin" /> Setting up payment…</>
                   ) : (
-                    <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <Right size={16} /></>
+                    <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <ChevronRight size={16} /></>
                   )}
                 </button>
 
