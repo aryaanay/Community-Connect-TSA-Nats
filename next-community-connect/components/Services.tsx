@@ -1,8 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Search, Calendar, Heart, Plus, BarChart3, MapPin } from 'lucide-react'
+import { ArrowUpRight, Search, Calendar, Heart, Plus, BarChart3, MapPin } from 'lucide-react'
 
 const services = [
   {
@@ -44,32 +45,50 @@ const services = [
 ]
 
 function ServiceCard({ service }: { service: typeof services[0] }) {
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const x = (event.clientX - rect.left) / rect.width - 0.5
+    const y = (event.clientY - rect.top) / rect.height - 0.5
+    setTilt({ rotateX: y * -8, rotateY: x * 8 })
+  }
+
   return (
     <Link href={service.href}>
-        <motion.div
-          className="group relative rounded-3xl border border-white/95 bg-white/80 backdrop-blur-xl p-8 lg:p-10 overflow-hidden cursor-pointer min-h-48 lg:min-h-56 shadow-lg hover:shadow-2xl"
-        whileHover={{ scale: 1.02 }}
-        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+      <motion.div
+        className="note-card group relative min-h-64 cursor-pointer rounded-[26px] border border-sky-100 bg-[#fbfdff] p-7 shadow-xl shadow-sky-950/10 transition-shadow hover:shadow-2xl hover:shadow-sky-950/20"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setTilt({ rotateX: 0, rotateY: 0 })}
+        animate={tilt}
+        whileHover={{ y: -8, scale: 1.015 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        style={{ transformStyle: 'preserve-3d' }}
       >
-        {/* Default state - icon + title */}
-        <div className="flex items-center gap-4 transition-all duration-300 group-hover:opacity-0 group-hover:-translate-y-2">
-            <div className="w-12 h-12 flex-shrink-0 rounded-2xl bg-sky-500/40 border border-sky-400/60 flex items-center justify-center shadow-md">
-              <service.icon className="w-6 h-6 text-white" strokeWidth={1.5} />
+        <div className="note-card-back-one absolute -inset-1 -z-10 rotate-[-2deg] rounded-[28px] bg-sky-100/70 transition-transform group-hover:rotate-[-4deg]" />
+        <div className="note-card-back-two absolute -inset-1 -z-20 rotate-[2deg] rounded-[28px] bg-sky-200/50 transition-transform group-hover:rotate-[4deg]" />
+        <span className="absolute left-1/2 top-3 h-3 w-16 -translate-x-1/2 rounded-full bg-sky-200/80 shadow-inner" />
+        <span className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full border border-sky-200 bg-white text-sky-600 transition-all group-hover:rotate-12 group-hover:bg-sky-500 group-hover:text-white">
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
+
+        <div className="relative z-10 flex h-full flex-col pt-4" style={{ transform: 'translateZ(26px)' }}>
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500 text-white shadow-lg shadow-sky-500/25">
+            <service.icon className="h-7 w-7" strokeWidth={1.6} />
           </div>
-          <h3 className="font-syne text-xl lg:text-2xl font-bold text-gray-900 tracking-tight">{service.title}</h3>
+
+          <h3 className="mb-3 font-syne text-2xl font-black leading-tight text-sky-950">{service.title}</h3>
+          <p className="font-dm-sans text-sm leading-relaxed text-sky-700">{service.description}</p>
+
+          <div className="mt-auto pt-6">
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-sky-200 to-transparent" />
+            <p className="mt-4 font-space text-xs font-bold uppercase tracking-[0.16em] text-sky-500">
+              Open note
+            </p>
+          </div>
         </div>
 
-        {/* Hover state - description */}
-        <div className="absolute inset-0 p-6 flex flex-col justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-          <div className="flex items-center gap-3 mb-3">
-            <service.icon className="w-4 h-4 text-sky-600 flex-shrink-0" strokeWidth={1.5} />
-            <h3 className="font-syne text-sm font-bold text-gray-800 uppercase tracking-wider">{service.title}</h3>
-          </div>
-          <p className="font-dm-sans text-sm text-gray-700 leading-relaxed">{service.description}</p>
-        </div>
-
-        {/* Bottom border glow on hover */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-sky-400/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,50%),rgba(86,187,240,0.18),transparent_40%)] opacity-0 transition-opacity group-hover:opacity-100" />
       </motion.div>
     </Link>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense, useTransition } from 'react'
+import { useMemo, useState, Suspense, useTransition } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, AlertCircle, Sparkles, ShieldCheck, HeartHandshake, CalendarDays } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
@@ -15,6 +15,48 @@ const previewCards = [
   { icon: ShieldCheck, label: 'Judge demo ready', value: 'One-click access' },
 ]
 
+function RepellingDots({ mouse }: { mouse: { x: number; y: number } | null }) {
+  const dots = useMemo(
+    () => Array.from({ length: 86 }, (_, i) => ({
+      id: i,
+      x: 4 + ((i * 17) % 93),
+      y: 6 + ((i * 29) % 88),
+      size: 2 + (i % 3),
+      opacity: 0.18 + (i % 5) * 0.035,
+    })),
+    []
+  )
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      {dots.map(dot => {
+        const dx = mouse ? dot.x - mouse.x : 0
+        const dy = mouse ? dot.y - mouse.y : 0
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        const force = mouse ? Math.max(0, 15 - distance) / 15 : 0
+        const offsetX = force ? (dx / Math.max(distance, 1)) * force * 42 : 0
+        const offsetY = force ? (dy / Math.max(distance, 1)) * force * 42 : 0
+
+        return (
+          <span
+            key={dot.id}
+            className="absolute rounded-full bg-sky-100 transition-transform duration-200 ease-out"
+            style={{
+              left: `${dot.x}%`,
+              top: `${dot.y}%`,
+              width: dot.size,
+              height: dot.size,
+              opacity: dot.opacity,
+              transform: `translate(${offsetX}px, ${offsetY}px) scale(${1 + force * 1.8})`,
+              boxShadow: force ? '0 0 18px rgba(198,235,255,0.75)' : 'none',
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
 function SignInForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,6 +64,7 @@ function SignInForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [mouse, setMouse] = useState<{ x: number; y: number } | null>(null)
 
   const { signIn, signUp, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -79,7 +122,19 @@ function SignInForm() {
   const isDisabled = loading || isPending || authLoading
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden kinetic-gradient" style={{ background: 'linear-gradient(145deg, #011629 0%, #044069 48%, #0D7BB5 110%)' }}>
+    <div
+      className="min-h-screen flex flex-col lg:flex-row relative overflow-hidden kinetic-gradient"
+      style={{ background: 'linear-gradient(145deg, #011629 0%, #044069 48%, #0D7BB5 110%)' }}
+      onMouseMove={(event) => {
+        const rect = event.currentTarget.getBoundingClientRect()
+        setMouse({
+          x: ((event.clientX - rect.left) / rect.width) * 100,
+          y: ((event.clientY - rect.top) / rect.height) * 100,
+        })
+      }}
+      onMouseLeave={() => setMouse(null)}
+    >
+      <RepellingDots mouse={mouse} />
       <motion.div
         aria-hidden="true"
         className="absolute left-[-10%] top-[12%] h-24 w-[55%] rounded-full border border-white/10 bg-white/5"
