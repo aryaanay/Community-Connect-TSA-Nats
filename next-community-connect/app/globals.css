@@ -125,6 +125,24 @@
   background: rgba(36,153,214,0.26) !important;
 }
 
+[data-theme="dark"] .story-board {
+  background: linear-gradient(145deg, #011629, #022747 55%, #033460) !important;
+  border-color: rgba(36,153,214,0.25) !important;
+}
+
+[data-theme="dark"] .story-note {
+  background: #022747 !important;
+  border-color: rgba(36,153,214,0.28) !important;
+}
+
+[data-theme="dark"] .story-note-back {
+  background: rgba(36,153,214,0.22) !important;
+}
+
+[data-theme="dark"] .story-note p {
+  color: #90D4F7 !important;
+}
+
 .ai-chat-input,
 [data-theme="dark"] .ai-chat-input {
   background:
