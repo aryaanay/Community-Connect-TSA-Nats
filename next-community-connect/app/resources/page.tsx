@@ -431,28 +431,14 @@ export default function ResourcesPage() {
                       }}
                     >
                         {/* Accent strip */}
-                        <div className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
-                      style={{ background: resource.isSubmission
-                        ? 'linear-gradient(to right, #F59E0B, #FBBF24)'
-                        : 'linear-gradient(to right, #38BDF8, #0EA5E9)' }} />
-
-                    {/* Header */}
-                    <div className="h-40 flex items-center justify-center relative p-6"
-                      style={{ background: resource.isSubmission
-                        ? 'linear-gradient(135deg, #92400E, #D97706)'
-                        : 'linear-gradient(135deg, #0c4a6e, #0369a1)' }}>
-                      <Icon className="w-16 h-16 text-white/30" strokeWidth={1} />
-                      <span className="absolute top-4 left-4 bg-white/20 text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-xl border border-white/30 backdrop-blur-sm">
-                        {resource.category}
-                      </span>
-                      {resource.isSubmission && (
-                        <span className="absolute top-4 right-4 flex items-center gap-1.5 bg-amber-400/90 text-amber-900 text-xs font-bold px-3 py-1.5 rounded-xl">
-                          <FlaskConical size={11} /> Testing
-                        </span>
-                      )}
-                      <div className="absolute bottom-4 right-4 w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-white" strokeWidth={1.5} />
-                      </div>
+                        <div
+                          className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
+                          style={{
+                            background: resource.isSubmission
+                              ? 'linear-gradient(to right, #F59E0B, #FBBF24)'
+                              : 'linear-gradient(to right, #38BDF8, #0EA5E9)',
+                          }}
+                        />
                     </div>
 
                     {/* Body */}
