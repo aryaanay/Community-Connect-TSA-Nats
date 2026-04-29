@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { ZoomParallax } from '@/components/ZoomParallax'
+import TiltCard from '@/components/TiltCard'
 import { supabase } from '@/lib/supabaseClient'
 
 // ─── Images ───────────────────────────────────────────────────────────────────
@@ -419,17 +420,16 @@ export default function ResourcesPage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: (i % 6) * 0.1 }}
                     className="h-full"
-                    style={{ perspective: 1200 }}
                   >
-                    <div
-                      className="group rounded-3xl overflow-hidden h-full transition-all duration-500 transform-gpu will-change-transform hover:-translate-y-3 hover:shadow-2xl hover:[transform:rotateX(6deg)_rotateY(-6deg)] resource-card-outer"
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        backdropFilter: 'blur(12px)',
-                        backgroundColor: 'rgba(255,255,255,0.82)',
-                        borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
-                      }}
-                    >
+                    <TiltCard className="h-full" intensity={12} glareOpacity={0.16}>
+                      <div
+                        className="group rounded-3xl overflow-hidden h-full transition-all duration-500 shadow-2xl resource-card-outer"
+                        style={{
+                          backdropFilter: 'blur(12px)',
+                          backgroundColor: 'rgba(255,255,255,0.82)',
+                          borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
+                        }}
+                      >
                         {/* Accent strip */}
                         <div
                           className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
@@ -440,8 +440,8 @@ export default function ResourcesPage() {
                           }}
                         />
 
-                    {/* Body */}
-                    <div className="p-8 resource-card-body">
+                        {/* Body */}
+                        <div className="p-8 resource-card-body">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-5 -mt-7 border-2 border-white"
                         style={{ background: resource.isSubmission
                           ? 'linear-gradient(135deg, #D97706, #F59E0B)'
@@ -546,6 +546,7 @@ export default function ResourcesPage() {
                       </button>
                     </div>
                   </div>
+                </TiltCard>
                   </motion.div>
                 )
               })}
