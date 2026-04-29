@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import TiltCard from '@/components/TiltCard'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -461,7 +462,7 @@ function DonationModal({ cause, onClose, onDonate }: {
                   {localSaving ? (
                     <><Loader2 size={16} className="animate-spin" /> Setting up payment…</>
                   ) : (
-                    <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <ChevronRight size={16} /></>
+                    <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <Right size={16} /></>
                   )}
                 </button>
 
@@ -764,112 +765,120 @@ export default function DonatePage() {
                   key={cause.id}
                   initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.07 }}
-                  onClick={() => isSignedIn ? setSelected(cause) : setShowAuthModal(true)}
-                  className="group relative rounded-2xl overflow-hidden cursor-pointer"
-                  style={{
-                    backgroundColor: dark ? '#011629' : 'white',
-                    border: userDonated ? `1.5px solid ${cause.color}` : dark ? '1.5px solid rgba(36,153,214,0.2)' : '1.5px solid #F1F5F9',
-                    boxShadow: userDonated ? `0 4px 24px ${cause.color}20` : '0 2px 12px rgba(0,0,0,0.04)',
-                    transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-                  }}
-                  whileHover={{ y: -4, boxShadow: `0 16px 40px ${cause.color}22`, borderColor: cause.color }}
                 >
-                  {/* Donated badge */}
-                  {userDonated && (
-                    <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-                      style={{ backgroundColor: cause.color }}>
-                      <Check size={10} color="white" strokeWidth={3} />
-                      <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', fontWeight: 700, color: 'white' }}>
-                        +${userDonations[cause.id].toLocaleString()} given
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Top progress strip */}
-                  <div className="h-1.5 w-full" style={{ backgroundColor: `${cause.color}18` }}>
-                    <motion.div className="h-full" style={{ backgroundColor: cause.color }}
-                      initial={{ width: 0 }} whileInView={{ width: `${percent}%` }}
-                      viewport={{ once: true }} transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.07 }}
-                    />
-                  </div>
-
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-5">
-                      <div className="relative group/img">
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl overflow-hidden"
-                          style={{ backgroundColor: dark ? `${cause.color}30` : cause.colorLight }}>
-                          {cardImages[cause.id]
-                            ? <img src={cardImages[cause.id]} alt={cause.title} className="w-full h-full object-cover" />
-                            : cause.emoji}
-                        </div>
-                        <input
-                          ref={el => { imageInputRefs.current[cause.id] = el }}
-                          type="file" accept="image/*" className="hidden"
-                          onChange={(e) => handleCardImage(cause.id, e)}
-                        />
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); imageInputRefs.current[cause.id]?.click() }}
-                          className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
-                          style={{ backgroundColor: cause.color }}
-                        >
-                          <ImagePlus size={10} color="white" />
-                        </button>
-                      </div>
-                      <span style={{
-                        fontFamily: 'var(--font-dm-sans)', fontSize: '10px', fontWeight: 700,
-                        textTransform: 'uppercase', letterSpacing: '0.1em', color: cause.color,
-                        backgroundColor: dark ? `${cause.color}25` : cause.colorLight,
-                        padding: '4px 10px', borderRadius: '999px',
-                      }}>
-                        {cause.category}
-                      </span>
-                    </div>
-
-                    <h3 style={{ fontFamily: 'var(--font-space)', fontSize: '18px', fontWeight: 600, color: tc.h, lineHeight: 1.25, marginBottom: '6px', letterSpacing: '-0.2px' }}>
-                      {cause.title}
-                    </h3>
-                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', fontWeight: 500, color: cause.color, marginBottom: '10px', lineHeight: 1.5 }}>
-                      {cause.tagline}
-                    </p>
-                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', fontWeight: 300, color: tc.b, lineHeight: 1.7, marginBottom: '20px' }}>
-                      {cause.description}
-                    </p>
-
-                    <div className="mb-5">
-                      <div className="flex justify-between items-baseline mb-2">
-                        <span style={{ fontFamily: 'var(--font-space)', fontSize: '20px', fontWeight: 600, color: tc.h, letterSpacing: '-0.5px' }}>
-                          {dbLoading ? <span className="inline-block w-16 h-5 bg-slate-100 rounded animate-pulse" /> : `$${cause.raised.toLocaleString()}`}
-                        </span>
-                        <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>
-                          of ${cause.goal.toLocaleString()}
-                        </span>
-                      </div>
-                      <ProgressBar percent={percent} color={cause.color} />
-                      <div className="flex justify-between items-center mt-2">
-                        <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m }}>
-                          {dbLoading
-                            ? <span className="inline-block w-20 h-3 bg-slate-100 rounded animate-pulse" />
-                            : `${cause.supporters} supporters`}
-                        </span>
-                        <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', fontWeight: 600, color: cause.color }}>
-                          {percent.toFixed(0)}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                  <TiltCard
+                    className="rounded-2xl h-full"
+                    intensity={11}
+                    glareOpacity={0.14}
+                  >
+                    <div
+                      onClick={() => isSignedIn ? setSelected(cause) : setShowAuthModal(true)}
+                      className="group relative rounded-2xl overflow-hidden cursor-pointer h-full"
                       style={{
-                        fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600,
-                        letterSpacing: '-0.1px', backgroundColor: '#2499D6', color: 'white', border: 'none',
+                        backgroundColor: dark ? '#011629' : 'white',
+                        border: userDonated ? `1.5px solid ${cause.color}` : dark ? '1.5px solid rgba(36,153,214,0.2)' : '1.5px solid #F1F5F9',
+                        boxShadow: userDonated ? `0 4px 24px ${cause.color}20` : '0 2px 12px rgba(0,0,0,0.04)',
+                        transition: 'box-shadow 0.3s cubic-bezier(0.4,0,0.2,1), border-color 0.3s cubic-bezier(0.4,0,0.2,1)',
                       }}
                     >
-                      <Heart size={13} />
-                      Donate to {cause.title.split(' ')[0]}
-                      <ChevronRight size={13} />
-                    </button>
-                  </div>
+                      {/* Donated badge */}
+                      {userDonated && (
+                        <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                          style={{ backgroundColor: cause.color }}>
+                          <Check size={10} color="white" strokeWidth={3} />
+                          <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', fontWeight: 700, color: 'white' }}>
+                            +${userDonations[cause.id].toLocaleString()} given
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Top progress strip */}
+                      <div className="h-1.5 w-full" style={{ backgroundColor: `${cause.color}18` }}>
+                        <motion.div className="h-full" style={{ backgroundColor: cause.color }}
+                          initial={{ width: 0 }} whileInView={{ width: `${percent}%` }}
+                          viewport={{ once: true }} transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.07 }}
+                        />
+                      </div>
+
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-5">
+                          <div className="relative group/img">
+                            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl overflow-hidden"
+                              style={{ backgroundColor: dark ? `${cause.color}30` : cause.colorLight }}>
+                              {cardImages[cause.id]
+                                ? <img src={cardImages[cause.id]} alt={cause.title} className="w-full h-full object-cover" />
+                                : cause.emoji}
+                            </div>
+                            <input
+                              ref={el => { imageInputRefs.current[cause.id] = el }}
+                              type="file" accept="image/*" className="hidden"
+                              onChange={(e) => handleCardImage(cause.id, e)}
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); imageInputRefs.current[cause.id]?.click() }}
+                              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                              style={{ backgroundColor: cause.color }}
+                            >
+                              <ImagePlus size={10} color="white" />
+                            </button>
+                          </div>
+                          <span style={{
+                            fontFamily: 'var(--font-dm-sans)', fontSize: '10px', fontWeight: 700,
+                            textTransform: 'uppercase', letterSpacing: '0.1em', color: cause.color,
+                            backgroundColor: dark ? `${cause.color}25` : cause.colorLight,
+                            padding: '4px 10px', borderRadius: '999px',
+                          }}>
+                            {cause.category}
+                          </span>
+                        </div>
+
+                        <h3 style={{ fontFamily: 'var(--font-space)', fontSize: '18px', fontWeight: 600, color: tc.h, lineHeight: 1.25, marginBottom: '6px', letterSpacing: '-0.2px' }}>
+                          {cause.title}
+                        </h3>
+                        <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', fontWeight: 500, color: cause.color, marginBottom: '10px', lineHeight: 1.5 }}>
+                          {cause.tagline}
+                        </p>
+                        <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', fontWeight: 300, color: tc.b, lineHeight: 1.7, marginBottom: '20px' }}>
+                          {cause.description}
+                        </p>
+
+                        <div className="mb-5">
+                          <div className="flex justify-between items-baseline mb-2">
+                            <span style={{ fontFamily: 'var(--font-space)', fontSize: '20px', fontWeight: 600, color: tc.h, letterSpacing: '-0.5px' }}>
+                              {dbLoading ? <span className="inline-block w-16 h-5 bg-slate-100 rounded animate-pulse" /> : `$${cause.raised.toLocaleString()}`}
+                            </span>
+                            <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>
+                              of ${cause.goal.toLocaleString()}
+                            </span>
+                          </div>
+                          <ProgressBar percent={percent} color={cause.color} />
+                          <div className="flex justify-between items-center mt-2">
+                            <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m }}>
+                              {dbLoading
+                                ? <span className="inline-block w-20 h-3 bg-slate-100 rounded animate-pulse" />
+                                : `${cause.supporters} supporters`}
+                            </span>
+                            <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', fontWeight: 600, color: cause.color }}>
+                              {percent.toFixed(0)}%
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                          style={{
+                            fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600,
+                            letterSpacing: '-0.1px', backgroundColor: '#2499D6', color: 'white', border: 'none',
+                          }}
+                        >
+                          <Heart size={13} />
+                          Donate to {cause.title.split(' ')[0]}
+                          <ChevronRight size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </TiltCard>
                 </motion.div>
               )
             })}
