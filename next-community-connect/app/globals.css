@@ -136,11 +136,12 @@
 }
 
 [data-theme="dark"] .story-note-back {
-  background: rgba(36,153,214,0.22) !important;
+  background: rgba(36,153,214,0.30) !important;
 }
 
 [data-theme="dark"] .story-note p {
-  color: #90D4F7 !important;
+  /* Ensure readability when cards switch to dark backgrounds */
+  color: #C6EBFF !important;
 }
 
 .ai-chat-input,

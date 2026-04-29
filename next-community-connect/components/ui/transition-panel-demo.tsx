@@ -7,15 +7,21 @@ import useMeasure from "react-use-measure";
 function Button({
   onClick,
   children,
+  isDark,
 }: {
   onClick: () => void;
   children: React.ReactNode;
+  isDark: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       type="button"
-      className="relative flex h-9 shrink-0 scale-100 select-none appearance-none items-center justify-center rounded-lg border border-zinc-950/10 bg-transparent px-4 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-800 focus-visible:ring-2 active:scale-[0.98] dark:border-zinc-50/10 dark:text-zinc-50 dark:hover:bg-zinc-800"
+      className={`relative flex h-9 shrink-0 scale-100 select-none appearance-none items-center justify-center rounded-lg border border-zinc-950/10 bg-transparent px-4 text-sm font-medium transition-colors focus-visible:ring-2 active:scale-[0.98] ${
+        isDark
+          ? "text-zinc-50 hover:bg-zinc-800 hover:text-zinc-50"
+          : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
+      }`}
     >
       {children}
     </button>
@@ -63,6 +69,18 @@ export function TransitionPanelCard() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [ref, bounds] = useMeasure();
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const sync = () => {
+      setIsDark(document.documentElement.getAttribute("data-theme") === "dark");
+    };
+    sync();
+
+    const obs = new MutationObserver(sync);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
 
   const handleSetActiveIndex = (newIndex: number) => {
     setDirection(newIndex > activeIndex ? 1 : -1);
@@ -76,7 +94,11 @@ export function TransitionPanelCard() {
   }, [activeIndex]);
 
   return (
-    <div className="w-[400px] overflow-hidden rounded-2xl border border-zinc-950/10 bg-white shadow-xl dark:bg-zinc-800">
+    <div
+      className={`w-[400px] overflow-hidden rounded-2xl border border-zinc-950/10 bg-white shadow-xl ${
+        isDark ? "bg-zinc-800" : ""
+      }`}
+    >
       <TransitionPanel
         activeIndex={activeIndex}
         variants={{
@@ -114,7 +136,11 @@ export function TransitionPanelCard() {
             ref={ref}
           >
             <StarRating />
-            <blockquote className="text-zinc-700 dark:text-zinc-200 text-lg leading-relaxed mb-6">
+            <blockquote
+              className={`text-lg leading-relaxed mb-6 ${
+                isDark ? "text-zinc-200" : "text-zinc-700"
+              }`}
+            >
               "{story.quote}"
             </blockquote>
             <div className="flex items-center gap-3">
@@ -122,10 +148,10 @@ export function TransitionPanelCard() {
                 {story.initials}
               </div>
               <div>
-                <div className="font-semibold text-zinc-900 dark:text-zinc-100">
+                <div className={`font-semibold ${isDark ? "text-zinc-100" : "text-zinc-900"}`}>
                   {story.name}
                 </div>
-                <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                <div className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>
                   {story.role}
                 </div>
               </div>
@@ -133,15 +159,16 @@ export function TransitionPanelCard() {
           </div>
         ))}
       </TransitionPanel>
-      <div className="flex justify-between p-4 border-t border-zinc-100 dark:border-zinc-700">
+      <div className={`flex justify-between p-4 border-t ${isDark ? "border-zinc-700" : "border-zinc-100"}`}>
         {activeIndex > 0 ? (
-          <Button onClick={() => handleSetActiveIndex(activeIndex - 1)}>
+          <Button isDark={isDark} onClick={() => handleSetActiveIndex(activeIndex - 1)}>
             Previous
           </Button>
         ) : (
           <div />
         )}
         <Button
+          isDark={isDark}
           onClick={() =>
             activeIndex === COMMUNITY_STORIES.length - 1
               ? handleSetActiveIndex(0)

@@ -216,7 +216,9 @@ function Hero({
                   <Search className="w-5 h-5 text-sky-100" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="font-outfit text-xs uppercase tracking-[0.14em] text-sky-100/55">Try a fast search</p>
+                  <p className="font-outfit text-xs uppercase tracking-[0.14em] text-sky-100/80">
+                    Try a fast search
+                  </p>
                   <motion.p
                     className="font-space text-base sm:text-lg text-white font-semibold"
                     animate={{ opacity: [0.55, 1, 0.55] }}
