@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
+import { useSettings } from '@/context/SettingsContext'
 
 const checklistItems = [
   'All text content was written originally by team members',
@@ -52,41 +53,44 @@ const sources = [
   { resource: 'Northshore Fire Department', type: 'Reference', license: 'Public domain', url: 'northshorefire.com' },
 ]
 
-const H = '#022747'
-const B = '#044069'
-const MUTED = '#085D8A'
-const LINK = '#2499D6'
-const BG = '#F0F9FF'
-const CARD = '#F0F9FF'
-const INNER = '#ffffff'
-const ROW_ALT = '#EBF7FF'
-const BORDER = '#BFDBFE'
-
-const h2Style = {
-  fontFamily: 'var(--font-syne)',
-  fontSize: 'clamp(22px, 3vw, 32px)',
-  fontWeight: 700 as const,
-  color: H,
-  letterSpacing: '0.02em',
-  lineHeight: 1.15,
-  marginBottom: '16px',
-}
-
-const hdStyle = { fontFamily: 'var(--font-syne)', fontWeight: 700 as const, fontSize: '13px', color: H }
-const bodyStyle = { fontFamily: 'var(--font-space)', fontSize: '13px', color: B, lineHeight: 1.7 }
-
 export default function DocumentationPage() {
+  const { settings } = useSettings()
+  const dk = settings.dark
+
+  const H     = dk ? '#e0f2fe'                    : '#022747'
+  const B     = dk ? 'rgba(198,235,255,0.85)'     : '#044069'
+  const MUTED = dk ? 'rgba(198,235,255,0.55)'     : '#085D8A'
+  const LINK  = dk ? '#56BBF0'                    : '#2499D6'
+  const BG    = dk ? '#010f1f'                    : '#F0F9FF'
+  const CARD  = dk ? 'rgba(2,39,71,0.6)'          : '#F0F9FF'
+  const INNER = dk ? 'rgba(2,39,71,0.5)'          : '#ffffff'
+  const ROW_ALT = dk ? 'rgba(3,52,96,0.5)'        : '#EBF7FF'
+  const BORDER  = dk ? 'rgba(86,187,240,0.15)'    : '#BFDBFE'
+  const TH_BG   = dk ? 'rgba(3,52,96,0.8)'        : '#DBEAFE'
+
+  const h2Style = {
+    fontFamily: 'var(--font-syne)',
+    fontSize: 'clamp(22px, 3vw, 32px)',
+    fontWeight: 700 as const,
+    color: H,
+    letterSpacing: '0.02em',
+    lineHeight: 1.15,
+    marginBottom: '16px',
+  }
+
+  const hdStyle = { fontFamily: 'var(--font-syne)', fontWeight: 700 as const, fontSize: '13px', color: H }
+  const bodyStyle = { fontFamily: 'var(--font-space)', fontSize: '13px', color: B, lineHeight: 1.7 }
+
   return (
     <>
       <HeroDemo
         badge="TSA Webmaster - Required Documentation"
         staticTitle="Copyright &amp; References"
-        subtitle="Student copyright checklist, work log, and all sources cited for Community Connect.
-        * Note: This page does not have dark mode functionality so as to maintain clarity"
+        subtitle="Student copyright checklist, work log, and all sources cited for Community Connect."
         backgroundImage=""
       />
 
-      <section className="py-24" style={{ backgroundColor: BG }}>
+      <section className="py-24" style={{ backgroundColor: BG, transition: 'background-color 0.3s' }}>
         <div className="max-w-4xl mx-auto px-4 space-y-14">
 
           {/* PROJECT INFO */}
@@ -201,7 +205,7 @@ export default function DocumentationPage() {
             <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: BORDER }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b" style={{ backgroundColor: '#DBEAFE', borderColor: BORDER }}>
+                  <tr className="border-b" style={{ backgroundColor: TH_BG, borderColor: BORDER }}>
                     <th className="text-left px-6 py-4" style={hdStyle}>Resource</th>
                     <th className="text-left px-6 py-4" style={hdStyle}>Type</th>
                     <th className="text-left px-6 py-4" style={hdStyle}>License</th>
