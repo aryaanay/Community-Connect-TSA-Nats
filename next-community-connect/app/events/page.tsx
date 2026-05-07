@@ -224,53 +224,116 @@ function EventIconDisplay({ id, dark = true, size = 'lg' }: { id: string; dark?:
   )
 }
 
-function PinnedCalendar({ events, selected, onSelect }: { events: EventType[]; selected: EventType | null; onSelect: (event: EventType | null) => void }) {
-  const pinnedDates = events.map(e => parseInt(e.day))
-  // April 2026: 30 days, starts on Wednesday (offset = 3)
-  const daysInMonth = 30
-  const startOffset = 3
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
-  const dayLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  const getEventForDay = (day: number) => events.find(e => parseInt(e.day) === day)
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const MONTH_SHORT: Record<string, number> = { JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11 }
+
+function PinnedCalendar({
+  events, selected, onSelect, isDark,
+}: {
+  events: EventType[]
+  selected: EventType | null
+  onSelect: (e: EventType | null) => void
+  isDark: boolean
+}) {
+  const [viewMonth, setViewMonth] = useState(3) // April
+  const YEAR = 2026
+  const MIN = 3  // April
+  const MAX = 7  // August
+
+  const daysInMonth = new Date(YEAR, viewMonth + 1, 0).getDate()
+  const startOffset = new Date(YEAR, viewMonth, 1).getDay()
+  const dayLabels = ['SUN','MON','TUE','WED','THU','FRI','SAT']
+
+  const getEventForDay = (day: number) =>
+    events.find(e => MONTH_SHORT[e.month] === viewMonth && parseInt(e.day) === day)
+
+  const changeMonth = (dir: 1 | -1) => {
+    const next = viewMonth + dir
+    if (next >= MIN && next <= MAX) {
+      setViewMonth(next)
+      onSelect(null) // clear selection on month change
+    }
+  }
+
+  const headColor  = isDark ? '#90D4F7'                  : '#075985'
+  const labelColor = isDark ? 'rgba(198,235,255,0.45)'   : '#94a3b8'
+  const normalText = isDark ? 'rgba(198,235,255,0.5)'    : '#64748b'
+  const normalBorder = isDark ? 'rgba(86,187,240,0.1)'   : '#e2e8f0'
+  const pinnedBg   = isDark ? 'rgba(36,153,214,0.18)'    : 'rgba(56,189,248,0.12)'
+  const pinnedBor  = isDark ? 'rgba(86,187,240,0.45)'    : '#7dd3fc'
+  const pinnedText = isDark ? '#90D4F7'                  : '#0369a1'
+  const dotBg      = isDark ? '#56BBF0'                  : '#38bdf8'
+  const dotBorder  = isDark ? '#022747'                  : 'white'
+  const navBg      = isDark ? 'rgba(86,187,240,0.08)'    : 'white'
+  const navBorder  = isDark ? 'rgba(86,187,240,0.18)'    : '#e2e8f0'
+  const navColor   = isDark ? '#56BBF0'                  : '#64748b'
+
+  const navBtn = (dir: 1 | -1, disabled: boolean) => (
+    <button
+      onClick={() => changeMonth(dir)}
+      disabled={disabled}
+      style={{
+        width: 32, height: 32, borderRadius: 8,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: navBg, border: `1px solid ${navBorder}`,
+        color: navColor, fontSize: 20, lineHeight: 1,
+        opacity: disabled ? 0.3 : 1,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        transition: 'all 0.15s',
+      }}
+    >{dir === -1 ? '‹' : '›'}</button>
+  )
 
   return (
     <div>
-      <div className="text-center mb-3 font-bold text-sky-800 text-sm" style={{ fontFamily: 'var(--font-syne)' }}>April 2026</div>
-      <div className="grid grid-cols-7 gap-1.5 text-center">
-        {dayLabels.map(day => (
-          <div key={day} className="py-2 text-xs font-bold uppercase text-slate-500 tracking-wider" style={{ fontFamily: 'var(--font-space)' }}>
-            {day}
+      {/* Month nav */}
+      <div className="flex items-center justify-between mb-4">
+        {navBtn(-1, viewMonth <= MIN)}
+        <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '14px', color: headColor }}>
+          {MONTH_NAMES[viewMonth]} {YEAR}
+        </div>
+        {navBtn(1, viewMonth >= MAX)}
+      </div>
+
+      {/* Day-of-week labels */}
+      <div className="grid grid-cols-7 gap-1.5 text-center mb-1">
+        {dayLabels.map(d => (
+          <div key={d} className="py-2 text-xs font-bold uppercase tracking-wider"
+            style={{ fontFamily: 'var(--font-space)', color: labelColor }}>
+            {d}
           </div>
         ))}
-        {Array.from({ length: startOffset }).map((_, i) => (
-          <div key={`empty-${i}`} />
-        ))}
-        {days.map(day => {
-          const isPinned = pinnedDates.includes(day)
-          const event = getEventForDay(day)
-          const isSelected = selected && event && selected.id === event.id
+      </div>
 
+      {/* Calendar grid */}
+      <div className="grid grid-cols-7 gap-1.5 text-center">
+        {Array.from({ length: startOffset }).map((_, i) => <div key={`e-${i}`} />)}
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+          const event = getEventForDay(day)
+          const isPinned = !!event
+          const isSelected = !!(selected && event && selected.id === event.id)
           return (
             <motion.div
               key={day}
-              className={`relative p-2 rounded-xl cursor-pointer transition-all duration-300 h-14 flex items-center justify-center font-semibold text-sm ${
-                isSelected ? 'border-2 shadow-lg' :
-                isPinned ? 'bg-gradient-to-br from-sky-400/30 to-sky-500/30 border-2 border-sky-300 shadow-lg hover:shadow-xl' :
-                'hover:bg-sky-50/50 border border-sky-100 hover:border-sky-200 hover:shadow-md'
-              }`}
+              className="relative h-14 flex items-center justify-center rounded-xl"
               style={{
-                fontFamily: 'var(--font-space)',
-                ...(isSelected ? { backgroundColor: event!.color, borderColor: event!.color } : {}),
+                fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600,
+                cursor: isPinned ? 'pointer' : 'default',
+                backgroundColor: isSelected ? event!.color : isPinned ? pinnedBg : 'transparent',
+                border: `${isSelected ? 2 : 1}px solid ${isSelected ? event!.color : isPinned ? pinnedBor : normalBorder}`,
+                color: isSelected ? 'white' : isPinned ? pinnedText : normalText,
+                boxShadow: isSelected ? `0 4px 16px ${event!.color}40` : 'none',
               }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isPinned ? 1.07 : 1.02 }}
+              whileTap={{ scale: isPinned ? 0.97 : 1 }}
               onClick={() => event ? onSelect(isSelected ? null : event) : undefined}
             >
-              <span className={`font-bold ${isSelected ? 'text-white' : isPinned ? 'text-sky-700' : 'text-slate-600'}`}>
-                {day}
-              </span>
+              {day}
               {isPinned && !isSelected && (
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full bg-sky-400 border-2 border-white shadow-sm" />
+                <div
+                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
+                  style={{ backgroundColor: dotBg, border: `2px solid ${dotBorder}` }}
+                />
               )}
             </motion.div>
           )
@@ -470,7 +533,7 @@ export default function EventsPage() {
             className="text-center mb-12"
           >
             <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
-              April through August 2026
+              Apr – Aug 2026 · Navigate months below
             </span>
             <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#022747', lineHeight: 1.1 }}>
               Next Events Pinned
@@ -478,7 +541,7 @@ export default function EventsPage() {
           </motion.div>
 
           <div className="max-w-3xl mx-auto backdrop-blur-xl bg-white rounded-3xl border border-sky-100 p-6 lg:p-8 shadow-card">
-            <PinnedCalendar events={events.slice(0, 4)} selected={calendarSelected} onSelect={setCalendarSelected} />
+            <PinnedCalendar events={allEvents} selected={calendarSelected} onSelect={setCalendarSelected} isDark={dk} />
           </div>
 
           {/* Calendar event detail panel */}
@@ -490,8 +553,11 @@ export default function EventsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                className="mt-6 rounded-3xl overflow-hidden border border-sky-100 shadow-card"
-                style={{ backgroundColor: 'white' }}
+                className="mt-6 rounded-3xl overflow-hidden shadow-card"
+                style={{
+                  backgroundColor: dk ? 'rgba(2,39,71,0.85)' : 'white',
+                  border: `1px solid ${dk ? 'rgba(86,187,240,0.15)' : '#e0f2fe'}`,
+                }}
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Color sidebar */}
@@ -520,7 +586,7 @@ export default function EventsPage() {
 
                   {/* Details */}
                   <div className="flex-1 p-8">
-                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', color: '#64748b', lineHeight: 1.8, marginBottom: '28px' }}>
+                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', color: dk ? 'rgba(198,235,255,0.8)' : '#64748b', lineHeight: 1.8, marginBottom: '28px' }}>
                       {calendarSelected.description}
                     </p>
 
@@ -531,11 +597,16 @@ export default function EventsPage() {
                         { label: 'Location', value: calendarSelected.location.split(',')[0] },
                         { label: 'Audience', value: calendarSelected.audience },
                       ].map(item => (
-                        <div key={item.label} className="rounded-xl p-3 border border-slate-100 bg-slate-50">
-                          <div style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8', marginBottom: '4px' }}>
+                        <div key={item.label} className="event-detail-item rounded-xl p-3"
+                          style={{
+                            background: dk ? 'rgba(86,187,240,0.06)' : '#f8fafc',
+                            border: `1px solid ${dk ? 'rgba(86,187,240,0.12)' : '#e2e8f0'}`,
+                          }}
+                        >
+                          <div className="event-detail-label" style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px', color: dk ? '#56BBF0' : '#94a3b8' }}>
                             {item.label}
                           </div>
-                          <div style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>
+                          <div className="event-detail-value" style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 600, color: dk ? '#e0f2fe' : '#1e293b' }}>
                             {item.value}
                           </div>
                         </div>
@@ -556,15 +627,25 @@ export default function EventsPage() {
                         href={getGCalUrl(calendarSelected)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition-all"
-                        style={{ fontFamily: 'var(--font-space)', color: '#64748b' }}
+                        className="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                        style={{
+                          fontFamily: 'var(--font-space)',
+                          color: dk ? 'rgba(198,235,255,0.7)' : '#64748b',
+                          border: `1px solid ${dk ? 'rgba(86,187,240,0.18)' : '#e2e8f0'}`,
+                          background: dk ? 'rgba(86,187,240,0.06)' : 'transparent',
+                        }}
                       >
                         Add to Calendar
                       </a>
                       <button
                         onClick={() => setCalendarSelected(null)}
-                        className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition-all"
-                        style={{ fontFamily: 'var(--font-space)', color: '#94a3b8' }}
+                        className="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                        style={{
+                          fontFamily: 'var(--font-space)',
+                          color: dk ? 'rgba(198,235,255,0.45)' : '#94a3b8',
+                          border: `1px solid ${dk ? 'rgba(86,187,240,0.12)' : '#e2e8f0'}`,
+                          background: dk ? 'rgba(86,187,240,0.04)' : 'transparent',
+                        }}
                       >
                         Dismiss
                       </button>
