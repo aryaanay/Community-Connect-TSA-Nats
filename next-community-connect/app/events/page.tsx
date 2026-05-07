@@ -226,6 +226,29 @@ function EventIconDisplay({ id, dark = true, size = 'lg' }: { id: string; dark?:
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const MONTH_SHORT: Record<string, number> = { JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11 }
+const MONTH_SHORT_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
+
+function formatEventDate(raw: string): string {
+  // "2026-05-02" → "May 2, 2026"
+  const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (m) {
+    const [, y, mo, d] = m.map(Number)
+    return `${MONTH_NAMES[mo - 1]} ${d}, ${y}`
+  }
+  return raw
+}
+
+function formatEventTime(raw: string): string {
+  // "10:00:00" or "10:00" → "10:00 AM"
+  const m = raw.match(/^(\d{2}):(\d{2})/)
+  if (m) {
+    const h = parseInt(m[1]), min = parseInt(m[2])
+    const period = h >= 12 ? 'PM' : 'AM'
+    const displayH = h % 12 || 12
+    return `${displayH}:${String(min).padStart(2, '0')} ${period}`
+  }
+  return raw
+}
 
 function PinnedCalendar({
   events, selected, onSelect, isDark,
@@ -471,14 +494,16 @@ export default function EventsPage() {
         const transformed: EventType[] = data?.map((e: SupabaseEvent) => ({
           id: e.id,
           title: e.title,
-          date: e.event_date,
-          time: `${e.start_time} - ${e.end_time || 'TBD'}`,
+          date: formatEventDate(e.event_date),
+          time: e.end_time
+            ? `${formatEventTime(e.start_time)} - ${formatEventTime(e.end_time)}`
+            : formatEventTime(e.start_time),
           location: e.location_name,
           audience: 'Public',
           category: e.event_type || 'Community',
           description: e.description || 'Community event',
           day: e.event_date.split('-')[2],
-          month: new Date(e.event_date).toLocaleString('default', { month: 'short' }).toUpperCase(),
+          month: MONTH_SHORT_NAMES[parseInt(e.event_date.split('-')[1]) - 1],
           emoji: '📅',
           color: '#085D8A',
           colorLight: '#EBF7FF',

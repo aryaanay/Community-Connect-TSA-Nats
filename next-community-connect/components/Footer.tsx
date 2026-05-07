@@ -12,7 +12,7 @@ const footerLinks = {
     { href: '/resources', label: 'Resource Hub' },
     { href: '/submit', label: 'Submit a Resource' },
     { href: '/about', label: 'About Us' },
-    { href: '/copyright', label: 'Copyright & References' },
+    { href: '/references', label: 'References' },
   ],
   categories: [
     { href: '/resources?cat=Education', label: 'Education' },
@@ -179,8 +179,8 @@ export function Footer() {
             © 2025 CommunityConnect | Bothell, WA
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/copyright" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>
-              Copyright
+            <Link href="/references" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>
+              References
             </Link>
             <span style={{ color: 'rgba(86,187,240,0.3)' }}>|</span>
             <Link href="/settings" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>

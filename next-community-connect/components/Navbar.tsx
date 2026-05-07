@@ -164,10 +164,10 @@ export function Navbar() {
             {/* CTA Links */}
             <div className="hidden sm:flex items-center gap-1">
               <Link
-                href="/copyright"
+                href="/references"
                 className="text-white/75 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
               >
-                Copyright
+                References
               </Link>
             </div>
 
@@ -209,11 +209,11 @@ export function Navbar() {
                 ))}
                 <div className="flex gap-2 mt-3">
                   <Link
-                    href="/copyright"
+                    href="/references"
                     onClick={() => setIsMobileOpen(false)}
                     className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
                   >
-                    Copyright
+                    References
                   </Link>
                   {isSignedIn ? (
                     <>
