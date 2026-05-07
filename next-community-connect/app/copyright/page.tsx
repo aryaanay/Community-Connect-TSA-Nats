@@ -96,7 +96,7 @@ export default function DocumentationPage() {
               <div className="grid md:grid-cols-2 gap-5">
                 {[
                   { label: 'Project Name', value: 'Community Connect' },
-                  { label: 'Competition', value: 'TSA Webmaster - State Conference 2026' },
+                  { label: 'Competition', value: 'TSA Webmaster - National Conference 2026' },
                   { label: 'Technology Stack', value: 'Next.js, React, TypeScript, Tailwind CSS, Framer Motion' },
                   { label: 'Location', value: 'Bothell, Washington' },
                   { label: 'Chapter', value: 'North Creek High School - Chapter 1557-2' },
@@ -120,7 +120,7 @@ export default function DocumentationPage() {
                   TSA Webmaster - Student Copyright Verification
                 </p>
                 <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
-                  Chapter 1557-2 - North Creek High School - State Conference 2026
+                  Chapter 1557-2 - North Creek High School - National Conference 2026
                 </p>
               </div>
               <div className="px-8 py-6" style={{ backgroundColor: CARD }}>
@@ -142,7 +142,7 @@ export default function DocumentationPage() {
                 </div>
                 <div className="border-t pt-6" style={{ borderColor: BORDER }}>
                   <p style={{ ...bodyStyle, fontStyle: 'italic' }}>
-                    Submitted electronically by all team members. North Creek High School Chapter 1557-2, State Conference 2026.
+                    Submitted electronically by all team members. North Creek High School Chapter 1557-2, National Conference 2026.
                   </p>
                 </div>
               </div>
