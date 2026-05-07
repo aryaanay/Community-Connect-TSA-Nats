@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { supabase } from '@/lib/supabaseClient'
+import { useSettings } from '@/context/SettingsContext'
 
 type SupabaseEvent = {
   id: string
@@ -381,6 +382,8 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
 }
 
 export default function EventsPage() {
+  const { settings } = useSettings()
+  const dk = settings.dark
   const [allEvents, setAllEvents] = useState<EventType[]>(events)
   const [selected, setSelected] = useState<EventType | null>(null)
   const [calendarSelected, setCalendarSelected] = useState<EventType | null>(null)
@@ -466,10 +469,10 @@ export default function EventsPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
+            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
               April through August 2026
             </span>
-            <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: '#022747', lineHeight: 1.1 }}>
+            <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#022747', lineHeight: 1.1 }}>
               Next Events Pinned
             </h3>
           </motion.div>
@@ -585,14 +588,14 @@ export default function EventsPage() {
             transition={{ duration: 0.5 }}
             className="mb-16"
           >
-            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#085D8A', display: 'inline-block', marginBottom: '12px' }}>
+            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '12px' }}>
               What's Coming Up
             </span>
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mt-1">
-              <h2 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, color: '#19619f', lineHeight: 1, letterSpacing: '-1px' }}>
+              <h2 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#19619f', lineHeight: 1, letterSpacing: '-1px' }}>
                 Mark Your<br />Calendar.
               </h2>
-              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
+              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: dk ? 'rgba(198,235,255,0.65)' : '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
                 All events are free and open to the public. Click any card for full details.
               </p>
             </div>
