@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
+import { MissionTicker } from '@/components/MissionTicker'
 import { MapPin, CalendarDays, Clock, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -198,6 +199,7 @@ export default function HomePage() {
         secondaryHref="#events"
         secondaryText="View Events"
       />
+      <MissionTicker />
       <LocationEvents />
     </>
   )
