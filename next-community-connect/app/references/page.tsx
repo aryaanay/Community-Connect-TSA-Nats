@@ -103,7 +103,7 @@ export default function DocumentationPage() {
                   { label: 'Competition', value: 'TSA Webmaster - National Conference 2026' },
                   { label: 'Technology Stack', value: 'Next.js, React, TypeScript, Tailwind CSS, Framer Motion' },
                   { label: 'Location', value: 'Bothell, Washington' },
-                  { label: 'Chapter', value: 'Chapter 1157-1' },
+                  { label: 'Team', value: 'Team 1157-1' },
                   { label: 'Team Size', value: '6 members' },
                 ].map(({ label, value }) => (
                   <div key={label}>
@@ -124,7 +124,7 @@ export default function DocumentationPage() {
                   TSA Webmaster - Student Copyright Verification
                 </p>
                 <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
-                  Chapter 1157-1 - National Conference 2026
+                  Team 1157-1 - National Conference 2026
                 </p>
               </div>
               <div className="px-8 py-6" style={{ backgroundColor: CARD }}>
@@ -146,7 +146,7 @@ export default function DocumentationPage() {
                 </div>
                 <div className="border-t pt-6" style={{ borderColor: BORDER }}>
                   <p style={{ ...bodyStyle, fontStyle: 'italic' }}>
-                    Submitted electronically by all team members. Chapter 1157-1, National Conference 2026.
+                    Submitted electronically by all team members. Team 1157-1, National Conference 2026.
                   </p>
                 </div>
               </div>
