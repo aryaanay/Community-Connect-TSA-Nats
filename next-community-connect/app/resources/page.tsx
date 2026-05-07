@@ -560,7 +560,7 @@ export default function ResourcesPage() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={showBackToTop ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-3xl bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center shadow-2xl hover:shadow-sky-500/50 transition-all duration-300 z-50 hover:-translate-y-1 active:scale-95"
+        className="fixed bottom-8 left-8 w-14 h-14 rounded-3xl bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center shadow-2xl hover:shadow-sky-500/50 transition-all duration-300 z-50 hover:-translate-y-1 active:scale-95"
       >
         <ArrowUp size={20} />
       </motion.button>
