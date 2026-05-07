@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
+import { useSettings } from '@/context/SettingsContext'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -17,24 +18,17 @@ const navLinks = [
 
 export function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
   const { isSignedIn, user, signOut } = useAuth()
+  const { settings, dispatch } = useSettings()
+  const isDark = settings.dark
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 80)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.setAttribute('data-theme', 'dark')
-    } else {
-      document.documentElement.removeAttribute('data-theme')
-    }
-  }, [isDark])
 
   return (
     <div
@@ -125,7 +119,7 @@ export function Navbar() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsDark(!isDark)}
+              onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
               className="w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all"
               aria-label="Toggle dark mode"
             >
