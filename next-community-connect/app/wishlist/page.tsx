@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { Heart, Users, TrendingUp, X, Check, ChevronRight, Sparkles, ImagePlus, LogIn, Loader2, RefreshCw, AlertCircle, Lock } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
 import Link from 'next/link'
@@ -558,9 +559,16 @@ function DonateSignInModal({ onClose }: { onClose: () => void }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DonatePage() {
-  const { isSignedIn, user } = useAuth()
+  const { isSignedIn, user, loading: authLoading } = useAuth()
   const { settings } = useSettings()
   const dark = settings.dark
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!authLoading && !isSignedIn) {
+      router.replace('/signin?redirect=/wishlist')
+    }
+  }, [authLoading, isSignedIn, router])
   const tc = {
     h: dark ? '#C6EBFF' : '#0F172A',
     b: dark ? '#90D4F7' : '#64748b',
