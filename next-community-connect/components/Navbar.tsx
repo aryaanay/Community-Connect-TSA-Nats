@@ -144,10 +144,15 @@ export function Navbar() {
             <div className="hidden sm:flex items-center gap-1">
               {isSignedIn ? (
                 <>
-                  <span className="font-outfit text-xs text-white/60 px-2">{user?.email ?? 'User'}</span>
+                  <Link
+                    href="/dashboard"
+                    className="font-outfit font-semibold text-sm px-3 py-2 rounded-lg text-sky-300 hover:text-sky-200 hover:bg-white/10 transition-all"
+                  >
+                    Dashboard
+                  </Link>
                   <button
                     onClick={signOut}
-                    className="text-white/75 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
+                    className="text-white/60 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
                   >
                     Sign Out
                   </button>
@@ -217,12 +222,21 @@ export function Navbar() {
                     Copyright
                   </Link>
                   {isSignedIn ? (
-                    <button
-                      onClick={() => { signOut(); setIsMobileOpen(false) }}
-                      className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
-                    >
-                      Sign Out
-                    </button>
+                    <>
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setIsMobileOpen(false)}
+                        className="flex-1 flex items-center justify-center bg-sky-500/20 border border-sky-400/30 text-sky-300 font-semibold px-4 py-3 rounded-2xl hover:bg-sky-500/30 transition-all text-sm"
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={() => { signOut(); setIsMobileOpen(false) }}
+                        className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
+                      >
+                        Sign Out
+                      </button>
+                    </>
                   ) : (
                     <Link
                       href="/signin"

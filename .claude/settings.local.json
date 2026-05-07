@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:itemly-9191a.web.app)"
+    ]
+  }
+}
