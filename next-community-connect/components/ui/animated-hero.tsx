@@ -56,7 +56,7 @@ function Hero({
 
   return (
     <div
-      className="w-full min-h-screen flex items-center justify-center relative overflow-hidden kinetic-gradient"
+      className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
       style={{
         backgroundColor: '#022747',
         backgroundImage: isHomeHero
@@ -87,22 +87,6 @@ function Hero({
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(36,153,214,0.4)_0%,transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(4,64,105,0.5)_0%,transparent_50%),radial-gradient(ellipse_at_60%_10%,rgba(198,235,255,0.2)_0%,transparent_40%)]" />
       </div>
 
-      {isHomeHero && (
-        <>
-          <motion.div
-            aria-hidden="true"
-            className="absolute left-[-8%] top-[18%] h-24 w-[46%] rounded-full border border-white/10 bg-white/5 blur-[0.2px]"
-            animate={{ x: [0, 34, 0], rotate: [-8, -4, -8] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            aria-hidden="true"
-            className="absolute right-[-10%] bottom-[22%] h-20 w-[42%] rounded-full border border-sky-100/10 bg-sky-100/5 blur-[0.2px]"
-            animate={{ x: [0, -28, 0], rotate: [9, 5, 9] }}
-            transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </>
-      )}
 
       {/* Floating Orbs */}
       <div className="absolute inset-0 pointer-events-none">
@@ -118,7 +102,6 @@ function Hero({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              whileHover={{ y: -2, scale: 1.03 }}
               className="inline-flex items-center gap-2 liquid-glass rounded-full px-4 py-2"
             >
               <span className="liquid-content flex items-center gap-2">
@@ -204,36 +187,8 @@ function Hero({
             </motion.div>
           )}
 
-          {isHomeHero && (
-            <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.56, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-xl liquid-glass rounded-[28px] p-3 mt-2"
-            >
-              <div className="liquid-content flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-white/14 border border-white/20 flex items-center justify-center">
-                  <Search className="w-5 h-5 text-sky-100" />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-outfit text-xs uppercase tracking-[0.14em] text-sky-100/80">
-                    Try a fast search
-                  </p>
-                  <motion.p
-                    className="font-space text-base sm:text-lg text-white font-semibold"
-                    animate={{ opacity: [0.55, 1, 0.55] }}
-                    transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    Find tutoring, food help, events, or volunteers
-                  </motion.p>
-                </div>
-                <Link href="/resources" className="hidden sm:inline-flex px-4 py-2 rounded-xl bg-sky-200 text-sky-950 font-space text-sm font-bold hover:bg-white transition-colors">
-                  Go
-                </Link>
-              </div>
-            </motion.div>
-          )}
 
+            {isHomeHero && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -241,17 +196,13 @@ function Hero({
               className="flex justify-center divide-x divide-white/15 mt-12"
             >
               {stats.map((stat, i) => (
-                <motion.div
-                  key={i}
-                  className="text-center px-8"
-                  whileHover={{ y: -5, scale: 1.04 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                >
+                <div key={i} className="text-center px-8">
                   <span className="font-space text-3xl font-bold text-white block">{stat.value}</span>
                   <span className="font-outfit text-xs font-medium text-white/85 uppercase tracking-wider">{stat.label}</span>
-                </motion.div>
+                </div>
               ))}
             </motion.div>
+            )}
           </div>
 
           {isHomeHero && (
@@ -264,7 +215,7 @@ function Hero({
               {floatingCards.map(({ icon: Icon, label, value, delay }) => (
                 <motion.div
                   key={label}
-                  className="liquid-glass rounded-2xl px-4 py-3 glass-float"
+                  className="liquid-glass rounded-2xl px-4 py-3"
                   initial={{ opacity: 0, y: 14, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ delay: 0.9 + delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}

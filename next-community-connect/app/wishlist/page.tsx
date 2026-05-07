@@ -677,7 +677,7 @@ export default function DonatePage() {
     <>
       <HeroDemo
         badge="Every Dollar Stays Local"
-        staticTitle="Support Our Community"
+        staticTitle="Contribute to Your Community"
         subtitle="Choose a cause below and make a direct impact for families, youth, and neighbors right here in Bothell."
         backgroundImage="/img/page-5.jpg"
       />

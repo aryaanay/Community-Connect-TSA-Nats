@@ -92,16 +92,44 @@
 }
 
 [data-theme="dark"] .audience-ticker {
-  background: rgba(1,22,41,0.88) !important;
-  border-color: rgba(36,153,214,0.22) !important;
+  background: rgba(2,39,71,0.95) !important;
+  border-color: rgba(86,187,240,0.3) !important;
 }
 
 [data-theme="dark"] .audience-ticker-fade-left {
-  background: linear-gradient(to right, #011629, transparent) !important;
+  background: linear-gradient(to right, #022747, transparent) !important;
 }
 
 [data-theme="dark"] .audience-ticker-fade-right {
-  background: linear-gradient(to left, #011629, transparent) !important;
+  background: linear-gradient(to left, #022747, transparent) !important;
+}
+
+/* Ticker card buttons in dark mode */
+[data-theme="dark"] .audience-ticker button {
+  background: rgba(3,52,96,0.85) !important;
+  border-color: rgba(86,187,240,0.35) !important;
+}
+
+[data-theme="dark"] .audience-ticker button:hover {
+  background: rgba(4,64,105,0.95) !important;
+  border-color: rgba(86,187,240,0.6) !important;
+}
+
+[data-theme="dark"] .audience-ticker .font-syne {
+  color: #C6EBFF !important;
+}
+
+[data-theme="dark"] .audience-ticker .font-outfit {
+  color: #90D4F7 !important;
+}
+
+[data-theme="dark"] .audience-ticker span.bg-sky-100 {
+  background-color: rgba(4,64,105,0.7) !important;
+  border-color: rgba(86,187,240,0.4) !important;
+}
+
+[data-theme="dark"] .audience-ticker span.text-sky-700 {
+  color: #90D4F7 !important;
 }
 
 [data-theme="dark"] .note-card {
