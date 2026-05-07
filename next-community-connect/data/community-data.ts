@@ -361,7 +361,7 @@ export const events: CommunityEvent[] = [
     title: 'Volunteer Match Night',
     date: 'July 9, 2026',
     time: '5:00 PM-7:00 PM',
-    location: 'North Creek High School Commons',
+    location: 'Bothell Community Center Commons',
     type: 'Volunteer opportunities',
     description: 'Students and adults can compare service roles, civic projects, and nonprofit volunteer pathways in one place.',
   },
