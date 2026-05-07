@@ -62,7 +62,7 @@ function LocationEvents() {
   const events = EVENTS[loc] ?? []
 
   return (
-    <section id="events" style={{ background: 'linear-gradient(180deg, #010f1f 0%, #022040 100%)' }} className="py-20 px-4">
+    <section id="events" className="lev-section py-20 px-4">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -72,11 +72,11 @@ function LocationEvents() {
           className="text-center mb-10"
         >
           <span className="section-eyebrow">Near You</span>
-          <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2 mb-3">
+          <h2 className="lev-heading font-syne text-3xl sm:text-4xl font-bold mt-2 mb-3">
             Upcoming Community Events
           </h2>
-          <p className="font-outfit text-sm max-w-md mx-auto" style={{ color: 'rgba(198,235,255,0.5)' }}>
-            Select your area to see what's happening locally. Sign in to RSVP and get reminders.
+          <p className="lev-subtext font-outfit text-sm max-w-md mx-auto">
+            Select your area to see what&apos;s happening locally. Sign in to RSVP and get reminders.
           </p>
         </motion.div>
 
@@ -86,12 +86,9 @@ function LocationEvents() {
             <button
               key={l.id}
               onClick={() => setLoc(l.id)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-outfit text-sm transition-all duration-200"
-              style={{
-                background: loc === l.id ? 'rgba(36,153,214,0.22)' : 'rgba(86,187,240,0.05)',
-                border: `1px solid ${loc === l.id ? 'rgba(86,187,240,0.38)' : 'rgba(86,187,240,0.1)'}`,
-                color: loc === l.id ? '#90D4F7' : 'rgba(198,235,255,0.45)',
-              }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-outfit text-sm transition-all duration-200 ${
+                loc === l.id ? 'lev-btn-active' : 'lev-btn'
+              }`}
             >
               <MapPin size={11} />
               {l.name}, WA
@@ -110,16 +107,9 @@ function LocationEvents() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {events.map((ev) => (
-              <div
-                key={ev.name}
-                className="rounded-2xl p-5"
-                style={{ background: 'rgba(2,39,71,0.6)', border: '1px solid rgba(86,187,240,0.1)', backdropFilter: 'blur(12px)' }}
-              >
+              <div key={ev.name} className="lev-card rounded-2xl p-5">
                 <div className="flex items-start gap-3 mb-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                    style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.14)' }}
-                  >
+                  <div className="lev-icon w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
                     {ev.emoji}
                   </div>
                   <div className="min-w-0">
@@ -133,17 +123,17 @@ function LocationEvents() {
                     >
                       {ev.category}
                     </span>
-                    <p className="font-syne text-sm font-bold text-white leading-snug">{ev.name}</p>
+                    <p className="lev-card-title font-syne text-sm font-bold leading-snug">{ev.name}</p>
                   </div>
                 </div>
                 <div className="space-y-1 pl-0.5">
-                  <p className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: '#56BBF0' }}>
+                  <p className="lev-date flex items-center gap-1.5 font-outfit text-xs">
                     <CalendarDays size={10} /> {ev.date}
                   </p>
-                  <p className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.38)' }}>
+                  <p className="lev-meta flex items-center gap-1.5 font-outfit text-xs">
                     <Clock size={10} /> {ev.time}
                   </p>
-                  <p className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.32)' }}>
+                  <p className="lev-meta flex items-center gap-1.5 font-outfit text-xs">
                     <MapPin size={10} /> {ev.location}
                   </p>
                 </div>
@@ -160,7 +150,7 @@ function LocationEvents() {
           transition={{ delay: 0.2 }}
           className="text-center mt-12"
         >
-          <p className="font-outfit text-sm mb-5" style={{ color: 'rgba(198,235,255,0.4)' }}>
+          <p className="lev-cta-text font-outfit text-sm mb-5">
             Join Community Connect to RSVP, submit resources, and donate to local causes.
           </p>
           <Link

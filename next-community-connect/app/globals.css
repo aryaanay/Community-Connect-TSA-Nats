@@ -708,3 +708,108 @@ html {
   }
 }
 
+/* ── LocationEvents light/dark theme classes ───────────────────────────────── */
+
+.lev-section {
+  background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.lev-heading {
+  color: #022747;
+}
+
+.lev-subtext {
+  color: rgba(2, 39, 71, 0.55);
+}
+
+.lev-btn {
+  background: rgba(36, 153, 214, 0.05);
+  border: 1px solid rgba(36, 153, 214, 0.1);
+  color: rgba(2, 39, 71, 0.5);
+}
+
+.lev-btn-active {
+  background: rgba(36, 153, 214, 0.14);
+  border: 1px solid rgba(36, 153, 214, 0.3);
+  color: #085D8A;
+}
+
+.lev-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(36, 153, 214, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.lev-icon {
+  background: rgba(36, 153, 214, 0.08);
+  border: 1px solid rgba(36, 153, 214, 0.14);
+}
+
+.lev-card-title {
+  color: #022747;
+}
+
+.lev-date {
+  color: #2499D6;
+}
+
+.lev-meta {
+  color: rgba(2, 39, 71, 0.45);
+}
+
+.lev-cta-text {
+  color: rgba(2, 39, 71, 0.5);
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .lev-section {
+  background: linear-gradient(180deg, #010f1f 0%, #022040 100%) !important;
+}
+
+[data-theme="dark"] .lev-heading {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .lev-subtext {
+  color: rgba(198, 235, 255, 0.5) !important;
+}
+
+[data-theme="dark"] .lev-btn {
+  background: rgba(86, 187, 240, 0.05) !important;
+  border: 1px solid rgba(86, 187, 240, 0.1) !important;
+  color: rgba(198, 235, 255, 0.45) !important;
+}
+
+[data-theme="dark"] .lev-btn-active {
+  background: rgba(36, 153, 214, 0.22) !important;
+  border: 1px solid rgba(86, 187, 240, 0.38) !important;
+  color: #90D4F7 !important;
+}
+
+[data-theme="dark"] .lev-card {
+  background: rgba(2, 39, 71, 0.6) !important;
+  border: 1px solid rgba(86, 187, 240, 0.1) !important;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .lev-icon {
+  background: rgba(86, 187, 240, 0.08) !important;
+  border: 1px solid rgba(86, 187, 240, 0.14) !important;
+}
+
+[data-theme="dark"] .lev-card-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .lev-date {
+  color: #56BBF0 !important;
+}
+
+[data-theme="dark"] .lev-meta {
+  color: rgba(198, 235, 255, 0.38) !important;
+}
+
+[data-theme="dark"] .lev-cta-text {
+  color: rgba(198, 235, 255, 0.4) !important;
+}
+
