@@ -20,7 +20,7 @@ const communityImages = [
   { src: '/img/optimized/playground1.jpg',     alt: 'Community playground gathering' },
   { src: '/img/optimized/community7.jpg',      alt: 'General community gathering' },
 ]
-import { MapPin, CalendarDays, Clock } from 'lucide-react'
+import { MapPin, CalendarDays, Clock, Search, Gift, PlusCircle, Bot, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 
 // ─── Location data ────────────────────────────────────────────────────────────
@@ -67,6 +67,99 @@ const CAT_COLORS: Record<string, string> = {
   Environment: '#10B981', Education: '#2499D6', Community: '#FF8C42',
   'Senior Care': '#6B3FA0', Youth: '#E85D26', Health: '#EF4444',
   Volunteer: '#56BBF0', Animals: '#F59E0B',
+}
+
+// ─── Features section ─────────────────────────────────────────────────────────
+
+const FEATURES = [
+  {
+    icon: Search,
+    title: 'Resource Directory',
+    desc: 'Search and filter 30+ verified local resources across health, education, food, and more.',
+    color: '#56BBF0',
+    bg: 'rgba(86,187,240,0.08)',
+    border: 'rgba(86,187,240,0.18)',
+  },
+  {
+    icon: CalendarDays,
+    title: 'Event Calendar',
+    desc: 'Browse upcoming community events across the Pacific Northwest and RSVP in one tap.',
+    color: '#A78BFA',
+    bg: 'rgba(167,139,250,0.08)',
+    border: 'rgba(167,139,250,0.18)',
+  },
+  {
+    icon: Gift,
+    title: 'Donation Wishlist',
+    desc: 'See exactly what local causes need and contribute items directly from your home.',
+    color: '#34D399',
+    bg: 'rgba(52,211,153,0.08)',
+    border: 'rgba(52,211,153,0.18)',
+  },
+  {
+    icon: PlusCircle,
+    title: 'Submit Resources',
+    desc: 'Know a great local resource? Add it to the directory and help your neighbors find it.',
+    color: '#F59E0B',
+    bg: 'rgba(245,158,11,0.08)',
+    border: 'rgba(245,158,11,0.18)',
+  },
+  {
+    icon: Bot,
+    title: 'AI Assistant',
+    desc: 'Get personalized help finding the right resource or event for your specific situation.',
+    color: '#FB7185',
+    bg: 'rgba(251,113,133,0.08)',
+    border: 'rgba(251,113,133,0.18)',
+  },
+  {
+    icon: LayoutDashboard,
+    title: 'Personal Dashboard',
+    desc: 'Track your RSVPs, submitted resources, and community contributions all in one place.',
+    color: '#38BDF8',
+    bg: 'rgba(56,189,248,0.08)',
+    border: 'rgba(56,189,248,0.18)',
+  },
+]
+
+function FeaturesSection() {
+  return (
+    <section className="py-20 px-4 bg-[var(--section-bg)]">
+      <div className="max-w-5xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }} transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <span className="section-eyebrow">Everything You Need</span>
+          <h2 className="section-heading mt-2 mb-3">Built for Community</h2>
+          <p className="section-subtext max-w-md mx-auto">
+            One platform to find help, give back, and stay connected with what&apos;s happening around you.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {FEATURES.map(({ icon: Icon, title, desc, color, bg, border }, i) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.08 }}
+              className="bg-white rounded-2xl p-6 border border-sky-100 hover:border-sky-200 hover:shadow-lg transition-all group"
+            >
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
+                style={{ background: bg, border: `1px solid ${border}` }}
+              >
+                <Icon size={20} style={{ color }} />
+              </div>
+              <h3 className="font-syne font-bold text-base text-[var(--text-dark)] mb-1.5">{title}</h3>
+              <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed">{desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
 }
 
 // ─── Events section ───────────────────────────────────────────────────────────
@@ -189,10 +282,11 @@ export default function HomePage() {
       <ZoomParallax images={communityImages} />
       <Testimonials />
       <HowItWorks />
+      <FeaturesSection />
       <LocationEvents />
 
       {/* ── Get Involved CTA ──────────────────────────────────────────────── */}
-      <section className="py-24 bg-[var(--section-bg)]">
+      <section id="get-involved" className="py-24 bg-[var(--section-bg)]">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}

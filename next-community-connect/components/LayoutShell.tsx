@@ -7,9 +7,14 @@ import { AIChatWidget } from './AIChatWidget'
 import { AppSidebar } from './AppSidebar'
 
 const APP_ROUTES = ['/dashboard', '/submit', '/wishlist', '/settings']
+const BARE_ROUTES = ['/signin']
 
 function isAppRoute(pathname: string) {
   return APP_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
+}
+
+function isBareRoute(pathname: string) {
+  return BARE_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
 }
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
@@ -22,6 +27,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         <AppSidebar>{children}</AppSidebar>
       </>
     )
+  }
+
+  if (isBareRoute(pathname)) {
+    return <main>{children}</main>
   }
 
   return (

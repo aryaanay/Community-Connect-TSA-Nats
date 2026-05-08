@@ -7,8 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
 
-const navLinks = [
-  { href: '/', label: 'Home' },
+const SCROLL_LINKS = [
+  { label: 'Mission', id: 'mission' },
+  { label: 'Our Story', id: 'story' },
+  { label: 'Partners', id: 'partners' },
+  { label: 'Events', id: 'events' },
+  { label: 'Get Involved', id: 'get-involved' },
 ]
 
 export function Navbar() {
@@ -18,6 +22,11 @@ export function Navbar() {
   const { isSignedIn, user, signOut } = useAuth()
   const { settings, dispatch } = useSettings()
   const isDark = settings.dark
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setIsMobileOpen(false)
+  }
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 80)
@@ -68,30 +77,21 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <motion.div
-                key={link.href}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
-                <Link
-                  href={link.href}
-                  className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative block ${
-                    pathname === link.href
-                      ? 'text-white bg-white/20'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {link.label}
-                  {pathname === link.href && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-sky-300 rounded-full" />
-                  )}
-                </Link>
-              </motion.div>
-            ))}
-          </div>
+          {/* Desktop Nav Links — scroll buttons on homepage only */}
+          {pathname === '/' && (
+            <div className="hidden lg:flex items-center gap-0.5">
+              {SCROLL_LINKS.map(({ label, id }) => (
+                <motion.div key={id} whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+                  <button
+                    onClick={() => scrollTo(id)}
+                    className="px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-white/75 hover:text-white hover:bg-white/10"
+                  >
+                    {label}
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* Right Actions */}
           <div className="flex items-center gap-2.5 flex-shrink-0">
@@ -190,17 +190,14 @@ export function Navbar() {
               className="lg:hidden overflow-hidden"
             >
               <div className="pt-4 pb-2 border-t border-white/10 mt-4">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className={`block py-3 px-4 rounded-xl text-base font-medium text-white/90 hover:text-white hover:bg-white/20 transition-all mb-1 ${
-                      pathname === link.href ? 'bg-white/20' : ''
-                    }`}
+                {pathname === '/' && SCROLL_LINKS.map(({ label, id }) => (
+                  <button
+                    key={id}
+                    onClick={() => scrollTo(id)}
+                    className="block w-full text-left py-3 px-4 rounded-xl text-base font-medium text-white/90 hover:text-white hover:bg-white/20 transition-all mb-1"
                   >
-                    {link.label}
-                  </Link>
+                    {label}
+                  </button>
                 ))}
                 <div className="flex gap-2 mt-3">
                   <Link
