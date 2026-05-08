@@ -17,14 +17,6 @@ const SCROLL_LINKS = [
   { label: 'Events',       id: 'events' },
 ]
 
-// Visible on both dark hero and white content sections
-const glass: React.CSSProperties = {
-  background: 'rgba(3, 18, 46, 0.68)',
-  border: '1px solid rgba(86,187,240,0.24)',
-  backdropFilter: 'blur(20px) saturate(1.5)',
-  WebkitBackdropFilter: 'blur(20px) saturate(1.5)',
-}
-
 const EASE = [0.16, 1, 0.3, 1] as const
 
 export function Navbar() {
@@ -64,8 +56,7 @@ export function Navbar() {
           {/* ─── Logo pill ───────────────────────────────────────────────── */}
           <Link
             href="/"
-            className="pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
-            style={glass}
+            className="liquid-glass pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
           >
             <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
               <circle cx="17" cy="17" r="15.5" stroke="#2499D6" strokeWidth="1.5"/>
@@ -86,7 +77,8 @@ export function Navbar() {
           <div className="hidden lg:flex flex-1 justify-center pointer-events-auto">
             <motion.div
               layout
-              style={{ ...glass, overflow: 'hidden' }}
+              className="liquid-glass"
+              style={{ overflow: 'hidden' }}
               animate={{ borderRadius: showPill ? 16 : 20 }}
               transition={{ layout: { duration: 0.38, ease: EASE }, borderRadius: { duration: 0.38, ease: EASE } }}
             >
@@ -131,8 +123,7 @@ export function Navbar() {
           <div className="lg:hidden flex-1 flex justify-center pointer-events-auto">
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-              style={glass}
+              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
             >
               {mobileOpen ? <X size={15} /> : <Menu size={15} />}
             </button>
@@ -142,8 +133,7 @@ export function Navbar() {
           <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-              style={glass}
+              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
               aria-label="Toggle dark mode"
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -151,8 +141,7 @@ export function Navbar() {
 
             <Link
               href="/settings"
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-              style={glass}
+              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
               aria-label="Settings"
             >
               <Settings size={14} />
@@ -160,8 +149,7 @@ export function Navbar() {
 
             <Link
               href="/references"
-              className="hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white hover:bg-white/10 transition-all whitespace-nowrap"
-              style={glass}
+              className="liquid-glass hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white hover:bg-white/10 transition-all whitespace-nowrap"
             >
               References
             </Link>
@@ -169,16 +157,15 @@ export function Navbar() {
             {isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
-                style={glass}
+                className="liquid-glass hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/signin"
-                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
-                style={{ background: 'rgba(14,165,233,0.80)', border: '1px solid rgba(86,187,240,0.40)', backdropFilter: 'blur(12px)' }}
+                className="liquid-glass hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                style={{ background: 'rgba(14,165,233,0.35)' }}
               >
                 Sign In / Sign Up
               </Link>
@@ -194,8 +181,7 @@ export function Navbar() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.98 }}
               transition={{ duration: 0.18, ease: EASE }}
-              className="pointer-events-auto mx-4 mt-2 rounded-2xl overflow-hidden lg:hidden"
-              style={{ background: 'rgba(3,18,46,0.88)', border: '1px solid rgba(86,187,240,0.18)', backdropFilter: 'blur(24px)' }}
+              className="liquid-glass pointer-events-auto mx-4 mt-2 rounded-2xl overflow-hidden lg:hidden"
             >
               <div className="p-3">
                 {isHome && (
