@@ -50,7 +50,7 @@ export default function SettingsPage() {
       <Link
         href="/"
         className="fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm transition-all"
-        style={{ color: 'rgba(8,93,138,0.8)', background: 'rgba(86,187,240,0.10)', border: '1px solid rgba(86,187,240,0.20)' }}
+        style={{ color: 'rgba(198,235,255,0.85)', background: 'rgba(86,187,240,0.14)', border: '1px solid rgba(86,187,240,0.28)', backdropFilter: 'blur(12px)' }}
       >
         ← Back to Home
       </Link>

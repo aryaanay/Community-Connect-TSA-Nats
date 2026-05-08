@@ -41,7 +41,7 @@ export function Navbar() {
     const handle = () => {
       const scrolled = window.scrollY > 80
       setIsScrolled(scrolled)
-      if (!scrolled) setExpanded(false) // reset when back at top
+      setExpanded(false) // always collapse on any scroll
     }
     window.addEventListener('scroll', handle, { passive: true })
     return () => window.removeEventListener('scroll', handle)
@@ -156,6 +156,14 @@ export function Navbar() {
               aria-label="Settings"
             >
               <Settings size={14} />
+            </Link>
+
+            <Link
+              href="/references"
+              className="hidden sm:flex font-outfit text-sm px-3 py-2 rounded-xl text-white/65 hover:text-white transition-all whitespace-nowrap"
+              style={glass}
+            >
+              References
             </Link>
 
             {isSignedIn ? (
