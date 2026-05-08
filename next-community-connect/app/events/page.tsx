@@ -548,7 +548,7 @@ export default function EventsPage() {
       />
 
       {/* Calendar + Map */}
-      <section className="events-calendar-section py-16 lg:py-20 bg-gradient-to-br from-slate-50/50 to-sky-50/30 border-b border-sky-100/50">
+      <section className="events-calendar-section py-16 lg:py-20 bg-gradient-to-br from-slate-50 to-sky-50 border-b border-sky-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -565,7 +565,7 @@ export default function EventsPage() {
             </h3>
           </motion.div>
 
-          <div className="max-w-3xl mx-auto backdrop-blur-xl bg-white rounded-3xl border border-sky-100 p-6 lg:p-8 shadow-card">
+          <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-sky-100 p-6 lg:p-8 shadow-card">
             <PinnedCalendar events={allEvents} selected={calendarSelected} onSelect={setCalendarSelected} isDark={dk} />
           </div>
 

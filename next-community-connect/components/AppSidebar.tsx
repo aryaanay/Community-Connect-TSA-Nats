@@ -12,7 +12,7 @@ import { useAuth } from '@/context/AuthContext'
 
 const NAV = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/resources', icon: BookOpen, label: 'Resources' },
+  { href: '/dashboard/resources', icon: BookOpen, label: 'Resources' },
   { href: '/dashboard/events', icon: CalendarDays, label: 'Events' },
   { href: '/submit', icon: PlusCircle, label: 'Submit Resource' },
   { href: '/wishlist', icon: Heart, label: 'Donate' },
