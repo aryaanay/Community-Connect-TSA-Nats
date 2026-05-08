@@ -16,7 +16,7 @@ const NAV = [
   { href: '/dashboard/events', icon: CalendarDays, label: 'Events' },
   { href: '/submit', icon: PlusCircle, label: 'Submit Resource' },
   { href: '/wishlist', icon: Heart, label: 'Donate' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ]
 
 function Logo({ size = 26 }: { size?: number }) {

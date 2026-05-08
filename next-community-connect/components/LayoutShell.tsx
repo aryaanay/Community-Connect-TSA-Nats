@@ -6,7 +6,7 @@ import { Footer } from './Footer'
 import { AIChatWidget } from './AIChatWidget'
 import { AppSidebar } from './AppSidebar'
 
-const APP_ROUTES = ['/dashboard', '/submit', '/wishlist', '/settings']
+const APP_ROUTES = ['/dashboard', '/submit', '/wishlist']
 const BARE_ROUTES = ['/signin']
 
 function isAppRoute(pathname: string) {

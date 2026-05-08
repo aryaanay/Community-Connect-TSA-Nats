@@ -14,7 +14,6 @@ const SCROLL_LINKS = [
   { label: 'How It Works', id: 'how-it-works' },
   { label: 'Features', id: 'features' },
   { label: 'Events', id: 'events' },
-  { label: 'Get Involved', id: 'get-involved' },
 ]
 
 export function Navbar() {
@@ -131,23 +130,32 @@ export function Navbar() {
               )}
             </motion.button>
 
-            {/* Auth — only show when signed in */}
-            {isSignedIn && (
-              <div className="hidden sm:flex items-center gap-1">
+            {/* Auth */}
+            <div className="hidden sm:flex items-center gap-1">
+              {isSignedIn ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="font-outfit font-semibold text-sm px-3 py-2 rounded-lg text-sky-300 hover:text-sky-200 hover:bg-white/10 transition-all"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={signOut}
+                    className="text-white/60 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
                 <Link
-                  href="/dashboard"
-                  className="font-outfit font-semibold text-sm px-3 py-2 rounded-lg text-sky-300 hover:text-sky-200 hover:bg-white/10 transition-all"
+                  href="/signin"
+                  className="bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5"
                 >
-                  Dashboard
+                  Sign In / Sign Up
                 </Link>
-                <button
-                  onClick={signOut}
-                  className="text-white/60 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
-                >
-                  Sign Out
-                </button>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* CTA Links */}
             <div className="hidden sm:flex items-center gap-1">
@@ -200,7 +208,7 @@ export function Navbar() {
                   >
                     References
                   </Link>
-                  {isSignedIn && (
+                  {isSignedIn ? (
                     <>
                       <Link
                         href="/dashboard"
@@ -216,6 +224,14 @@ export function Navbar() {
                         Sign Out
                       </button>
                     </>
+                  ) : (
+                    <Link
+                      href="/signin"
+                      onClick={() => setIsMobileOpen(false)}
+                      className="flex-1 flex items-center justify-center bg-sky-500 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-sky-400 transition-all text-sm"
+                    >
+                      Sign In / Sign Up
+                    </Link>
                   )}
                 </div>
               </div>
