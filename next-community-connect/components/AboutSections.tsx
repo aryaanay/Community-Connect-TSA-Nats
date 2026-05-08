@@ -79,7 +79,7 @@ export function AboutSections() {
                 </div>
                 <div>
                   <div className="font-space font-bold text-lg text-[var(--text-dark)]">150+</div>
-                  <div className="font-outfit text-xs text-[var(--text-muted)]">Bothell Volunteers</div>
+                  <div className="font-outfit text-xs text-[var(--text-muted)]">Volunteers</div>
                 </div>
               </div>
               <div className="absolute top-7 left-[-20px] bg-white rounded-xl p-4 shadow-lg flex items-center gap-3 z-10">
