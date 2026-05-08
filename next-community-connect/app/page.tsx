@@ -124,7 +124,7 @@ const FEATURES = [
 
 function FeaturesSection() {
   return (
-    <section className="py-20 px-4 bg-[var(--section-bg)]">
+    <section id="features" className="py-20 px-4 bg-[var(--section-bg)]">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -280,8 +280,8 @@ export default function HomePage() {
       <MissionTicker />
       <AboutSections />
       <ZoomParallax images={communityImages} />
-      <Testimonials />
-      <HowItWorks />
+      <div id="testimonials"><Testimonials /></div>
+      <div id="how-it-works"><HowItWorks /></div>
       <FeaturesSection />
       <LocationEvents />
 
