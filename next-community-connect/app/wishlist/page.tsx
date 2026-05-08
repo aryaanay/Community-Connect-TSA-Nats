@@ -298,9 +298,10 @@ function DonationModal({ cause, onClose, onDonate }: {
 }) {
   const [amount, setAmount] = useState(25)
   const [custom, setCustom] = useState('')
-  const [step, setStep] = useState<'amount' | 'payment' | 'success'>('amount')
+  const [step, setStep] = useState<'amount' | 'payment' | 'zelle' | 'success'>('amount')
   const [localSaving, setLocalSaving] = useState(false)
   const [clientSecret, setClientSecret] = useState('')
+  const [copied, setCopied] = useState(false)
   const finalAmount = custom ? Number(custom) : amount
   const { settings } = useSettings()
   const dark = settings.dark
@@ -354,7 +355,54 @@ function DonationModal({ cause, onClose, onDonate }: {
         onClick={e => e.stopPropagation()}
       >
         <AnimatePresence mode="wait">
-          {step === 'payment' && clientSecret ? (
+          {step === 'zelle' ? (
+            <motion.div key="zelle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-8 py-6">
+              <button onClick={() => setStep('amount')} className="flex items-center gap-1 text-xs mb-6 transition-opacity hover:opacity-70"
+                style={{ fontFamily: 'var(--font-dm-sans)', color: tc.m }}>
+                ← Back
+              </button>
+              <p style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
+                Pay via Zelle — <span style={{ color: cause.color }}>${finalAmount}</span> to {cause.title}
+              </p>
+              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginBottom: '24px' }}>
+                Send the amount directly through your Zelle app using the info below.
+              </p>
+
+              <div className="rounded-2xl p-5 mb-4" style={{ background: dark ? 'rgba(108,59,255,0.12)' : '#F5F0FF', border: '1.5px solid rgba(108,59,255,0.25)' }}>
+                <p style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6C3BFF', marginBottom: '8px' }}>Zelle Recipient</p>
+                <p style={{ fontFamily: 'var(--font-space)', fontSize: '18px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
+                  donate@communityconnect.org
+                </p>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>Community Connect — {cause.title}</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('donate@communityconnect.org')
+                  setCopied(true)
+                  setTimeout(() => setCopied(false), 2000)
+                }}
+                className="w-full py-3 rounded-xl mb-4 transition-all flex items-center justify-center gap-2"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#6C3BFF', background: dark ? 'rgba(108,59,255,0.1)' : 'white', border: '1.5px solid rgba(108,59,255,0.3)' }}
+              >
+                {copied ? <><Check size={14} /> Copied!</> : '📋 Copy Zelle Email'}
+              </button>
+
+              <div className="rounded-xl p-4 mb-5" style={{ background: dark ? 'rgba(245,158,11,0.1)' : '#FFFBEB', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dark ? '#FCD34D' : '#92400e', lineHeight: 1.6 }}>
+                  After sending, click the button below so we can record your contribution.
+                </p>
+              </div>
+
+              <button
+                onClick={async () => { await onDonate(finalAmount); setStep('success') }}
+                className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, backgroundColor: '#6C3BFF', boxShadow: '0 8px 24px rgba(108,59,255,0.35)' }}
+              >
+                <Check size={16} /> I&apos;ve sent ${finalAmount} via Zelle
+              </button>
+            </motion.div>
+          ) : step === 'payment' && clientSecret ? (
             <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: dark ? 'night' : 'stripe' } }}>
               <StripePaymentForm
                 cause={cause}
@@ -446,10 +494,11 @@ function DonationModal({ cause, onClose, onDonate }: {
                   </p>
                 </div>
 
+                {/* Pay via Card/Apple Pay/Google Pay */}
                 <button
                   onClick={handleDonate}
                   disabled={finalAmount <= 0 || localSaving}
-                  className="w-full py-4 rounded-2xl text-white transition-all flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-2xl text-white transition-all flex items-center justify-center gap-2 mb-3"
                   style={{
                     fontFamily: 'var(--font-space)',
                     fontSize: '15px',
@@ -463,12 +512,30 @@ function DonationModal({ cause, onClose, onDonate }: {
                   {localSaving ? (
                     <><Loader2 size={16} className="animate-spin" /> Setting up payment…</>
                   ) : (
-                    <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <ChevronRight size={16} /></>
+                    <><Heart size={16} fill="white" /> Card / Apple Pay / Google Pay <ChevronRight size={16} /></>
                   )}
                 </button>
 
-                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '12px' }}>
-                  Secured by Stripe · SSL encrypted
+                {/* Pay via Zelle */}
+                <button
+                  onClick={() => setStep('zelle')}
+                  disabled={finalAmount <= 0}
+                  className="w-full py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2"
+                  style={{
+                    fontFamily: 'var(--font-space)',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: finalAmount > 0 ? '#6C3BFF' : '#CBD5E1',
+                    backgroundColor: dark ? 'rgba(108,59,255,0.12)' : '#F5F0FF',
+                    border: `1.5px solid ${finalAmount > 0 ? 'rgba(108,59,255,0.35)' : '#E2E8F0'}`,
+                    cursor: finalAmount <= 0 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>⚡</span> Pay via Zelle
+                </button>
+
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '10px' }}>
+                  Card payments secured by Stripe · SSL encrypted
                 </p>
               </div>
             </motion.div>

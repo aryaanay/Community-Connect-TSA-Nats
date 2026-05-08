@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, Calendar, Clock, Users, X, ChevronRight, Filter } from 'lucide-react'
+import { MapPin, Calendar, Clock, Filter, ChevronRight } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 
 type MappedEvent = {
@@ -26,7 +26,7 @@ const EVENTS: MappedEvent[] = [
   {
     id: 'cleanup', title: 'Community Cleanup Drive', date: 'April 25, 2026',
     time: '10:00 AM – 1:00 PM', location: 'Bothell Landing Park', audience: 'All ages',
-    category: 'Volunteer', description: "Join neighbors for a city-wide cleanup. Gloves, bags, and light refreshments provided.",
+    category: 'Volunteer', description: 'Join neighbors for a city-wide cleanup. Gloves, bags, and light refreshments provided.',
     emoji: '🌿', color: '#10b981', lat: 47.7621, lng: -122.2059,
   },
   {
@@ -92,9 +92,13 @@ function makeSvgIcon(color: string, active = false) {
 }
 
 function MapView({
-  events, activeId, onMarkerClick,
+  allEvents,
+  visibleIds,
+  activeId,
+  onMarkerClick,
 }: {
-  events: MappedEvent[]
+  allEvents: MappedEvent[]
+  visibleIds: Set<string>
   activeId: string | null
   onMarkerClick: (id: string) => void
 }) {
@@ -102,16 +106,16 @@ function MapView({
   const mapRef = useRef<any>(null)
   const markersRef = useRef<Record<string, any>>({})
 
+  // Create ALL markers once on mount — never re-run
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    let map: any
 
     import('leaflet').then((L) => {
       if (!containerRef.current || mapRef.current) return
 
       delete (L.Icon.Default.prototype as any)._getIconUrl
 
-      map = L.map(containerRef.current, { zoomControl: false }).setView([47.778, -122.22], 12)
+      const map = L.map(containerRef.current, { zoomControl: false }).setView([47.778, -122.22], 12)
       mapRef.current = map
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -121,7 +125,7 @@ function MapView({
 
       L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-      events.forEach((ev) => {
+      allEvents.forEach((ev) => {
         const icon = L.icon({
           iconUrl: makeSvgIcon(ev.color),
           iconSize: [30, 38],
@@ -154,14 +158,28 @@ function MapView({
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
       markersRef.current = {}
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Show / hide markers whenever visibleIds changes
+  useEffect(() => {
+    if (!mapRef.current) return
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      const map = mapRef.current
+      if (!map) return
+      if (visibleIds.has(id)) {
+        if (!map.hasLayer(marker)) marker.addTo(map)
+      } else {
+        if (map.hasLayer(marker)) map.removeLayer(marker)
+      }
+    })
+  }, [visibleIds])
 
   // Fly to active marker and swap icon
   useEffect(() => {
     if (!mapRef.current) return
     import('leaflet').then((L) => {
       Object.entries(markersRef.current).forEach(([id, marker]) => {
-        const ev = events.find(e => e.id === id)!
+        const ev = allEvents.find(e => e.id === id)!
         const isActive = id === activeId
         marker.setIcon(L.icon({
           iconUrl: makeSvgIcon(ev.color, isActive),
@@ -175,7 +193,7 @@ function MapView({
         }
       })
     })
-  }, [activeId])
+  }, [activeId, allEvents])
 
   return <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
 }
@@ -196,8 +214,17 @@ export default function DashboardMapPage() {
 
   if (loading || !isSignedIn || !mounted) return null
 
-  const filtered = filter === 'All' ? EVENTS : EVENTS.filter(e => e.category === filter)
-  const activeEvent = EVENTS.find(e => e.id === activeId) ?? null
+  // Compute visible event IDs from filter — passed to MapView to show/hide markers
+  const visibleIds = useMemo<Set<string>>(
+    () => new Set(
+      filter === 'All'
+        ? EVENTS.map(e => e.id)
+        : EVENTS.filter(e => e.category === filter).map(e => e.id)
+    ),
+    [filter]
+  )
+
+  const filteredList = filter === 'All' ? EVENTS : EVENTS.filter(e => e.category === filter)
 
   return (
     <div className="flex flex-col h-full bg-[#f0f7ff]">
@@ -234,15 +261,23 @@ export default function DashboardMapPage() {
               <span className="w-2 h-2 rounded-full inline-block" style={{ background: CATEGORY_COLORS[cat] }} />
             )}
             {cat}
+            <span className="ml-0.5 opacity-60 text-[10px]">
+              ({cat === 'All' ? EVENTS.length : EVENTS.filter(e => e.category === cat).length})
+            </span>
           </button>
         ))}
       </div>
 
       {/* Map + panel */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Map */}
+        {/* Map — always mounted so markers persist */}
         <div className="flex-1 relative">
-          <MapView events={filtered} activeId={activeId} onMarkerClick={setActiveId} />
+          <MapView
+            allEvents={EVENTS}
+            visibleIds={visibleIds}
+            activeId={activeId}
+            onMarkerClick={setActiveId}
+          />
         </div>
 
         {/* Event list panel */}
@@ -257,12 +292,12 @@ export default function DashboardMapPage() {
             >
               <div className="px-4 py-3 border-b border-sky-50 flex-shrink-0">
                 <p className="font-outfit text-xs text-sky-400 font-semibold uppercase tracking-wider">
-                  {filtered.length} event{filtered.length !== 1 ? 's' : ''}
+                  {filteredList.length} event{filteredList.length !== 1 ? 's' : ''} shown
                 </p>
               </div>
 
               <div className="flex-1 overflow-y-auto divide-y divide-sky-50">
-                {filtered.map(ev => (
+                {filteredList.map(ev => (
                   <button
                     key={ev.id}
                     onClick={() => setActiveId(activeId === ev.id ? null : ev.id)}
@@ -298,7 +333,6 @@ export default function DashboardMapPage() {
                           </div>
                         </div>
 
-                        {/* Expanded description */}
                         <AnimatePresence>
                           {activeId === ev.id && (
                             <motion.p

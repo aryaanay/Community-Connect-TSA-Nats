@@ -258,24 +258,34 @@ function PinnedCalendar({
   onSelect: (e: EventType | null) => void
   isDark: boolean
 }) {
-  const [viewMonth, setViewMonth] = useState(3) // April
-  const YEAR = 2026
-  const MIN = 3  // April
-  const MAX = 7  // August
+  const now = new Date()
+  const [viewYear, setViewYear] = useState(now.getFullYear())
+  const [viewMonth, setViewMonth] = useState(now.getMonth())
 
-  const daysInMonth = new Date(YEAR, viewMonth + 1, 0).getDate()
-  const startOffset = new Date(YEAR, viewMonth, 1).getDay()
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+  const startOffset = new Date(viewYear, viewMonth, 1).getDay()
   const dayLabels = ['SUN','MON','TUE','WED','THU','FRI','SAT']
 
+  const getEventYear = (e: EventType) => {
+    const m = e.date.match(/(\d{4})/)
+    return m ? parseInt(m[1]) : now.getFullYear()
+  }
+
   const getEventForDay = (day: number) =>
-    events.find(e => MONTH_SHORT[e.month] === viewMonth && parseInt(e.day) === day)
+    events.find(e =>
+      MONTH_SHORT[e.month] === viewMonth &&
+      parseInt(e.day) === day &&
+      getEventYear(e) === viewYear
+    )
 
   const changeMonth = (dir: 1 | -1) => {
-    const next = viewMonth + dir
-    if (next >= MIN && next <= MAX) {
-      setViewMonth(next)
-      onSelect(null) // clear selection on month change
-    }
+    let m = viewMonth + dir
+    let y = viewYear
+    if (m > 11) { m = 0; y++ }
+    if (m < 0) { m = 11; y-- }
+    setViewMonth(m)
+    setViewYear(y)
+    onSelect(null)
   }
 
   const headColor  = isDark ? '#90D4F7'                  : '#075985'
@@ -291,18 +301,15 @@ function PinnedCalendar({
   const navBorder  = isDark ? 'rgba(86,187,240,0.18)'    : '#e2e8f0'
   const navColor   = isDark ? '#56BBF0'                  : '#64748b'
 
-  const navBtn = (dir: 1 | -1, disabled: boolean) => (
+  const navBtn = (dir: 1 | -1) => (
     <button
       onClick={() => changeMonth(dir)}
-      disabled={disabled}
       style={{
         width: 32, height: 32, borderRadius: 8,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: navBg, border: `1px solid ${navBorder}`,
         color: navColor, fontSize: 20, lineHeight: 1,
-        opacity: disabled ? 0.3 : 1,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'all 0.15s',
+        cursor: 'pointer', transition: 'all 0.15s',
       }}
     >{dir === -1 ? '‹' : '›'}</button>
   )
@@ -311,11 +318,11 @@ function PinnedCalendar({
     <div>
       {/* Month nav */}
       <div className="flex items-center justify-between mb-4">
-        {navBtn(-1, viewMonth <= MIN)}
+        {navBtn(-1)}
         <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '14px', color: headColor }}>
-          {MONTH_NAMES[viewMonth]} {YEAR}
+          {MONTH_NAMES[viewMonth]} {viewYear}
         </div>
-        {navBtn(1, viewMonth >= MAX)}
+        {navBtn(1)}
       </div>
 
       {/* Day-of-week labels */}
@@ -558,7 +565,7 @@ export default function EventsPage() {
             className="text-center mb-12"
           >
             <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
-              Apr – Aug 2026 · Navigate months below
+              All months · Navigate with the arrows below
             </span>
             <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#022747', lineHeight: 1.1 }}>
               Next Events Pinned

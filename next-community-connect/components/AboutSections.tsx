@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap, Waves } from 'lucide-react'
 import { useSettings } from '@/context/SettingsContext'
+import { supabase } from '@/lib/supabaseClient'
 
 const timeline = [
   { year: '2019', title: 'The Idea Takes Root', description: 'Two Washington residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb' },
@@ -46,6 +47,46 @@ export function AboutSections() {
 
   const statsRef = useRef<HTMLElement>(null)
   const [statsVisible, setStatsVisible] = useState(false)
+
+  // Live stats from Supabase
+  const [liveEventCount, setLiveEventCount] = useState(8)       // fallback = hardcoded count
+  const [liveSupporters, setLiveSupporters] = useState(150)     // fallback
+  const [liveDonated, setLiveDonated] = useState(0)
+
+  useEffect(() => {
+    // Fetch event count
+    supabase.from('events').select('id', { count: 'exact', head: true })
+      .then(({ count }) => { if (count) setLiveEventCount(Math.max(8, count)) })
+
+    // Fetch supporter count + donated total from wishlist_causes
+    supabase.from('wishlist_causes').select('supporter_count, current_amount')
+      .then(({ data }) => {
+        if (!data) return
+        const supporters = data.reduce((s, r) => s + (r.supporter_count ?? 0), 0)
+        const donated = data.reduce((s, r) => s + (r.current_amount ?? 0), 0)
+        if (supporters > 0) setLiveSupporters(supporters)
+        if (donated > 0) setLiveDonated(donated)
+      })
+
+    // Real-time: update whenever wishlist_causes changes
+    const channel = supabase.channel('about-stats')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wishlist_causes' }, () => {
+        supabase.from('wishlist_causes').select('supporter_count, current_amount').then(({ data }) => {
+          if (!data) return
+          const supporters = data.reduce((s, r) => s + (r.supporter_count ?? 0), 0)
+          const donated = data.reduce((s, r) => s + (r.current_amount ?? 0), 0)
+          setLiveSupporters(supporters)
+          setLiveDonated(donated)
+        })
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, () => {
+        supabase.from('events').select('id', { count: 'exact', head: true })
+          .then(({ count }) => { if (count) setLiveEventCount(Math.max(8, count)) })
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -160,8 +201,8 @@ export function AboutSections() {
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
             {[
               { value: 30, label: 'Resources Listed' },
-              { value: 150, label: 'Active Volunteers' },
-              { value: 25, label: 'Events Organized' },
+              { value: liveSupporters, label: 'Active Supporters' },
+              { value: liveEventCount, label: 'Events Organized' },
               { value: 10, label: 'Partner Organizations' },
             ].map((item, i) => (
               <motion.div
