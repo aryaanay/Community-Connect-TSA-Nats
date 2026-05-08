@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
-  Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft,
+  Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft, Map,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 
@@ -14,6 +14,7 @@ const NAV = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/resources', icon: BookOpen, label: 'Resources' },
   { href: '/dashboard/events', icon: CalendarDays, label: 'Events' },
+  { href: '/dashboard/map', icon: Map, label: 'Map' },
   { href: '/submit', icon: PlusCircle, label: 'Submit Resource' },
   { href: '/wishlist', icon: Heart, label: 'Donate' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
