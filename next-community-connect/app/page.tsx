@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { MissionTicker } from '@/components/MissionTicker'
+import { Testimonials } from '@/components/Testimonials'
 import { MapPin, CalendarDays, Clock, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -190,6 +191,7 @@ export default function HomePage() {
         secondaryText="View Events"
       />
       <MissionTicker />
+      <Testimonials />
       <LocationEvents />
     </>
   )
