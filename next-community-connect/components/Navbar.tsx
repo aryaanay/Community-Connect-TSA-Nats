@@ -9,11 +9,6 @@ import { useSettings } from '@/context/SettingsContext'
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/events', label: 'Events' },
-{ href: '/resources', label: 'Resources' },
-  { href: '/wishlist', label: 'Contribute' },
-  { href: '/submit', label: 'Submit' },
-  { href: '/about', label: 'About' },
 ]
 
 export function Navbar() {

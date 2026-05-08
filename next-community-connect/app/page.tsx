@@ -211,7 +211,7 @@ export default function HomePage() {
                   className="px-8 py-3.5 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5"
                   style={{ background: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)' }}
                 >
-                  Get Started — Sign In / Sign Up
+                  Get Started
                 </Link>
               </div>
             </div>
