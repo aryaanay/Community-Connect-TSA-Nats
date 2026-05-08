@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Menu, X, Settings, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
 
@@ -16,229 +17,220 @@ const SCROLL_LINKS = [
   { label: 'Events', id: 'events' },
 ]
 
+const glass = {
+  background: 'rgba(255,255,255,0.10)',
+  border: '1px solid rgba(255,255,255,0.18)',
+  backdropFilter: 'blur(20px) saturate(1.4)',
+  WebkitBackdropFilter: 'blur(20px) saturate(1.4)',
+} as React.CSSProperties
+
 export function Navbar() {
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
-  const { isSignedIn, user, signOut } = useAuth()
+  const { isSignedIn, signOut } = useAuth()
   const { settings, dispatch } = useSettings()
   const isDark = settings.dark
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    setIsMobileOpen(false)
-  }
-
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 80)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    const handle = () => {
+      setIsScrolled(window.scrollY > 80)
+      if (window.scrollY > 80) setMenuOpen(false)
+    }
+    window.addEventListener('scroll', handle, { passive: true })
+    return () => window.removeEventListener('scroll', handle)
   }, [])
 
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setMenuOpen(false)
+  }
+
+  const isHome = pathname === '/'
+
   return (
-    <div
-      className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
-      style={{
-        top: 0,
-        paddingTop: isScrolled ? '0px' : '24px',
-        transition: 'padding 0.4s cubic-bezier(0.4,0,0.2,1)',
-      }}
-    >
-      <motion.nav
-        animate={{
-          borderRadius: isScrolled ? '0px' : '20px',
-          maxWidth: isScrolled ? '100vw' : '90vw',
-          backgroundColor: isScrolled ? 'rgba(2,39,71,0.97)' : 'rgba(255,255,255,0.10)',
-          borderColor: isScrolled ? 'rgba(36,153,214,0.3)' : 'rgba(255,255,255,0.20)',
-          boxShadow: isScrolled
-            ? '0 4px 32px rgba(2,39,71,0.5), 0 1px 0 rgba(36,153,214,0.25)'
-            : '0 8px 32px rgba(4,64,105,0.18)',
-          paddingLeft: isScrolled ? '2.5rem' : '2rem',
-          paddingRight: isScrolled ? '2.5rem' : '2rem',
-        }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        className={`w-full border backdrop-blur-xl pointer-events-auto overflow-hidden ${isSignedIn ? 'py-5' : 'py-4'}`}
-      >
-        <div className="flex items-center justify-between w-full">
+    <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none select-none">
+      {/* ── Main bar ────────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between px-4 sm:px-6 pt-5 gap-3">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 hover:scale-105 transition-transform">
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="17" cy="17" r="15.5" stroke="#2499D6" strokeWidth="1.5"/>
-              <circle cx="17" cy="17" r="3.5" fill="#2499D6"/>
-              <circle cx="17" cy="7" r="2.5" fill="#56BBF0"/>
-              <circle cx="26" cy="22" r="2.5" fill="#56BBF0"/>
-              <circle cx="8" cy="22" r="2.5" fill="#56BBF0"/>
-              <line x1="17" y1="13.5" x2="17" y2="9.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="19.8" y1="18.5" x2="23.8" y2="20.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="14.2" y1="18.5" x2="10.2" y2="20.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <span className="font-syne text-lg font-light text-white tracking-tight whitespace-nowrap drop-shadow-sm">
-              Community<strong className="font-bold">Connect</strong>
-            </span>
-          </Link>
+        {/* Logo pill */}
+        <Link
+          href="/"
+          className="pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
+          style={glass}
+        >
+          <svg width="26" height="26" viewBox="0 0 34 34" fill="none">
+            <circle cx="17" cy="17" r="15.5" stroke="#2499D6" strokeWidth="1.5"/>
+            <circle cx="17" cy="17" r="3.5" fill="#2499D6"/>
+            <circle cx="17" cy="7" r="2.5" fill="#56BBF0"/>
+            <circle cx="26" cy="22" r="2.5" fill="#56BBF0"/>
+            <circle cx="8" cy="22" r="2.5" fill="#56BBF0"/>
+            <line x1="17" y1="13.5" x2="17" y2="9.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="19.8" y1="18.5" x2="23.8" y2="20.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="14.2" y1="18.5" x2="10.2" y2="20.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <span className="font-syne text-sm font-light text-white whitespace-nowrap">
+            Community<strong className="font-bold">Connect</strong>
+          </span>
+        </Link>
 
-          {/* Desktop Nav Links — scroll buttons on homepage only */}
-          {pathname === '/' && (
-            <div className="hidden lg:flex items-center gap-0.5">
-              {SCROLL_LINKS.map(({ label, id }) => (
-                <motion.div key={id} whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
-                  <button
-                    onClick={() => scrollTo(id)}
-                    className="px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-white/75 hover:text-white hover:bg-white/10"
-                  >
-                    {label}
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2.5 flex-shrink-0">
-
-            {/* Settings / Accessibility */}
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/settings"
-                className="w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all"
-                aria-label="Accessibility settings"
+        {/* Center: nav pill (desktop) or hamburger */}
+        <div className="pointer-events-auto flex-1 flex justify-center">
+          {/* Desktop — nav pill when at top, hamburger when scrolled */}
+          <AnimatePresence mode="wait" initial={false}>
+            {isHome && !isScrolled ? (
+              <motion.div
+                key="nav-pill"
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                className="hidden lg:flex items-center gap-0.5 px-3 py-2 rounded-2xl"
+                style={glass}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </Link>
-            </motion.div>
-
-            {/* Dark mode toggle */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
-              className="w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all"
-              aria-label="Toggle dark mode"
-            >
-              {isDark ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                </svg>
-              )}
-            </motion.button>
-
-            {/* Auth */}
-            <div className="hidden sm:flex items-center gap-1">
-              {isSignedIn ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className="font-outfit font-semibold text-sm px-3 py-2 rounded-lg text-sky-300 hover:text-sky-200 hover:bg-white/10 transition-all"
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={signOut}
-                    className="text-white/60 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/signin"
-                  className="bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5"
-                >
-                  Sign In / Sign Up
-                </Link>
-              )}
-            </div>
-
-            {/* CTA Links */}
-            <div className="hidden sm:flex items-center gap-1">
-              <Link
-                href="/references"
-                className="text-white/75 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
-              >
-                References
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 rounded-full p-2 transition-all"
-              aria-label="Menu"
-            >
-              <span className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center block ${isMobileOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-              <span className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 block ${isMobileOpen ? 'opacity-0' : ''}`} />
-              <span className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center block ${isMobileOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden overflow-hidden"
-            >
-              <div className="pt-4 pb-2 border-t border-white/10 mt-4">
-                {pathname === '/' && SCROLL_LINKS.map(({ label, id }) => (
+                {SCROLL_LINKS.map(({ label, id }) => (
                   <button
                     key={id}
                     onClick={() => scrollTo(id)}
-                    className="block w-full text-left py-3 px-4 rounded-xl text-base font-medium text-white/90 hover:text-white hover:bg-white/20 transition-all mb-1"
+                    className="px-3 py-1.5 rounded-xl font-outfit text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 transition-all"
                   >
                     {label}
                   </button>
                 ))}
-                <div className="flex gap-2 mt-3">
-                  <Link
-                    href="/references"
-                    onClick={() => setIsMobileOpen(false)}
-                    className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
-                  >
-                    References
-                  </Link>
-                  {isSignedIn ? (
-                    <>
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setIsMobileOpen(false)}
-                        className="flex-1 flex items-center justify-center bg-sky-500/20 border border-sky-400/30 text-sky-300 font-semibold px-4 py-3 rounded-2xl hover:bg-sky-500/30 transition-all text-sm"
-                      >
-                        Dashboard
-                      </Link>
-                      <button
-                        onClick={() => { signOut(); setIsMobileOpen(false) }}
-                        className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
-                      >
-                        Sign Out
-                      </button>
-                    </>
-                  ) : (
-                    <Link
-                      href="/signin"
-                      onClick={() => setIsMobileOpen(false)}
-                      className="flex-1 flex items-center justify-center bg-sky-500 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-sky-400 transition-all text-sm"
-                    >
-                      Sign In / Sign Up
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            ) : (
+              <motion.button
+                key="hamburger"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => setMenuOpen((v) => !v)}
+                className="hidden lg:flex w-10 h-10 rounded-full items-center justify-center text-white transition-colors hover:bg-white/15"
+                style={glass}
+              >
+                {menuOpen ? <X size={15} /> : <Menu size={15} />}
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Mobile — hamburger always visible */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+            style={glass}
+          >
+            {menuOpen ? <X size={15} /> : <Menu size={15} />}
+          </button>
+        </div>
+
+        {/* Right: dark mode + settings + auth */}
+        <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+            style={glass}
+            aria-label="Toggle dark mode"
+          >
+            {isDark ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+
+          <Link
+            href="/settings"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/15 transition-colors"
+            style={glass}
+            aria-label="Settings"
+          >
+            <Settings size={14} />
+          </Link>
+
+          {isSignedIn ? (
+            <Link
+              href="/dashboard"
+              className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2 rounded-xl text-sky-300 hover:text-sky-200 hover:bg-white/10 transition-all"
+              style={glass}
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/signin"
+              className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2 rounded-xl text-white hover:-translate-y-0.5 transition-all"
+              style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.4)', backdropFilter: 'blur(12px)' }}
+            >
+              Sign In / Sign Up
+            </Link>
           )}
-        </AnimatePresence>
-      </motion.nav>
+        </div>
+      </div>
+
+      {/* ── Dropdown menu ───────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="pointer-events-auto mx-4 sm:mx-6 mt-2 rounded-2xl overflow-hidden"
+            style={{
+              background: 'rgba(2,20,45,0.85)',
+              border: '1px solid rgba(86,187,240,0.18)',
+              backdropFilter: 'blur(24px) saturate(1.4)',
+            }}
+          >
+            <div className="p-3">
+              {isHome && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 mb-3">
+                  {SCROLL_LINKS.map(({ label, id }) => (
+                    <button
+                      key={id}
+                      onClick={() => scrollTo(id)}
+                      className="text-left px-4 py-2.5 rounded-xl font-outfit text-sm font-medium text-white/80 hover:text-white hover:bg-white/8 transition-all"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="border-t border-white/8 pt-3 flex flex-wrap gap-2">
+                <Link
+                  href="/references"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex-1 min-w-[120px] text-center py-2.5 rounded-xl font-outfit text-sm font-medium text-white/60 hover:text-white hover:bg-white/8 transition-all"
+                >
+                  References
+                </Link>
+                {isSignedIn ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex-1 min-w-[120px] text-center py-2.5 rounded-xl font-outfit text-sm font-semibold text-sky-300 hover:bg-sky-500/15 transition-all"
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => { signOut(); setMenuOpen(false) }}
+                      className="flex-1 min-w-[120px] py-2.5 rounded-xl font-outfit text-sm font-medium text-white/50 hover:text-white hover:bg-white/8 transition-all"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/signin"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex-1 min-w-[120px] text-center py-2.5 rounded-xl font-outfit text-sm font-semibold text-white bg-sky-500/80 hover:bg-sky-500 transition-all"
+                  >
+                    Sign In / Sign Up
+                  </Link>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

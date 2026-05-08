@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { useSettings } from '@/context/SettingsContext'
+import Link from 'next/link'
 
 const checklistItems = [
   'All text content was written originally by team members',
@@ -83,6 +84,13 @@ export default function DocumentationPage() {
 
   return (
     <>
+      <Link
+        href="/"
+        className="fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm transition-all"
+        style={{ color: 'rgba(198,235,255,0.7)', background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.15)' }}
+      >
+        ← Back to Home
+      </Link>
       <HeroDemo
         badge="TSA Webmaster - Required Documentation"
         staticTitle="References"

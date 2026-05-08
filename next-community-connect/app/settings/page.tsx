@@ -4,6 +4,7 @@ import { useSettings } from '@/context/SettingsContext'
 import { motion } from 'framer-motion'
 import { Maximize2, Minimize2, Moon, Sun, Palette, EyeOff, Hash, ZoomIn } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
+import Link from 'next/link'
 
 const fontSizes = [
   { value: 'small', label: 'Small', icon: Minimize2 },
@@ -46,6 +47,13 @@ export default function SettingsPage() {
 
   return (
     <>
+      <Link
+        href="/"
+        className="fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm transition-all"
+        style={{ color: 'rgba(8,93,138,0.8)', background: 'rgba(86,187,240,0.10)', border: '1px solid rgba(86,187,240,0.20)' }}
+      >
+        ← Back to Home
+      </Link>
       <HeroDemo
         badge="Inclusive Design"
         staticTitle="Accessibility Settings"

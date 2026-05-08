@@ -7,7 +7,7 @@ import { AIChatWidget } from './AIChatWidget'
 import { AppSidebar } from './AppSidebar'
 
 const APP_ROUTES = ['/dashboard', '/submit', '/wishlist']
-const BARE_ROUTES = ['/signin']
+const BARE_ROUTES = ['/signin', '/settings', '/references']
 
 function isAppRoute(pathname: string) {
   return APP_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))
