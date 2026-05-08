@@ -8,6 +8,7 @@ import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { MissionTicker } from '@/components/MissionTicker'
 import { Testimonials } from '@/components/Testimonials'
 import { HowItWorks } from '@/components/HowItWorks'
+import { AboutSections } from '@/components/AboutSections'
 import { MapPin, CalendarDays, Clock, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -192,6 +193,7 @@ export default function HomePage() {
         secondaryText="View Events"
       />
       <MissionTicker />
+      <AboutSections />
       <Testimonials />
       <HowItWorks />
       <LocationEvents />
