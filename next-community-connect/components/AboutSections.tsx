@@ -252,39 +252,6 @@ export function AboutSections() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[var(--section-bg)]">
-        <div className="max-w-4xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-sky-900 to-sky-700 rounded-2xl p-12 text-center relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(36,153,214,0.2)_0%,transparent_60%)]" />
-            <div className="relative z-10">
-              <h2 className="font-space text-3xl font-bold text-white mb-4">Ready to Get Involved?</h2>
-              <p className="font-outfit text-base text-white/80 max-w-md mx-auto mb-8">
-                Browse our full directory of community resources, submit a resource you know about, or come to an upcoming event.
-              </p>
-              <div className="flex gap-3 justify-center flex-wrap">
-                <Link
-                  href="/signin"
-                  className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5"
-                  style={{ background: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)' }}
-                >
-                  Browse Resources
-                </Link>
-                <Link
-                  href="/signin"
-                  className="px-6 py-3 rounded-xl font-outfit font-semibold border-2 border-white/40 text-white hover:bg-white/10 transition-all"
-                >
-                  Upcoming Events
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </>
   )
 }
