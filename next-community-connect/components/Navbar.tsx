@@ -164,8 +164,8 @@ export function Navbar() {
             ) : (
               <Link
                 href="/signin"
-                className="liquid-glass hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
-                style={{ background: 'rgba(14,165,233,0.35)' }}
+                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(14,165,233,0.35)' }}
               >
                 Sign In / Sign Up
               </Link>
