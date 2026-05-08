@@ -11,21 +11,10 @@ import {
   AlertCircle, RefreshCw, Loader2, FlaskConical,
 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
-import { ZoomParallax } from '@/components/ZoomParallax'
 import TiltCard from '@/components/TiltCard'
 import { supabase } from '@/lib/supabaseClient'
 
 // ─── Images ───────────────────────────────────────────────────────────────────
-
-const communityImages = [
-  { src: '/img/optimized/heartwithhands6.jpg', alt: 'Hands forming heart community symbol' },
-  { src: '/img/optimized/garden2.jpg',         alt: 'Neighborhood garden space' },
-  { src: '/img/optimized/library3.jpg',        alt: 'Local library community area' },
-  { src: '/img/optimized/cleanup4.jpg',        alt: 'Neighborhood cleanup volunteers' },
-  { src: '/img/optimized/foodpantry5.jpg',     alt: 'Community food pantry shelves' },
-  { src: '/img/optimized/playground1.jpg',     alt: 'Community playground gathering' },
-  { src: '/img/optimized/community7.jpg',      alt: 'General community gathering' },
-]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -285,8 +274,6 @@ export default function ResourcesPage() {
         subtitle="Find nonprofits, support services, health programs, and opportunities. All verified and free to access."
         backgroundImage="/img/page-4.jpg"
       />
-
-      <ZoomParallax images={communityImages} />
 
       <section className="py-24 resources-section" id="directory"
         style={{ background: 'linear-gradient(160deg, #EBF7FF 0%, #F0F9FF 50%, #E0F2FE 100%)' }}>
