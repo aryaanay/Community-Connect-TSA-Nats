@@ -9,6 +9,17 @@ import { MissionTicker } from '@/components/MissionTicker'
 import { Testimonials } from '@/components/Testimonials'
 import { HowItWorks } from '@/components/HowItWorks'
 import { AboutSections } from '@/components/AboutSections'
+import { ZoomParallax } from '@/components/ZoomParallax'
+
+const communityImages = [
+  { src: '/img/optimized/heartwithhands6.jpg', alt: 'Hands forming heart community symbol' },
+  { src: '/img/optimized/garden2.jpg',         alt: 'Neighborhood garden space' },
+  { src: '/img/optimized/library3.jpg',        alt: 'Local library community area' },
+  { src: '/img/optimized/cleanup4.jpg',        alt: 'Neighborhood cleanup volunteers' },
+  { src: '/img/optimized/foodpantry5.jpg',     alt: 'Community food pantry shelves' },
+  { src: '/img/optimized/playground1.jpg',     alt: 'Community playground gathering' },
+  { src: '/img/optimized/community7.jpg',      alt: 'General community gathering' },
+]
 import { MapPin, CalendarDays, Clock } from 'lucide-react'
 import Link from 'next/link'
 
@@ -175,6 +186,7 @@ export default function HomePage() {
       />
       <MissionTicker />
       <AboutSections />
+      <ZoomParallax images={communityImages} />
       <Testimonials />
       <HowItWorks />
       <LocationEvents />
