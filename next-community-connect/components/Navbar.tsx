@@ -98,7 +98,7 @@ export function Navbar() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.14 }}
-                    className="flex items-center gap-0.5 px-3 py-2"
+                    className="flex items-center gap-0.5 px-3 py-2.5"
                   >
                     {SCROLL_LINKS.map(({ label, id }) => (
                       <button
@@ -142,7 +142,7 @@ export function Navbar() {
           <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
               style={glass}
               aria-label="Toggle dark mode"
             >
@@ -151,7 +151,7 @@ export function Navbar() {
 
             <Link
               href="/settings"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
               style={glass}
               aria-label="Settings"
             >
@@ -160,7 +160,7 @@ export function Navbar() {
 
             <Link
               href="/references"
-              className="hidden sm:flex font-outfit text-sm px-3 py-2 rounded-xl text-white/65 hover:text-white transition-all whitespace-nowrap"
+              className="hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white hover:bg-white/10 transition-all whitespace-nowrap"
               style={glass}
             >
               References
@@ -169,7 +169,7 @@ export function Navbar() {
             {isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
+                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
                 style={glass}
               >
                 Dashboard
@@ -177,7 +177,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/signin"
-                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
                 style={{ background: 'rgba(14,165,233,0.80)', border: '1px solid rgba(86,187,240,0.40)', backdropFilter: 'blur(12px)' }}
               >
                 Sign In / Sign Up
