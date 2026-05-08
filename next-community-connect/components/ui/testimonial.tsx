@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils"
 interface Testimonial {
   id: number | string
   name: string
-  avatar: string
+  avatar?: string
+  avatarColor?: string
   description: string
+  role?: string
 }
 
 interface TestimonialCarouselProps
@@ -68,7 +70,7 @@ const TestimonialCarousel = React.forwardRef<
               <motion.div
                 key={testimonial.id}
                 className={cn(
-                  "absolute w-full h-full rounded-3xl cursor-grab active:cursor-grabbing",
+                  "testimonial-card absolute w-full h-full rounded-3xl cursor-grab active:cursor-grabbing",
                   "bg-white shadow-2xl border border-sky-100",
                 )}
                 style={{
@@ -105,21 +107,32 @@ const TestimonialCarousel = React.forwardRef<
                 )}
 
                 <div className="p-8 flex flex-col items-center gap-4 h-full justify-center">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-20 h-20 rounded-full object-cover shadow-md border-2 border-sky-100"
-                  />
+                  {testimonial.avatarColor ? (
+                    <div
+                      className="w-20 h-20 rounded-full flex items-center justify-center shadow-md flex-shrink-0"
+                      style={{ background: testimonial.avatarColor }}
+                    >
+                      <span className="font-syne text-2xl font-bold text-white">
+                        {testimonial.name.charAt(0)}
+                      </span>
+                    </div>
+                  ) : (
+                    <img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="w-20 h-20 rounded-full object-cover shadow-md border-2 border-sky-100"
+                    />
+                  )}
                   <div className="text-center">
-                    <h3 className="font-syne text-base font-bold text-sky-950 mb-0.5">
+                    <h3 className="testimonial-name font-syne text-base font-bold text-sky-950 mb-0.5">
                       {testimonial.name}
                     </h3>
-                    {(testimonial as any).role && (
-                      <p className="font-outfit text-xs text-sky-500 mb-3">{(testimonial as any).role}</p>
+                    {testimonial.role && (
+                      <p className="testimonial-role font-outfit text-xs text-sky-500 mb-3">{testimonial.role}</p>
                     )}
-                    {!(testimonial as any).role && <div className="mb-3" />}
+                    {!testimonial.role && <div className="mb-3" />}
                   </div>
-                  <p className="text-center font-dm-sans text-sm leading-relaxed text-sky-700 max-w-[380px]">
+                  <p className="testimonial-desc text-center font-dm-sans text-sm leading-relaxed text-sky-700 max-w-[380px]">
                     {testimonial.description}
                   </p>
                   <span className="font-space text-xs font-bold text-amber-400 mt-1">★★★★★</span>

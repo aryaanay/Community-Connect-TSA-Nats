@@ -813,3 +813,23 @@ html {
   color: rgba(198, 235, 255, 0.4) !important;
 }
 
+/* ── Testimonial card dark mode ─────────────────────────────────────────────── */
+
+[data-theme="dark"] .testimonial-card {
+  background: rgba(2, 39, 71, 0.88) !important;
+  border-color: rgba(86, 187, 240, 0.18) !important;
+  box-shadow: 0 20px 60px rgba(1, 22, 41, 0.5) !important;
+}
+
+[data-theme="dark"] .testimonial-name {
+  color: #e0f2fe !important;
+}
+
+[data-theme="dark"] .testimonial-role {
+  color: #56BBF0 !important;
+}
+
+[data-theme="dark"] .testimonial-desc {
+  color: rgba(198, 235, 255, 0.78) !important;
+}
+
