@@ -156,7 +156,7 @@ export function Navbar() {
                   href="/signin"
                   className="bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5"
                 >
-                  Sign In
+                  Sign In / Sign Up
                 </Link>
               )}
             </div>
@@ -237,7 +237,7 @@ export function Navbar() {
                       onClick={() => setIsMobileOpen(false)}
                       className="flex-1 flex items-center justify-center bg-sky-500 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-sky-400 transition-all text-sm"
                     >
-                      Sign In
+                      Sign In / Sign Up
                     </Link>
                   )}
                 </div>

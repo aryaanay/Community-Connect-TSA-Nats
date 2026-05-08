@@ -193,19 +193,13 @@ export default function HomePage() {
               <p className="font-outfit text-base text-white/80 max-w-md mx-auto mb-8">
                 Browse our full directory of community resources, submit a resource you know about, or come to an upcoming event.
               </p>
-              <div className="flex gap-3 justify-center flex-wrap">
+              <div className="flex justify-center">
                 <Link
                   href="/signin"
-                  className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5"
+                  className="px-8 py-3.5 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5"
                   style={{ background: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)' }}
                 >
-                  Browse Resources
-                </Link>
-                <Link
-                  href="/signin"
-                  className="px-6 py-3 rounded-xl font-outfit font-semibold border-2 border-white/40 text-white hover:bg-white/10 transition-all"
-                >
-                  Upcoming Events
+                  Get Started — Sign In / Sign Up
                 </Link>
               </div>
             </div>

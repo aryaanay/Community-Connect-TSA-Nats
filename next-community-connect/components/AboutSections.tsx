@@ -104,7 +104,7 @@ export function AboutSections() {
                 Community Connect is a free, volunteer-powered platform that makes it easy to find, share, and promote local services, programs, and organizations that uplift residents of all backgrounds.
               </p>
               <p className="font-outfit text-base text-[var(--text-body)] leading-relaxed mb-6">
-                We saw firsthand how many people had no idea about the resources right here in Bothell: food banks, free tutoring, mental health support, and volunteer programs. The reason was simple. There was no single place to look. We built that place.
+                We saw firsthand how many people had no idea about the resources right here in the Pacific Northwest: food banks, free tutoring, mental health support, and volunteer programs. The reason was simple. There was no single place to look. We built that place.
               </p>
               <div className="border-l-4 border-sky-400 bg-sky-50 rounded-r-xl p-5 mb-6">
                 <p
@@ -155,7 +155,7 @@ export function AboutSections() {
             className="text-center mb-10"
           >
             <span className="font-outfit text-xs font-semibold uppercase tracking-widest text-sky-300/70">By the Numbers</span>
-            <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2">Our Impact in Bothell</h2>
+            <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2">Our Impact in Washington</h2>
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
             {[
