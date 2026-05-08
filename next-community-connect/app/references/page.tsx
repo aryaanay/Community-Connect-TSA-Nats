@@ -86,7 +86,7 @@ export default function DocumentationPage() {
     <>
       <Link
         href="/"
-        className="liquid-glass fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:bg-white/10"
+        className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125"
       >
         ← Back to Home
       </Link>
