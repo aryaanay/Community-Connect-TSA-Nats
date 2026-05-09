@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle, AlertCircle, Mail, Phone, MapPin, Send, X, LogIn, FlaskConical, Sparkles, ArrowRight } from 'lucide-react'
+import { CheckCircle, AlertCircle, Mail, Phone, MapPin, Send, X, LogIn, Sparkles, ArrowRight, Bot, ShieldCheck, ShieldX, Loader2 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
@@ -47,9 +47,8 @@ function getErrorMessage(err: unknown): string {
   return 'Submission failed — please try again.'
 }
 
-async function submitResourceToDb(data: FormData) {
-  // 1) Insert into submissions (hard fail)
-  const { error: submissionError } = await supabase
+async function saveToSubmissions(data: FormData) {
+  const { error } = await supabase
     .from('submissions')
     .insert({
       resource_name: data.name,
@@ -62,11 +61,11 @@ async function submitResourceToDb(data: FormData) {
       website:       data.website || null,
       status:        'pending',
     })
+  if (error) throw error
+}
 
-  if (submissionError) throw submissionError
-
-  // 2) TESTING: also insert into resources so it appears instantly (soft fail)
-  const { error: resourceError } = await supabase
+async function addToResources(data: FormData) {
+  const { error } = await supabase
     .from('resources')
     .insert({
       name:        data.name,
@@ -78,14 +77,194 @@ async function submitResourceToDb(data: FormData) {
       hours:       data.hours    || null,
       website_url: data.website  || null,
       image_url:   null,
-      is_verified: false,
+      is_verified: true,
       is_featured: false,
     })
-
-  if (resourceError) {
-    console.warn('[Testing] resources insert failed (submission still saved):', JSON.stringify(resourceError, null, 2))
-  }
+  if (error) console.warn('Resources insert failed:', error)
 }
+
+// ─── AI Review Modal ──────────────────────────────────────────────────────────
+
+type ReviewState = 'submitting' | 'reviewing' | 'approved' | 'rejected'
+
+const REVIEW_STEPS: { state: ReviewState; label: string; icon: React.ReactNode }[] = [
+  { state: 'submitting', label: 'Saving your submission…',      icon: <Send size={16} /> },
+  { state: 'reviewing',  label: 'AI is reviewing your resource…', icon: <Bot size={16} /> },
+  { state: 'approved',   label: 'Approved & added to directory!', icon: <ShieldCheck size={16} /> },
+  { state: 'rejected',   label: 'Could not be approved',         icon: <ShieldX size={16} /> },
+]
+
+function AIReviewModal({
+  state,
+  reason,
+  onClose,
+}: {
+  state: ReviewState
+  reason: string
+  onClose: () => void
+}) {
+  const isTerminal = state === 'approved' || state === 'rejected'
+  const isApproved = state === 'approved'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(1,22,41,0.8)', backdropFilter: 'blur(20px)' }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 32, scale: 0.94 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.96 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-sm rounded-3xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #022747 0%, #033460 100%)',
+          border: '1px solid rgba(86,187,240,0.25)',
+          boxShadow: '0 40px 100px rgba(1,22,41,0.5)',
+        }}
+      >
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-sky-400/10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, rgba(86,187,240,0.2), rgba(86,187,240,0.1))' }}>
+              <Bot size={20} className="text-sky-400" />
+            </div>
+            <div>
+              <p className="font-outfit text-xs text-sky-400/70 uppercase tracking-wider">AI Moderation</p>
+              <h3 className="font-syne text-lg font-bold text-white">Reviewing Submission</h3>
+            </div>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="px-8 py-6 space-y-3">
+          {REVIEW_STEPS.filter(s => s.state !== 'rejected' || state === 'rejected')
+            .filter(s => s.state !== 'approved' || state === 'approved')
+            .filter(s => !(s.state === 'approved' && state === 'rejected'))
+            .filter(s => !(s.state === 'rejected' && state === 'approved'))
+            .map((step) => {
+              const stepOrder: ReviewState[] = ['submitting', 'reviewing', isApproved ? 'approved' : 'rejected']
+              const stepIdx = stepOrder.indexOf(step.state)
+              const currentIdx = stepOrder.indexOf(state)
+              const isDone = stepIdx < currentIdx
+              const isActive = stepIdx === currentIdx
+
+              return (
+                <motion.div
+                  key={step.state}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: stepIdx * 0.1 }}
+                  className="flex items-center gap-3"
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                    style={{
+                      backgroundColor: isDone
+                        ? 'rgba(16,185,129,0.2)'
+                        : isActive
+                          ? step.state === 'rejected'
+                            ? 'rgba(239,68,68,0.2)'
+                            : 'rgba(86,187,240,0.2)'
+                          : 'rgba(255,255,255,0.05)',
+                      border: isDone
+                        ? '1.5px solid rgba(16,185,129,0.5)'
+                        : isActive
+                          ? step.state === 'rejected'
+                            ? '1.5px solid rgba(239,68,68,0.5)'
+                            : '1.5px solid rgba(86,187,240,0.5)'
+                          : '1.5px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    {isDone ? (
+                      <CheckCircle size={14} className="text-emerald-400" />
+                    ) : isActive && !isTerminal ? (
+                      <Loader2 size={14} className="text-sky-400 animate-spin" />
+                    ) : (
+                      <span style={{
+                        color: isActive
+                          ? step.state === 'rejected' ? '#f87171' : '#56BBF0'
+                          : 'rgba(255,255,255,0.25)',
+                      }}>
+                        {step.icon}
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className="font-outfit text-sm"
+                    style={{
+                      color: isDone
+                        ? 'rgba(198,235,255,0.9)'
+                        : isActive
+                          ? step.state === 'rejected' ? '#fca5a5' : '#C6EBFF'
+                          : 'rgba(198,235,255,0.3)',
+                      fontWeight: isActive ? 600 : 400,
+                    }}
+                  >
+                    {step.label}
+                  </span>
+                </motion.div>
+              )
+            })}
+        </div>
+
+        {/* Result panel */}
+        <AnimatePresence>
+          {isTerminal && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              transition={{ duration: 0.3 }}
+              className="px-8 pb-8"
+            >
+              <div
+                className="rounded-2xl p-4 mb-5"
+                style={{
+                  background: isApproved
+                    ? 'rgba(16,185,129,0.08)'
+                    : 'rgba(239,68,68,0.08)',
+                  border: isApproved
+                    ? '1px solid rgba(16,185,129,0.25)'
+                    : '1px solid rgba(239,68,68,0.25)',
+                }}
+              >
+                <div className="flex items-start gap-2.5">
+                  {isApproved
+                    ? <ShieldCheck size={15} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                    : <ShieldX size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+                  }
+                  <p className="font-outfit text-sm leading-relaxed"
+                    style={{ color: isApproved ? 'rgba(167,243,208,0.9)' : 'rgba(252,165,165,0.9)' }}>
+                    {reason}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-full py-3.5 rounded-2xl font-outfit font-semibold text-sm transition-all"
+                style={{
+                  background: isApproved
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.8), rgba(86,187,240,0.8))'
+                    : 'rgba(255,255,255,0.08)',
+                  color: 'white',
+                  border: isApproved ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                {isApproved ? 'View Directory' : 'Close & Edit Submission'}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ─── Success Screen ───────────────────────────────────────────────────────────
 
 function PlaneSuccess() {
   const confetti = Array.from({ length: 18 }, (_, i) => ({
@@ -164,7 +343,7 @@ function PlaneSuccess() {
           <motion.div
             initial={{ scale: 0, rotate: -14 }} animate={{ scale: 1, rotate: 0 }}
             transition={{ delay: 1.72, type: 'spring', stiffness: 220, damping: 13 }}
-            className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5 success-pop"
+            className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
             style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(86,187,240,0.95))', boxShadow: '0 20px 60px rgba(16,185,129,0.35)' }}
           >
             <CheckCircle className="w-10 h-10 text-white" />
@@ -178,26 +357,13 @@ function PlaneSuccess() {
             style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.16)' }}
           >
             <Sparkles className="w-4 h-4 text-sky-200" />
-            <span className="font-space text-xs uppercase tracking-[0.14em] text-sky-100/80">Request received</span>
+            <span className="font-space text-xs uppercase tracking-[0.14em] text-sky-100/80">AI Approved</span>
           </motion.div>
 
-          <h1 className="font-syne text-3xl sm:text-4xl font-bold text-white mb-3">Submission Sent!</h1>
+          <h1 className="font-syne text-3xl sm:text-4xl font-bold text-white mb-3">Resource Added!</h1>
           <p className="font-dm-sans text-base mb-5" style={{ color: 'rgba(198,235,255,0.75)' }}>
-            Our team will review your resource within 2-3 business days and add it to the directory.
+            Your resource was reviewed and approved by our AI moderator and is now live in the community directory.
           </p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.4, duration: 0.4 }}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl mb-8 mx-auto w-fit"
-            style={{ backgroundColor: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)' }}
-          >
-            <FlaskConical size={14} className="text-amber-300 flex-shrink-0" />
-            <p className="font-dm-sans text-xs" style={{ color: 'rgba(253,230,138,0.9)' }}>
-              For testing purposes, your submission appears immediately in the directory.
-            </p>
-          </motion.div>
 
           <div className="flex gap-3 justify-center flex-wrap">
             <Link href="/" className="px-6 py-3 rounded-xl font-outfit font-semibold transition-all hover:-translate-y-0.5"
@@ -215,6 +381,8 @@ function PlaneSuccess() {
     </div>
   )
 }
+
+// ─── Sign-in Modal ────────────────────────────────────────────────────────────
 
 function SignInModal({ onClose }: { onClose: () => void }) {
   return (
@@ -264,6 +432,8 @@ function SignInModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function SubmitPage() {
   const { isSignedIn, user } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -272,6 +442,9 @@ export default function SubmitPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [isPending, startTransition] = useTransition()
+
+  const [reviewState, setReviewState] = useState<ReviewState | null>(null)
+  const [reviewReason, setReviewReason] = useState('')
 
   const busy = isLoading || isPending
 
@@ -285,19 +458,54 @@ export default function SubmitPage() {
 
     setIsLoading(true)
     setSubmitError('')
+    setReviewState('submitting')
 
     startTransition(async () => {
       try {
-        await submitResourceToDb(formData)
-        setIsSubmitted(true)
-        setFormData(EMPTY_FORM)
+        // Step 1: Save submission record
+        await saveToSubmissions(formData)
+
+        // Step 2: Call AI review
+        setReviewState('reviewing')
+        const res = await fetch('/api/review-resource', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            category: formData.category,
+            description: formData.description,
+            email: formData.email,
+            address: formData.address,
+          }),
+        })
+        const review = await res.json() as { approved: boolean; reason: string }
+
+        // Step 3: Act on result
+        if (review.approved) {
+          await addToResources(formData)
+          setReviewState('approved')
+          setReviewReason(review.reason)
+        } else {
+          setReviewState('rejected')
+          setReviewReason(review.reason)
+        }
       } catch (err: unknown) {
+        setReviewState(null)
         setSubmitError(getErrorMessage(err))
-        console.error('Submit error — raw:', JSON.stringify(err, null, 2))
+        console.error('Submit error:', err)
       } finally {
         setIsLoading(false)
       }
     })
+  }
+
+  const handleReviewClose = () => {
+    if (reviewState === 'approved') {
+      setFormData(EMPTY_FORM)
+      setIsSubmitted(true)
+    }
+    setReviewState(null)
+    setReviewReason('')
   }
 
   if (isSubmitted) return <PlaneSuccess />
@@ -305,6 +513,16 @@ export default function SubmitPage() {
   return (
     <>
       {showAuthModal && <SignInModal onClose={() => setShowAuthModal(false)} />}
+
+      <AnimatePresence>
+        {reviewState && (
+          <AIReviewModal
+            state={reviewState}
+            reason={reviewReason}
+            onClose={handleReviewClose}
+          />
+        )}
+      </AnimatePresence>
 
       <HeroDemo
         badge="Community Driven"
@@ -335,18 +553,11 @@ export default function SubmitPage() {
               )}
             </AnimatePresence>
 
-            <div className="bg-sky-50 border border-sky-200 rounded-[var(--radius-md)] p-4 mb-6 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
+            <div className="bg-sky-50 border border-sky-200 rounded-[var(--radius-md)] p-4 mb-8 flex items-start gap-3">
+              <Bot className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
               <div className="font-outfit text-sm text-sky-800">
-                <strong className="text-sky-900">All submissions are reviewed</strong> by our team within 2-3 business days to ensure quality and accuracy before being added to the directory.
+                <strong className="text-sky-900">AI-powered moderation</strong> — your submission is instantly reviewed by our AI to ensure it meets community guidelines. Approved resources are added to the directory immediately.
               </div>
-            </div>
-
-            <div className="flex items-start gap-2.5 px-4 py-3 rounded-[var(--radius-md)] border border-amber-200 bg-amber-50 mb-8">
-              <FlaskConical size={15} className="text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="font-outfit text-xs text-amber-800">
-                <strong>Testing mode:</strong> Your submission will appear immediately on the Resources page without review.
-              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
