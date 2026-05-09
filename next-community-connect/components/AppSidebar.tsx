@@ -316,6 +316,12 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   const t = getT(settings.language)
   const { unlock } = useAchievements()
 
+  // Reset scroll position of the main content area whenever the route changes
+  useEffect(() => {
+    const mainEl = document.querySelector<HTMLElement>('main')
+    if (mainEl) mainEl.scrollTop = 0
+  }, [pathname])
+
   // Auto-open tutorial on first visit
   useEffect(() => {
     try {

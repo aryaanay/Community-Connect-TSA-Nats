@@ -543,9 +543,6 @@ function SignInForm() {
               )}
             </AnimatePresence>
 
-            <p className="mt-6 text-center font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.2)' }}>
-              <Link href="/" className="hover:text-white transition-colors">← Back to home</Link>
-            </p>
           </motion.div>
         </div>
       </div>
