@@ -388,7 +388,7 @@ function SignInForm() {
             </motion.div>
 
             {/* Feature pills */}
-            <div className="flex flex-row flex-wrap gap-2.5 mt-5">
+            <div className="flex flex-row flex-nowrap gap-2.5 mt-5">
               {PILLS.map(({ Icon, label }) => (
                 <div
                   key={label}
