@@ -127,6 +127,17 @@ const FONT_SIZE_STEPS: { display: string; value: 'small' | 'medium' | 'large' | 
 export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean }) {
   const { settings, dispatch } = useSettings()
   const { unlock, markPageVisited } = useAchievements()
+
+  const [rsvpPublic, setRsvpPublic] = React.useState(() => {
+    try { return localStorage.getItem('cc-rsvp-public') !== 'false' } catch { return true }
+  })
+  const toggleRsvpPublic = () => {
+    setRsvpPublic(p => {
+      const next = !p
+      try { localStorage.setItem('cc-rsvp-public', String(next)) } catch { /* ignore */ }
+      return next
+    })
+  }
   const t = getT(settings.language)
   const dk = settings.dark
   const toggle = (key: keyof typeof settings) =>
@@ -399,6 +410,17 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
                 title={t('pre.motor')} description="Larger hit targets, sticky inputs, and keyboard-first navigation across all pages" active={settings.motorImpairmentMode} onToggle={() => toggle('motorImpairmentMode')} />
             </div>
           </motion.div>
+
+          {/* Privacy */}
+          <SectionCard icon={Shield} iconColor="text-sky-500" iconBg="bg-sky-50" iconBgDk="bg-sky-900/40" title="Privacy" onLabel={onLabel} delay={0.3} dk={dk}>
+            <SettingRow
+              dk={dk}
+              label="Show connections when I RSVP"
+              description="Friends can see when you mark yourself as going to an event"
+              active={rsvpPublic}
+              onToggle={toggleRsvpPublic}
+            />
+          </SectionCard>
 
           {/* Reset */}
           <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}

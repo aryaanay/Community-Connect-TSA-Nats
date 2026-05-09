@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon, PlusCircle } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
@@ -389,10 +389,83 @@ function PinnedCalendar({
   )
 }
 
+const RSVP_BASE: Record<string, number> = {
+  cleanup: 34, stem: 22, food: 67, clothing: 18,
+  garden: 29, health: 41, block: 156, school: 38,
+}
+
+function useEventRsvp(eventId: string, userId: string | undefined) {
+  const KEY = 'cc-rsvps'
+  const base = RSVP_BASE[eventId] ?? 12
+
+  const [isGoing, setIsGoing] = useState(() => {
+    try { return !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId] } catch { return false }
+  })
+  const [count, setCount] = useState(() => {
+    try {
+      const going = !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId]
+      return base + (going ? 1 : 0)
+    } catch { return base }
+  })
+  const [friendsGoing, setFriendsGoing] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    if (!userId) return
+    ;(async () => {
+      try {
+        const connections: string[] = JSON.parse(localStorage.getItem('cc-connections') || '[]')
+        if (!connections.length) return
+        const { data: rsvpData } = await supabase
+          .from('event_rsvps')
+          .select('user_id')
+          .eq('event_id', eventId)
+          .in('user_id', connections)
+        if (!rsvpData?.length) return
+        const friendIds = rsvpData.map((r: any) => r.user_id)
+        const rsvpPublic = localStorage.getItem('cc-rsvp-public') !== 'false'
+        if (!rsvpPublic) return
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', friendIds)
+        setFriendsGoing((profileData || []).map((p: any) => ({ id: p.user_id, name: p.display_name || 'A friend' })))
+      } catch { /* table may not exist */ }
+    })()
+  }, [eventId, userId])
+
+  const toggle = useCallback(() => {
+    setIsGoing(prev => {
+      const next = !prev
+      try {
+        const store = JSON.parse(localStorage.getItem(KEY) || '{}')
+        store[eventId] = next
+        localStorage.setItem(KEY, JSON.stringify(store))
+      } catch { /* ignore */ }
+      setCount(c => Math.max(0, next ? c + 1 : c - 1))
+      if (userId) {
+        supabase.from('event_rsvps')
+          .upsert({ event_id: eventId, user_id: userId }, { onConflict: 'event_id,user_id' })
+          .then(() => {})
+          .catch(() => {})
+        if (!next) {
+          supabase.from('event_rsvps')
+            .delete().eq('event_id', eventId).eq('user_id', userId)
+            .then(() => {}).catch(() => {})
+        }
+      }
+      return next
+    })
+  }, [eventId, userId])
+
+  return { isGoing, toggle, count, friendsGoing }
+}
+
 function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }: {
   event: EventType; onClose: () => void;
   isOwned?: boolean; onDelete?: () => void; deleting?: boolean
 }) {
+  const { user } = useAuth()
+  const { isGoing, toggle, count, friendsGoing } = useEventRsvp(event.id, user?.id)
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -458,6 +531,41 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* RSVP */}
+          <div className="flex items-center justify-between mb-5 px-1">
+            <div>
+              <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+                {count} {count === 1 ? 'person' : 'people'} going
+              </p>
+              {friendsGoing.length > 0 && (
+                <p style={{ fontFamily: 'var(--font-outfit)', fontSize: '12px', color: '#0369a1', marginTop: '2px' }}>
+                  {friendsGoing.slice(0, 2).map(f => f.name).join(', ')}
+                  {friendsGoing.length > 2 ? ` +${friendsGoing.length - 2} more` : ''} from your connections
+                </p>
+              )}
+            </div>
+            <button
+              onClick={toggle}
+              style={{
+                fontFamily: 'var(--font-space)',
+                fontSize: '13px',
+                fontWeight: 700,
+                padding: '8px 18px',
+                borderRadius: '10px',
+                border: isGoing ? 'none' : '1px solid rgba(86,187,240,0.35)',
+                background: isGoing ? event.color : 'transparent',
+                color: isGoing ? 'white' : '#085D8A',
+                cursor: 'pointer',
+                transition: 'all 0.18s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {isGoing ? '✓ Going' : 'RSVP'}
+            </button>
           </div>
 
           <div className="flex gap-2">
