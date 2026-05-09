@@ -49,8 +49,9 @@ function TimelineTile({ item }: { item: TimelineItem }) {
           <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
         </motion.div>
         <div className="flex-1 px-6 py-5 flex flex-col justify-center min-w-0">
+          <span className="font-space text-xs font-bold text-sky-500 tracking-widest uppercase mb-1">{item.year}</span>
           <h3 className="font-space font-bold text-base sm:text-lg text-[var(--text-dark)] mb-2 leading-snug">{item.title}</h3>
-          <p className="font-outfit text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed line-clamp-4">{item.description}</p>
+          <p className="font-outfit text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed line-clamp-3">{item.description}</p>
         </div>
       </motion.div>
     </motion.article>
