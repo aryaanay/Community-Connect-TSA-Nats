@@ -45,10 +45,10 @@ function Hero({
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [])
   const floatingCards = [
-    { icon: Search, label: 'Food assistance', value: '12 nearby', delay: 0 },
-    { icon: CalendarDays, label: 'This weekend', value: '4 events', delay: 0.15 },
-    { icon: HeartHandshake, label: 'Volunteer match', value: 'Open now', delay: 0.3 },
-    { icon: MapPin, label: 'Bothell hub', value: 'Live guide', delay: 0.45 },
+    { icon: Search,        label: 'Food assistance', value: '12 nearby', delay: 0,    pos: 'top-[22%] left-[4%]'  },
+    { icon: CalendarDays,  label: 'This weekend',    value: '4 events',  delay: 0.15, pos: 'top-[18%] right-[4%]' },
+    { icon: HeartHandshake,label: 'Volunteer match', value: 'Open now',  delay: 0.3,  pos: 'bottom-[28%] left-[4%]'  },
+    { icon: MapPin,        label: 'Bothell hub',     value: 'Live guide',delay: 0.45, pos: 'bottom-[24%] right-[4%]' },
   ]
 
   useEffect(() => {
@@ -176,9 +176,11 @@ function Hero({
                   <motion.button
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all bg-white text-sky-900 hover:bg-sky-50"
+                    className="liquid-glass inline-flex items-center px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all"
                   >
-                    {primaryText} <MoveRight className="w-4 h-4" />
+                    <span className="liquid-content flex items-center gap-3 text-white">
+                      {primaryText} <MoveRight className="w-4 h-4" />
+                    </span>
                   </motion.button>
                 </Link>
               )}
@@ -214,41 +216,29 @@ function Hero({
             )}
           </div>
 
-          {isHomeHero && (
-  <div className="absolute bottom-20 inset-x-0 hidden xl:flex justify-around px-14 pointer-events-none z-20">
-    {floatingCards.map(({ icon: Icon, label, value, delay }, i) => (
-      <motion.div
-        key={label}
-        className="liquid-glass-fixed rounded-2xl px-4 py-3"
-        initial={{ opacity: 0, y: 16, scale: 0.94 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 1.0 + delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <motion.div
-          className="flex items-center gap-3"
-          animate={{ y: [0, -(5 + i * 3), 0] }}
-          transition={{
-            delay: 1.6 + delay,
-            duration: 3.5 + i * 0.8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            repeatDelay: 0,
-          }}
-        >
-          <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center">
-            <Icon className="w-4 h-4 text-sky-100" />
-          </div>
-          <div className="min-w-0">
-            <p className="font-outfit text-[11px] uppercase tracking-[0.12em] text-sky-100/60">{label}</p>
-            <p className="font-space text-sm font-semibold text-white">{value}</p>
-          </div>
-        </motion.div>
-      </motion.div>
-    ))}
-  </div>
-)}
         </div>
       </div>
+
+      {/* Scattered notification cards */}
+      {isHomeHero && floatingCards.map(({ icon: Icon, label, value, delay, pos }) => (
+        <motion.div
+          key={label}
+          className={`absolute hidden xl:block pointer-events-none z-20 ${pos}`}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.0 + delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="liquid-glass-fixed rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center">
+              <Icon className="w-4 h-4 text-sky-100" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-outfit text-[11px] uppercase tracking-[0.12em] text-sky-100/60">{label}</p>
+              <p className="font-space text-sm font-semibold text-white">{value}</p>
+            </div>
+          </div>
+        </motion.div>
+      ))}
 
       <motion.div
         initial={{ opacity: 0 }}

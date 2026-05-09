@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import SettingsPage from '@/app/settings/page'
+import { SettingsContent } from '@/components/SettingsContent'
 
 export default function DashboardSettingsPage() {
   const { isSignedIn, loading } = useAuth()
@@ -15,5 +15,5 @@ export default function DashboardSettingsPage() {
 
   if (loading || !isSignedIn) return null
 
-  return <SettingsPage />
+  return <SettingsContent isDashboard />
 }
