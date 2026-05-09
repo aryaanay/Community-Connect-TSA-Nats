@@ -317,6 +317,7 @@ export default function HomePage() {
         primaryText="Get Started"
         secondaryHref="#events"
         secondaryText="View Events"
+        subtitle="Find nonprofits, support services, events, and volunteers.<br />All in one place, built for every resident."
       />
       <div className="relative z-10">
       <MissionTicker />

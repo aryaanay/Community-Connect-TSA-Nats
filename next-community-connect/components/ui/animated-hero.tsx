@@ -64,13 +64,13 @@ function Hero({
       {/* Parallax background image */}
       {isHomeHero ? (
         <motion.div
-          className="absolute -top-[15%] -bottom-[15%] -left-[12%] -right-[12%]"
+          className="absolute -top-[15%] -bottom-[15%] -left-[20%] -right-[20%]"
           style={{
             backgroundImage: "linear-gradient(145deg, rgba(1,22,41,0.86) 0%, rgba(4,64,105,0.76) 45%, rgba(13,123,181,0.48) 78%, rgba(255,140,66,0.22) 140%), url('/img/avess-berge-ua2IF9HNaXs-unsplash.png')",
             backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
             y: bgY,
           }}
-          animate={{ x: [0, 220] }}
+          animate={{ x: [-60, 60] }}
           transition={{ duration: 38, repeat: Infinity, repeatType: 'mirror', ease: 'linear' }}
         />
       ) : backgroundImage ? (
@@ -99,34 +99,34 @@ function Hero({
         <div className="absolute top-1/2 left-[20%] w-[200px] h-[200px] rounded-full bg-sky-200/10 blur-[60px] animate-pulse" />
       </div>
 
-      <div className="container mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
-        <div className="h-screen flex flex-col items-center justify-center pt-24 pb-16 lg:pt-28 lg:pb-20">
-          <div className="flex gap-8 items-center justify-center flex-col w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 liquid-glass rounded-full px-4 py-2"
-            >
-              <span className="liquid-content flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-sky-200" />
-                <span className="text-xs font-semibold text-white/90 tracking-widest uppercase">{badge}</span>
-              </span>
-            </motion.div>
+      <div className="container mx-auto relative z-10 px-4 sm:px-6 lg:px-8 h-screen flex flex-col">
+        {/* Centered main content */}
+        <div className="flex-1 flex flex-col items-center justify-center gap-5 pt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 liquid-glass rounded-full px-4 py-2"
+          >
+            <span className="liquid-content flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-sky-200" />
+              <span className="text-xs font-semibold text-white/90 tracking-widest uppercase">{badge}</span>
+            </span>
+          </motion.div>
 
-          <div className="flex gap-4 flex-col w-full items-center">
+          <div className="flex gap-3 flex-col w-full items-center">
             {staticTitle ? (
               <motion.h1
                 initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.8, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="text-5xl md:text-7xl lg:text-8xl max-w-4xl w-full tracking-tighter text-center font-bold font-space text-white mx-auto"
+                className="text-5xl md:text-6xl lg:text-7xl max-w-4xl w-full tracking-tighter text-center font-bold font-space text-white mx-auto"
                 dangerouslySetInnerHTML={{ __html: staticTitle }}
               />
             ) : (
-              <h1 className="text-5xl md:text-7xl lg:text-8xl max-w-4xl w-full tracking-tighter text-center font-bold font-space text-white mx-auto">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl max-w-4xl w-full tracking-tighter text-center font-bold font-space text-white mx-auto">
                 <span className="text-white">Your Community is</span>
-                <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-2">
+                <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-3 md:pt-1">
                   &nbsp;
                 {rotatingTitles.map((title: string, index: number) => (
                   <motion.span
@@ -151,10 +151,9 @@ function Hero({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl leading-relaxed tracking-tight text-white/75 max-w-2xl w-full text-center font-outfit mx-auto"
-            >
-              {subtitle}
-            </motion.p>
+              className="text-base md:text-lg leading-relaxed tracking-tight text-white/75 max-w-2xl w-full text-center font-outfit mx-auto"
+              dangerouslySetInnerHTML={{ __html: subtitle }}
+            />
           </div>
 
           {(primaryText || secondaryText) && (
@@ -162,14 +161,14 @@ function Hero({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-row gap-4 mt-4"
+              className="flex flex-row gap-4"
             >
               {primaryText && primaryHref && (
                 <Link href={primaryHref}>
                   <motion.button
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="liquid-glass inline-flex items-center px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all"
+                    className="liquid-glass inline-flex items-center px-8 py-3.5 rounded-2xl font-syne font-bold text-base transition-all"
                   >
                     <span className="liquid-content flex items-center gap-3 text-white">
                       {primaryText} <MoveRight className="w-4 h-4" />
@@ -182,7 +181,7 @@ function Hero({
                   <motion.button
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all border-2 border-white/40 text-white hover:bg-white/10 backdrop-blur-sm"
+                    className="inline-flex items-center gap-3 px-8 py-3.5 rounded-2xl font-syne font-bold text-base transition-all border-2 border-white/40 text-white hover:bg-white/10 backdrop-blur-sm"
                   >
                     {secondaryText} <MoveRight className="w-4 h-4" />
                   </motion.button>
@@ -190,34 +189,31 @@ function Hero({
               )}
             </motion.div>
           )}
-
-
-            {isHomeHero && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex justify-center divide-x divide-white/15 mt-5"
-            >
-              {stats.map((stat, i) => (
-                <div key={i} className="text-center px-8">
-                  <span className="font-space text-3xl font-bold text-white block">{stat.value}</span>
-                  <span className="font-outfit text-xs font-medium text-white/85 uppercase tracking-wider">{stat.label}</span>
-                </div>
-              ))}
-            </motion.div>
-            )}
-          </div>
-
         </div>
-      </div>
 
+        {/* Stats anchored at bottom, above scroll indicator */}
+        {isHomeHero && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="flex justify-center divide-x divide-white/15 pb-20"
+          >
+            {stats.map((stat, i) => (
+              <div key={i} className="text-center px-8">
+                <span className="font-space text-3xl font-bold text-white block">{stat.value}</span>
+                <span className="font-outfit text-xs font-medium text-white/85 uppercase tracking-wider">{stat.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/50"
+        className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/50"
       >
         <div className="w-9 h-9 rounded-full border border-white/25 flex items-center justify-center">
           <svg className="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
