@@ -5,8 +5,8 @@ import { getT } from '@/lib/translations'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
-  Type, Eye, Zap, Monitor, Brain, Shield, Heart, ZoomIn,
-  ArrowLeft, RotateCcw, CheckCircle2, Move, MousePointer,
+  Type, Eye, Zap, Brain, Shield, Heart, ZoomIn,
+  ArrowLeft, RotateCcw, CheckCircle2, Move, MousePointer, Moon, Sun,
 } from 'lucide-react'
 
 // ─── Toggle switch ─────────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ function ToggleSwitch({ active, onToggle }: { active: boolean; onToggle: () => v
       className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 ${active ? 'bg-sky-500' : 'bg-gray-200'}`}
       role="switch" aria-checked={active}
     >
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${active ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${active ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
   )
 }
@@ -123,7 +123,7 @@ export default function SettingsPage() {
     'dark','reducedMotion','textToSpeech','invertColors','sepia','largeCursor','readingGuide',
     'dyslexiaFont','increasedLineHeight','increasedWordSpacing','increasedLetterSpacing',
     'alwaysUnderlineLinks','highContrast','reducedTransparency','focusIndicators','focusSpotlight',
-    'largerClickTargets','alwaysFocusRing','screenReaderEnhancements','tooltipAnnouncements',
+    'largerClickTargets','alwaysFocusRing',
     'adhdMode','parkinsonMode','epilepsyMode','autismMode','lowVisionMode','motorImpairmentMode',
   ] as (keyof typeof settings)[]
 
@@ -137,7 +137,6 @@ export default function SettingsPage() {
   const textBadge = (['dyslexiaFont','increasedLineHeight','increasedWordSpacing','increasedLetterSpacing','readingGuide','alwaysUnderlineLinks','textToSpeech'] as (keyof typeof settings)[]).filter(k => settings[k]).length
   const visionBadge = (['highContrast','largeCursor','reducedTransparency'] as (keyof typeof settings)[]).filter(k => settings[k]).length + (settings.grayscale > 0 ? 1 : 0) + (settings.colorBlindMode !== 'none' ? 1 : 0)
   const motionBadge = (['reducedMotion','focusIndicators','focusSpotlight','largerClickTargets','alwaysFocusRing'] as (keyof typeof settings)[]).filter(k => settings[k]).length
-  const srBadge = (['screenReaderEnhancements','tooltipAnnouncements'] as (keyof typeof settings)[]).filter(k => settings[k]).length
   const presetBadge = (['adhdMode','parkinsonMode','epilepsyMode','autismMode','lowVisionMode','motorImpairmentMode'] as (keyof typeof settings)[]).filter(k => settings[k]).length
 
   // Pluralization helper — replace {n} and {s} in translated strings
@@ -196,6 +195,25 @@ export default function SettingsPage() {
                   <span className="text-[11px] leading-tight text-center">{label}</span>
                 </button>
               ))}
+            </div>
+          </motion.div>
+
+          {/* Dark Mode */}
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.02 }}
+            className="bg-white rounded-2xl border border-sky-100 p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${settings.dark ? 'bg-indigo-50' : 'bg-amber-50'}`}>
+                  {settings.dark
+                    ? <Moon className="w-5 h-5 text-indigo-500" />
+                    : <Sun className="w-5 h-5 text-amber-400" />}
+                </div>
+                <div>
+                  <h2 className="font-syne text-lg font-bold text-sky-900">Dark Mode</h2>
+                  <p className="font-outfit text-xs text-sky-400 mt-0.5">Switch to a dark color scheme across the entire app</p>
+                </div>
+              </div>
+              <ToggleSwitch active={settings.dark} onToggle={() => dispatch({ type: 'TOGGLE_DARK' })} />
             </div>
           </motion.div>
 
@@ -290,12 +308,6 @@ export default function SettingsPage() {
             <SettingRow label={t('tog.spotlight')} description="Dims everything except the currently focused element for distraction-free navigation" active={settings.focusSpotlight} onToggle={() => toggle('focusSpotlight')} />
             <SettingRow label={t('tog.targets')} description="Ensures all buttons and links meet the 44×44px minimum touch target for motor impairment" active={settings.largerClickTargets} onToggle={() => toggle('largerClickTargets')} />
             <SettingRow label={t('tog.focusring')} description="Keeps a visible focus outline on all focused elements regardless of input device" active={settings.alwaysFocusRing} onToggle={() => toggle('alwaysFocusRing')} />
-          </SectionCard>
-
-          {/* Screen Reader */}
-          <SectionCard icon={Monitor} title={t('sec.screen')} badgeCount={srBadge} onLabel={onLabel} delay={0.2}>
-            <SettingRow label={t('tog.screenreader')} description="Adds skip-to-content link, ARIA live announcements, and improved landmark structure" active={settings.screenReaderEnhancements} onToggle={() => toggle('screenReaderEnhancements')} />
-            <SettingRow label={t('tog.tooltips')} description="Shows a visible tooltip at the bottom of the screen when hovering over elements with descriptions" active={settings.tooltipAnnouncements} onToggle={() => toggle('tooltipAnnouncements')} />
           </SectionCard>
 
           {/* Condition-Specific Presets */}
