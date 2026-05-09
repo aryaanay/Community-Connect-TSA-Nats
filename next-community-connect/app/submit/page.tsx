@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, AlertCircle, Mail, Phone, MapPin, Send, X, LogIn, Sparkles, ArrowRight, Bot, ShieldCheck, ShieldX, Loader2 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
@@ -87,11 +87,12 @@ async function addToResources(data: FormData) {
 
 type ReviewState = 'submitting' | 'reviewing' | 'approved' | 'rejected'
 
-const REVIEW_STEPS: { state: ReviewState; label: string; icon: React.ReactNode }[] = [
-  { state: 'submitting', label: 'Saving your submission…',      icon: <Send size={16} /> },
-  { state: 'reviewing',  label: 'AI is reviewing your resource…', icon: <Bot size={16} /> },
-  { state: 'approved',   label: 'Approved & added to directory!', icon: <ShieldCheck size={16} /> },
-  { state: 'rejected',   label: 'Could not be approved',         icon: <ShieldX size={16} /> },
+const AI_CHECK_ITEMS = [
+  'Analyzing content quality',
+  'Checking community relevance',
+  'Verifying category accuracy',
+  'Reviewing submission guidelines',
+  'Generating AI decision',
 ]
 
 function AIReviewModal({
@@ -103,8 +104,50 @@ function AIReviewModal({
   reason: string
   onClose: () => void
 }) {
+  const [progress, setProgress] = useState(0)
+  const [completedSteps, setCompletedSteps] = useState<number[]>([])
+  const [currentStep, setCurrentStep] = useState(-1)
+
   const isTerminal = state === 'approved' || state === 'rejected'
   const isApproved = state === 'approved'
+
+  // Drive animated progress + step checklist while reviewing
+  useEffect(() => {
+    if (state !== 'reviewing') return
+    setProgress(0)
+    setCompletedSteps([])
+    setCurrentStep(0)
+
+    const TOTAL = 3600
+    const stepMs = TOTAL / AI_CHECK_ITEMS.length
+    const t0 = Date.now()
+
+    const progressInterval = setInterval(() => {
+      const p = Math.min(88, ((Date.now() - t0) / TOTAL) * 88)
+      setProgress(p)
+      if (p >= 88) clearInterval(progressInterval)
+    }, 40)
+
+    const stepTimers = AI_CHECK_ITEMS.map((_, i) =>
+      setTimeout(() => {
+        setCompletedSteps(prev => [...prev, i])
+        setCurrentStep(i + 1 < AI_CHECK_ITEMS.length ? i + 1 : i)
+      }, stepMs * (i + 1))
+    )
+
+    return () => {
+      clearInterval(progressInterval)
+      stepTimers.forEach(clearTimeout)
+    }
+  }, [state])
+
+  // Snap to 100% and complete all steps on result
+  useEffect(() => {
+    if (!isTerminal) return
+    setProgress(100)
+    setCompletedSteps(AI_CHECK_ITEMS.map((_, i) => i))
+    setCurrentStep(-1)
+  }, [isTerminal])
 
   return (
     <motion.div
@@ -112,7 +155,7 @@ function AIReviewModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(1,22,41,0.8)', backdropFilter: 'blur(20px)' }}
+      style={{ backgroundColor: 'rgba(1,22,41,0.85)', backdropFilter: 'blur(24px)' }}
     >
       <motion.div
         initial={{ opacity: 0, y: 32, scale: 0.94 }}
@@ -122,95 +165,103 @@ function AIReviewModal({
         className="w-full max-w-sm rounded-3xl overflow-hidden"
         style={{
           background: 'linear-gradient(180deg, #022747 0%, #033460 100%)',
-          border: '1px solid rgba(86,187,240,0.25)',
-          boxShadow: '0 40px 100px rgba(1,22,41,0.5)',
+          border: '1px solid rgba(86,187,240,0.22)',
+          boxShadow: '0 40px 100px rgba(1,22,41,0.6)',
         }}
       >
         {/* Header */}
-        <div className="px-8 pt-8 pb-6 border-b border-sky-400/10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, rgba(86,187,240,0.2), rgba(86,187,240,0.1))' }}>
+        <div className="px-7 pt-7 pb-5 border-b border-sky-400/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(86,187,240,0.1)', border: '1px solid rgba(86,187,240,0.18)' }}>
               <Bot size={20} className="text-sky-400" />
             </div>
             <div>
-              <p className="font-outfit text-xs text-sky-400/70 uppercase tracking-wider">AI Moderation</p>
-              <h3 className="font-syne text-lg font-bold text-white">Reviewing Submission</h3>
+              <p className="font-outfit text-[10px] text-sky-400/50 uppercase tracking-widest">AI Moderation System</p>
+              <h3 className="font-syne text-base font-bold text-white leading-tight">
+                {state === 'submitting' ? 'Saving Submission…'
+                  : state === 'reviewing' ? 'AI is Reviewing Your Resource'
+                  : isApproved ? 'Resource Approved!'
+                  : 'Not Approved'}
+              </h3>
             </div>
           </div>
         </div>
 
-        {/* Steps */}
-        <div className="px-8 py-6 space-y-3">
-          {REVIEW_STEPS.filter(s => s.state !== 'rejected' || state === 'rejected')
-            .filter(s => s.state !== 'approved' || state === 'approved')
-            .filter(s => !(s.state === 'approved' && state === 'rejected'))
-            .filter(s => !(s.state === 'rejected' && state === 'approved'))
-            .map((step) => {
-              const stepOrder: ReviewState[] = ['submitting', 'reviewing', isApproved ? 'approved' : 'rejected']
-              const stepIdx = stepOrder.indexOf(step.state)
-              const currentIdx = stepOrder.indexOf(state)
-              const isDone = stepIdx < currentIdx
-              const isActive = stepIdx === currentIdx
+        {/* Progress bar — shown during review and on result */}
+        {(state === 'reviewing' || isTerminal) && (
+          <div className="px-7 pt-5 pb-1">
+            <div className="flex justify-between mb-1.5">
+              <span className="font-outfit text-[10px] text-sky-400/50 uppercase tracking-wider">Review Progress</span>
+              <span className="font-outfit text-[10px] font-semibold" style={{ color: isTerminal ? (isApproved ? '#34D399' : '#F87171') : '#56BBF0' }}>
+                {Math.round(progress)}%
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(86,187,240,0.08)' }}>
+              <motion.div
+                className="h-full rounded-full"
+                style={{
+                  background: isTerminal
+                    ? isApproved ? 'linear-gradient(90deg, #10B981, #34D399)' : 'linear-gradient(90deg, #EF4444, #F87171)'
+                    : 'linear-gradient(90deg, #0EA5E9, #38BDF8)',
+                }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.35, ease: 'linear' }}
+              />
+            </div>
+          </div>
+        )}
 
+        {/* Submitting spinner */}
+        {state === 'submitting' && (
+          <div className="px-7 py-6 flex items-center gap-3">
+            <Loader2 size={15} className="text-sky-400 animate-spin flex-shrink-0" />
+            <span className="font-outfit text-sm text-sky-200/70">Saving your submission to our database…</span>
+          </div>
+        )}
+
+        {/* Animated check items */}
+        {(state === 'reviewing' || isTerminal) && (
+          <div className="px-7 py-5 space-y-2">
+            {AI_CHECK_ITEMS.map((label, i) => {
+              const isDone = completedSteps.includes(i)
+              const isActive = currentStep === i && !isTerminal
               return (
                 <motion.div
-                  key={step.state}
-                  initial={{ opacity: 0, x: -10 }}
+                  key={i}
+                  initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: stepIdx * 0.1 }}
-                  className="flex items-center gap-3"
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center gap-2.5"
                 >
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
+                    className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300"
                     style={{
-                      backgroundColor: isDone
-                        ? 'rgba(16,185,129,0.2)'
-                        : isActive
-                          ? step.state === 'rejected'
-                            ? 'rgba(239,68,68,0.2)'
-                            : 'rgba(86,187,240,0.2)'
-                          : 'rgba(255,255,255,0.05)',
-                      border: isDone
-                        ? '1.5px solid rgba(16,185,129,0.5)'
-                        : isActive
-                          ? step.state === 'rejected'
-                            ? '1.5px solid rgba(239,68,68,0.5)'
-                            : '1.5px solid rgba(86,187,240,0.5)'
-                          : '1.5px solid rgba(255,255,255,0.1)',
+                      background: isDone ? 'rgba(16,185,129,0.12)' : isActive ? 'rgba(86,187,240,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: isDone ? '1px solid rgba(16,185,129,0.35)' : isActive ? '1px solid rgba(86,187,240,0.35)' : '1px solid rgba(255,255,255,0.07)',
                     }}
                   >
-                    {isDone ? (
-                      <CheckCircle size={14} className="text-emerald-400" />
-                    ) : isActive && !isTerminal ? (
-                      <Loader2 size={14} className="text-sky-400 animate-spin" />
-                    ) : (
-                      <span style={{
-                        color: isActive
-                          ? step.state === 'rejected' ? '#f87171' : '#56BBF0'
-                          : 'rgba(255,255,255,0.25)',
-                      }}>
-                        {step.icon}
-                      </span>
-                    )}
+                    {isDone
+                      ? <CheckCircle size={11} className="text-emerald-400" />
+                      : isActive
+                        ? <Loader2 size={10} className="text-sky-400 animate-spin" />
+                        : <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
+                    }
                   </div>
                   <span
-                    className="font-outfit text-sm"
+                    className="font-outfit text-xs transition-all duration-300"
                     style={{
-                      color: isDone
-                        ? 'rgba(198,235,255,0.9)'
-                        : isActive
-                          ? step.state === 'rejected' ? '#fca5a5' : '#C6EBFF'
-                          : 'rgba(198,235,255,0.3)',
+                      color: isDone ? 'rgba(167,243,208,0.85)' : isActive ? '#C6EBFF' : 'rgba(198,235,255,0.25)',
                       fontWeight: isActive ? 600 : 400,
                     }}
                   >
-                    {step.label}
+                    {label}{isActive && <span className="opacity-50"> …</span>}
                   </span>
                 </motion.div>
               )
             })}
-        </div>
+          </div>
+        )}
 
         {/* Result panel */}
         <AnimatePresence>
@@ -219,25 +270,21 @@ function AIReviewModal({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               transition={{ duration: 0.3 }}
-              className="px-8 pb-8"
+              className="px-7 pb-7"
             >
               <div
-                className="rounded-2xl p-4 mb-5"
+                className="rounded-2xl p-4 mb-4 mt-1"
                 style={{
-                  background: isApproved
-                    ? 'rgba(16,185,129,0.08)'
-                    : 'rgba(239,68,68,0.08)',
-                  border: isApproved
-                    ? '1px solid rgba(16,185,129,0.25)'
-                    : '1px solid rgba(239,68,68,0.25)',
+                  background: isApproved ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)',
+                  border: isApproved ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(239,68,68,0.2)',
                 }}
               >
                 <div className="flex items-start gap-2.5">
                   {isApproved
-                    ? <ShieldCheck size={15} className="text-emerald-400 flex-shrink-0 mt-0.5" />
-                    : <ShieldX size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+                    ? <ShieldCheck size={14} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                    : <ShieldX size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
                   }
-                  <p className="font-outfit text-sm leading-relaxed"
+                  <p className="font-outfit text-xs leading-relaxed"
                     style={{ color: isApproved ? 'rgba(167,243,208,0.9)' : 'rgba(252,165,165,0.9)' }}>
                     {reason}
                   </p>
@@ -248,13 +295,13 @@ function AIReviewModal({
                 className="w-full py-3.5 rounded-2xl font-outfit font-semibold text-sm transition-all"
                 style={{
                   background: isApproved
-                    ? 'linear-gradient(135deg, rgba(16,185,129,0.8), rgba(86,187,240,0.8))'
-                    : 'rgba(255,255,255,0.08)',
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.7), rgba(56,189,248,0.65))'
+                    : 'rgba(255,255,255,0.06)',
                   color: 'white',
-                  border: isApproved ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                  border: isApproved ? 'none' : '1px solid rgba(255,255,255,0.1)',
                 }}
               >
-                {isApproved ? 'View Directory' : 'Close & Edit Submission'}
+                {isApproved ? 'View Directory →' : 'Close & Edit Submission'}
               </button>
             </motion.div>
           )}

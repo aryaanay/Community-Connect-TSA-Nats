@@ -8,7 +8,7 @@ import {
   Search, Leaf, Flame, ChevronDown, ArrowUp, MapPin, Phone,
   Clock, Mail, ExternalLink, HeartHandshake, Home, Stethoscope,
   Dumbbell, PhoneCall, TreePine, Award, HelpCircle, Bus, Shield,
-  AlertCircle, RefreshCw, Loader2, FlaskConical,
+  AlertCircle, RefreshCw, Loader2,
 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import TiltCard from '@/components/TiltCard'
@@ -28,7 +28,6 @@ type ResourceCard = {
   location?: string
   website?: string
   resourceIcon: React.ElementType
-  isSubmission?: boolean
 }
 
 type DbResource = {
@@ -91,7 +90,7 @@ const hardcodedResources: ResourceCard[] = [
 
 // ─── DB → card mapper ─────────────────────────────────────────────────────────
 
-function dbToCard(r: DbResource, isSubmission = false): ResourceCard {
+function dbToCard(r: DbResource): ResourceCard {
   return {
     title:        r.name        ?? 'Untitled Resource',
     category:     r.category    ?? 'Other',
@@ -102,27 +101,19 @@ function dbToCard(r: DbResource, isSubmission = false): ResourceCard {
     location:     r.address     ?? undefined,
     website:      r.website_url ?? undefined,
     resourceIcon: getIcon(r.category ?? ''),
-    isSubmission,
   }
 }
 
 // ─── Merge helper (dedupes by lowercase title) ────────────────────────────────
 
-function mergeAll(dbCards: ResourceCard[], submissionCards: ResourceCard[]): ResourceCard[] {
+function mergeAll(dbCards: ResourceCard[]): ResourceCard[] {
   const seen = new Set<string>()
   const result: ResourceCard[] = []
-
   for (const r of hardcodedResources) {
     seen.add(r.title.toLowerCase())
     result.push(r)
   }
   for (const r of dbCards) {
-    if (!seen.has(r.title.toLowerCase())) {
-      seen.add(r.title.toLowerCase())
-      result.push(r)
-    }
-  }
-  for (const r of submissionCards) {
     if (!seen.has(r.title.toLowerCase())) {
       seen.add(r.title.toLowerCase())
       result.push(r)
@@ -187,7 +178,6 @@ export default function ResourcesPage() {
   const [allResources, setAllResources]     = useState<ResourceCard[]>(hardcodedResources)
   const [loading, setLoading]               = useState(true)
   const [error, setError]                   = useState<string | null>(null)
-  const [submissionCount, setSubmissionCount] = useState(0)
 
   // scroll watcher
   useEffect(() => {
@@ -202,24 +192,15 @@ export default function ResourcesPage() {
       setLoading(true)
       setError(null)
       try {
-        const [dbRes, subRes] = await Promise.allSettled([
-          supabase.from('resources').select('*').eq('is_verified', true).order('created_at', { ascending: false }),
-          supabase.from('resources').select('*').eq('is_verified', false).order('created_at', { ascending: false }),
-        ])
+        const { data, error: dbError } = await supabase
+          .from('resources')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-        const dbCards  = dbRes.status  === 'fulfilled' && dbRes.value.data
-          ? (dbRes.value.data  as DbResource[]).map(r => dbToCard(r, false))
-          : []
-        const subCards = subRes.status === 'fulfilled' && subRes.value.data
-          ? (subRes.value.data as DbResource[]).map(r => dbToCard(r, true))
-          : []
+        const dbCards = data ? (data as DbResource[]).map(r => dbToCard(r)) : []
+        setAllResources(mergeAll(dbCards))
 
-        setSubmissionCount(subCards.length)
-        setAllResources(mergeAll(dbCards, subCards))
-
-        if (dbRes.status === 'rejected' || subRes.status === 'rejected') {
-          setError('Some live data could not be loaded.')
-        }
+        if (dbError) setError('Some live data could not be loaded.')
       } catch (err: unknown) {
         console.error('Resources load error:', JSON.stringify(err, null, 2))
         setError('Could not load live resources. Showing static content.')
@@ -237,10 +218,9 @@ export default function ResourcesPage() {
       .channel('resources-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'resources' }, payload => {
         const r = payload.new as DbResource
-        const card = dbToCard(r, !r.is_verified)
+        const card = dbToCard(r)
         setAllResources(prev => {
           if (prev.some(p => p.title.toLowerCase() === card.title.toLowerCase())) return prev
-          if (!r.is_verified) setSubmissionCount(c => c + 1)
           return [...prev, card]
         })
       })
@@ -278,22 +258,6 @@ export default function ResourcesPage() {
       <section className="py-24 resources-section" id="directory"
         style={{ background: 'linear-gradient(160deg, #EBF7FF 0%, #F0F9FF 50%, #E0F2FE 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* Testing banner */}
-          <AnimatePresence>
-            {submissionCount > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
-                className="mb-8 flex items-start gap-3 px-5 py-4 rounded-2xl border"
-                style={{ backgroundColor: 'rgba(254,243,199,0.8)', borderColor: '#FCD34D', backdropFilter: 'blur(8px)' }}
-              >
-                <FlaskConical size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm font-dm-sans" style={{ color: '#78350F' }}>
-                  <strong>Testing mode:</strong> {submissionCount} community submission{submissionCount !== 1 ? 's are' : ' is'} showing immediately without review. In production, submissions will require approval first.
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Error banner */}
           <AnimatePresence>
@@ -414,25 +378,19 @@ export default function ResourcesPage() {
                         style={{
                           backdropFilter: 'blur(12px)',
                           backgroundColor: 'rgba(255,255,255,0.82)',
-                          borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
+                          borderColor: '#BFDBFE',
                         }}
                       >
                         {/* Accent strip */}
                         <div
                           className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
-                          style={{
-                            background: resource.isSubmission
-                              ? 'linear-gradient(to right, #F59E0B, #FBBF24)'
-                              : 'linear-gradient(to right, #38BDF8, #0EA5E9)',
-                          }}
+                          style={{ background: 'linear-gradient(to right, #38BDF8, #0EA5E9)' }}
                         />
 
                         {/* Body */}
                         <div className="p-8 resource-card-body">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-5 -mt-7 border-2 border-white"
-                        style={{ background: resource.isSubmission
-                          ? 'linear-gradient(135deg, #D97706, #F59E0B)'
-                          : 'linear-gradient(135deg, #0ea5e9, #38bdf8)' }}>
+                        style={{ background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)' }}>
                         <Icon className="w-7 h-7 text-white" strokeWidth={1.5} />
                       </div>
 
@@ -513,12 +471,6 @@ export default function ResourcesPage() {
 
                           </div>
 
-                          {resource.isSubmission && (
-                            <div className="mt-4 pt-4 border-t border-amber-200 flex items-center gap-2 text-xs font-dm-sans text-amber-700">
-                              <FlaskConical size={12} />
-                              Community submission · Appears immediately for testing
-                            </div>
-                          )}
                         </div>
                       </div>
 
