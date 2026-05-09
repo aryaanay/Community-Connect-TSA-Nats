@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { WelcomeAnimation } from '@/components/WelcomeAnimation'
+import { supabase } from '@/lib/supabaseClient'
 
 const JUDGE_EMAIL = 'judges@tsa.com'
 const JUDGE_PASSWORD = 'judges!'
@@ -288,6 +289,15 @@ function SignInForm() {
   const isDisabled = loading || isPending || authLoading
   const switchTab = (t: Tab) => { setTab(t); setError(null) }
 
+  const handleOAuth = async (provider: 'google' | 'azure' | 'apple') => {
+    setError(null)
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
+    if (oauthError) setError(oauthError.message)
+  }
+
   const inputStyle: React.CSSProperties = {
     backgroundColor: 'rgba(255,255,255,0.07)',
     color: 'white',
@@ -524,6 +534,67 @@ function SignInForm() {
               >
                 {isPending || loading ? 'Please wait…' : authLoading ? 'Loading…' : tab === 'signup' ? 'Create Account' : 'Sign In'}
               </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px" style={{ background: 'rgba(86,187,240,0.12)' }} />
+                <span className="font-outfit text-[10px] uppercase tracking-wider" style={{ color: 'rgba(198,235,255,0.28)' }}>or continue with</span>
+                <div className="flex-1 h-px" style={{ background: 'rgba(86,187,240,0.12)' }} />
+              </div>
+
+              {/* OAuth buttons */}
+              <div className="flex gap-2.5">
+                {/* Google */}
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('google')}
+                  disabled={isDisabled}
+                  title="Sign in with Google"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-outfit text-xs font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(86,187,240,0.14)', color: 'rgba(198,235,255,0.75)' }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  Google
+                </button>
+
+                {/* Microsoft */}
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('azure')}
+                  disabled={isDisabled}
+                  title="Sign in with Microsoft"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-outfit text-xs font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(86,187,240,0.14)', color: 'rgba(198,235,255,0.75)' }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 23 23" fill="none">
+                    <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+                    <rect x="12" y="1" width="10" height="10" fill="#7FBA00"/>
+                    <rect x="1" y="12" width="10" height="10" fill="#00A4EF"/>
+                    <rect x="12" y="12" width="10" height="10" fill="#FFB900"/>
+                  </svg>
+                  Microsoft
+                </button>
+
+                {/* Apple */}
+                <button
+                  type="button"
+                  onClick={() => handleOAuth('apple')}
+                  disabled={isDisabled}
+                  title="Sign in with Apple"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-outfit text-xs font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(86,187,240,0.14)', color: 'rgba(198,235,255,0.75)' }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 814 1000" fill="none">
+                    <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-150.4-102.1C27.1 805 1 721.3 1 636.2c0-225.9 147.9-345.3 293-345.3 73.9 0 135.5 48.4 182 48.4 44.2 0 114.7-52.4 200.2-52.4 31.2 0 108.2 5.1 162.7 72.1zm-248.4-130.5c31.2-37.9 53.8-90.8 53.8-143.7 0-7.4-.6-14.9-1.9-21 .6.3 1.3.6 1.9.6-49.1-1.9-107.6 33.1-142.9 75.5-27.5 31.7-53.2 82.5-53.2 136.5 0 8.3 1.3 16.6 1.9 19.2 3.2.6 8.4 1.3 13.6 1.3 43.5 0 98.3-33.7 126.8-67.4z" fill="rgba(198,235,255,0.85)"/>
+                  </svg>
+                  Apple
+                </button>
+              </div>
 
               {/* Toggle hint */}
               <p className="text-center font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.35)' }}>
