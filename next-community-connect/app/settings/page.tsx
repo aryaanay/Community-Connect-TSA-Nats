@@ -2,153 +2,343 @@
 
 import { useSettings } from '@/context/SettingsContext'
 import { motion } from 'framer-motion'
-import { Maximize2, Minimize2, Moon, Sun, Palette, EyeOff, Hash, ZoomIn } from 'lucide-react'
-import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import Link from 'next/link'
+import {
+  Type, Eye, Zap, Monitor, Brain, Shield, Heart, ZoomIn,
+  ArrowLeft, RotateCcw, CheckCircle2, Move, MousePointer,
+} from 'lucide-react'
 
-const fontSizes = [
-  { value: 'small', label: 'Small', icon: Minimize2 },
-  { value: 'medium', label: 'Medium', icon: Minimize2 },
-  { value: 'large', label: 'Large', icon: Maximize2 },
-  { value: 'xlarge', label: 'X-Large', icon: Maximize2 },
-]
-
-function ToggleBtn({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: any; label: string }) {
+// ─── Toggle switch ─────────────────────────────────────────────────────────────
+function ToggleSwitch({ active, onToggle }: { active: boolean; onToggle: () => void }) {
   return (
     <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-outfit font-semibold text-sm transition-all border ${
-        active
-          ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20'
-          : 'bg-white border-sky-200 text-sky-800 hover:border-sky-300 hover:bg-sky-50'
-      }`}
+      onClick={onToggle}
+      className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors duration-200 ${active ? 'bg-sky-500' : 'bg-gray-200'}`}
+      role="switch" aria-checked={active}
     >
-      <Icon className="w-4 h-4 flex-shrink-0" />
-      {label}
-      <span className={`ml-auto text-xs font-bold rounded-full px-2 py-0.5 ${active ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-500'}`}>
-        {active ? 'ON' : 'OFF'}
-      </span>
+      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${active ? 'translate-x-5' : 'translate-x-0.5'}`} />
     </button>
   )
 }
 
+// ─── Setting row ───────────────────────────────────────────────────────────────
+function SettingRow({ label, description, active, onToggle }: { label: string; description: string; active: boolean; onToggle: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3.5 border-b border-sky-50 last:border-0">
+      <div className="min-w-0">
+        <p className="font-outfit font-semibold text-sm text-sky-900 leading-tight">{label}</p>
+        <p className="font-outfit text-xs text-sky-400 mt-0.5 leading-snug">{description}</p>
+      </div>
+      <ToggleSwitch active={active} onToggle={onToggle} />
+    </div>
+  )
+}
+
+// ─── Section card ──────────────────────────────────────────────────────────────
+function SectionCard({ icon: Icon, iconColor = 'text-sky-500', iconBg = 'bg-sky-50', title, badgeCount, delay = 0, children }: {
+  icon: React.ElementType; iconColor?: string; iconBg?: string; title: string; badgeCount?: number; delay?: number; children: React.ReactNode
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }} transition={{ duration: 0.45, delay, ease: 'easeOut' }}
+      className="bg-white rounded-2xl border border-sky-100 p-6 shadow-sm"
+    >
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center`}>
+            <Icon className={`w-5 h-5 ${iconColor}`} />
+          </div>
+          <h2 className="font-syne text-lg font-bold text-sky-900">{title}</h2>
+        </div>
+        {!!badgeCount && (
+          <span className="text-xs font-semibold bg-sky-100 text-sky-600 px-2.5 py-1 rounded-full">{badgeCount} on</span>
+        )}
+      </div>
+      {children}
+    </motion.div>
+  )
+}
+
+// ─── Preset card ───────────────────────────────────────────────────────────────
+function PresetCard({ icon: Icon, iconColor, iconBg, borderColor, activeBg, title, description, active, onToggle }: {
+  icon: React.ElementType; iconColor: string; iconBg: string; borderColor: string; activeBg: string;
+  title: string; description: string; active: boolean; onToggle: () => void
+}) {
+  return (
+    <div className={`flex gap-3 p-4 rounded-xl border transition-all ${active ? `${activeBg} ${borderColor}` : 'bg-gray-50 border-gray-100'}`}>
+      <div className={`w-10 h-10 rounded-xl ${active ? iconBg : 'bg-white'} flex items-center justify-center flex-shrink-0 transition-colors`}>
+        <Icon className={`w-5 h-5 ${active ? iconColor : 'text-gray-400'} transition-colors`} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <p className={`font-outfit font-semibold text-sm leading-tight ${active ? 'text-sky-900' : 'text-gray-600'}`}>{title}</p>
+          <ToggleSwitch active={active} onToggle={onToggle} />
+        </div>
+        <p className={`font-outfit text-xs mt-1 leading-snug ${active ? 'text-sky-500' : 'text-gray-400'}`}>{description}</p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Language data ─────────────────────────────────────────────────────────────
+const LANGUAGES = [
+  { code: 'en', label: 'English',    flag: '🇺🇸' },
+  { code: 'es', label: 'Español',    flag: '🇪🇸' },
+  { code: 'fr', label: 'Français',   flag: '🇫🇷' },
+  { code: 'zh', label: '中文',       flag: '🇨🇳' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'tl', label: 'Tagalog',    flag: '🇵🇭' },
+  { code: 'ko', label: '한국어',     flag: '🇰🇷' },
+  { code: 'ar', label: 'العربية',    flag: '🇸🇦' },
+  { code: 'hi', label: 'हिन्दी',    flag: '🇮🇳' },
+  { code: 'pt', label: 'Português',  flag: '🇧🇷' },
+]
+
+const COLOR_BLIND_OPTIONS = [
+  { value: 'protanopia' as const,   label: 'Protanopia',   emoji: '🔴', description: 'Red deficiency' },
+  { value: 'deuteranopia' as const, label: 'Deuteranopia', emoji: '🟢', description: 'Green deficiency' },
+  { value: 'tritanopia' as const,   label: 'Tritanopia',   emoji: '🔵', description: 'Blue deficiency' },
+  { value: 'achromatopsia' as const,label: 'Achromatopsia',emoji: '⬛', description: 'No color vision' },
+]
+
+const FONT_SIZE_STEPS: { display: string; value: 'small' | 'medium' | 'large' | 'xlarge'; textSize: string }[] = [
+  { display: 'XS', value: 'small',  textSize: 'text-[10px]' },
+  { display: 'S',  value: 'small',  textSize: 'text-xs' },
+  { display: 'M',  value: 'medium', textSize: 'text-sm' },
+  { display: 'L',  value: 'large',  textSize: 'text-base' },
+  { display: 'XL', value: 'xlarge', textSize: 'text-lg' },
+  { display: 'XXL',value: 'xlarge', textSize: 'text-xl' },
+]
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const { settings, dispatch } = useSettings()
+  const toggle = (key: keyof typeof settings) =>
+    dispatch({ type: 'REPLACE_STATE', payload: { [key]: !settings[key] } as any })
 
-  const toggle = (type: any) => dispatch({ type })
-  const setFontSize = (size: string) => dispatch({ type: 'SET_FONT_SIZE', payload: size as any })
-  const setGrayscale = (value: number) => dispatch({ type: 'SET_GRAYSCALE', payload: value })
-  const setZoom = (value: number) => dispatch({ type: 'SET_ZOOM', payload: value })
+  // Active counts
+  const boolKeys = [
+    'dark','reducedMotion','textToSpeech','invertColors','sepia','largeCursor','readingGuide',
+    'dyslexiaFont','increasedLineHeight','increasedWordSpacing','increasedLetterSpacing',
+    'alwaysUnderlineLinks','highContrast','reducedTransparency','focusIndicators','focusSpotlight',
+    'largerClickTargets','alwaysFocusRing','screenReaderEnhancements','tooltipAnnouncements',
+    'adhdMode','parkinsonMode','epilepsyMode','autismMode','lowVisionMode','motorImpairmentMode',
+  ] as (keyof typeof settings)[]
 
-  const resetAll = () => {
-    window.localStorage.removeItem('community-connect-settings')
-    window.location.reload()
-  }
+  const activeCount =
+    boolKeys.filter(k => settings[k] === true).length +
+    (settings.colorBlindMode !== 'none' ? 1 : 0) +
+    (settings.language !== 'en' ? 1 : 0) +
+    (settings.grayscale > 0 ? 1 : 0)
+
+  const textBadge = (['dyslexiaFont','increasedLineHeight','increasedWordSpacing','increasedLetterSpacing','readingGuide','alwaysUnderlineLinks','textToSpeech'] as (keyof typeof settings)[]).filter(k => settings[k]).length
+  const visionBadge = (['highContrast','largeCursor','reducedTransparency'] as (keyof typeof settings)[]).filter(k => settings[k]).length + (settings.grayscale > 0 ? 1 : 0) + (settings.colorBlindMode !== 'none' ? 1 : 0)
+  const motionBadge = (['reducedMotion','focusIndicators','focusSpotlight','largerClickTargets','alwaysFocusRing'] as (keyof typeof settings)[]).filter(k => settings[k]).length
+  const srBadge = (['screenReaderEnhancements','tooltipAnnouncements'] as (keyof typeof settings)[]).filter(k => settings[k]).length
+  const presetBadge = (['adhdMode','parkinsonMode','epilepsyMode','autismMode','lowVisionMode','motorImpairmentMode'] as (keyof typeof settings)[]).filter(k => settings[k]).length
 
   return (
     <>
-      <Link
-        href="/"
-        className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125"
-      >
-        ← Back to Home
+      <Link href="/" className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125">
+        <ArrowLeft className="w-4 h-4" /> Back to Home
       </Link>
-      <HeroDemo
-        badge="Inclusive Design"
-        staticTitle="Accessibility Settings"
-        subtitle="Customize your experience for comfort and clarity. All changes save automatically and apply site-wide."
-        backgroundImage=""
-      />
 
-      <section className="py-24 bg-[var(--section-bg)]">
-        <div className="max-w-4xl mx-auto px-4 space-y-8">
-
-          {/* Display & Theme */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-sky-100 p-8 shadow-sm">
-            <h2 className="font-syne text-xl font-bold text-sky-900 mb-6 flex items-center gap-2">
-              <Sun className="w-5 h-5 text-sky-500" /> Display & Theme
-            </h2>
-            <div className="grid gap-3">
-              <ToggleBtn active={settings.dark} onClick={() => toggle('TOGGLE_DARK')} icon={Moon} label="Dark Mode" />
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
+      <section className="relative pt-28 pb-16 overflow-hidden" style={{ background: 'linear-gradient(180deg, #f0f9ff 0%, #f8fcff 100%)' }}>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-sky-200/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-12 right-12 w-52 h-52 bg-indigo-100/30 rounded-full blur-2xl pointer-events-none" />
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
+          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
+            <div className="inline-flex items-center gap-2 bg-white border border-sky-200 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+              <CheckCircle2 className="w-4 h-4 text-sky-500" />
+              <span className="font-outfit text-sm font-semibold text-sky-700">
+                {activeCount === 0 ? 'All defaults active' : `${activeCount} setting${activeCount !== 1 ? 's' : ''} customized`}
+              </span>
+              {activeCount > 0 && <span className="w-5 h-5 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center">{activeCount}</span>}
             </div>
+            <h1 className="font-syne text-4xl md:text-5xl font-extrabold text-sky-900 mb-4 tracking-tight">Accessibility Settings</h1>
+            <p className="font-outfit text-sky-500 text-lg max-w-xl mx-auto leading-relaxed">Customize your experience — all settings are saved automatically</p>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Font Size */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-2xl border border-sky-100 p-8 shadow-sm">
-            <h2 className="font-syne text-xl font-bold text-sky-900 mb-6 flex items-center gap-2">
-              <Maximize2 className="w-5 h-5 text-sky-500" /> Font Size
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {fontSizes.map(({ value, label, icon: Icon }) => (
-                <button
-                  key={value}
-                  onClick={() => setFontSize(value)}
-                  className={`flex flex-col items-center gap-2 py-4 rounded-xl border font-outfit font-semibold text-sm transition-all ${
-                    settings.fontSize === value
-                      ? 'bg-sky-600 text-white border-sky-500 shadow-lg shadow-sky-500/20'
-                      : 'bg-white border-sky-200 text-sky-800 hover:border-sky-300 hover:bg-sky-50'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {label}
+      {/* ── Content ──────────────────────────────────────────────────────────── */}
+      <section className="py-10 bg-[var(--section-bg)]">
+        <div className="max-w-4xl mx-auto px-4 space-y-5">
+
+          {/* Language */}
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}
+            className="bg-white rounded-2xl border border-sky-100 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-sky-50 flex items-center justify-center text-xl">🌐</div>
+                <h2 className="font-syne text-lg font-bold text-sky-900">Language</h2>
+              </div>
+              {settings.language !== 'en' && <span className="text-xs font-semibold bg-sky-100 text-sky-600 px-2.5 py-1 rounded-full">1 on</span>}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {LANGUAGES.map(({ code, label, flag }) => (
+                <button key={code} onClick={() => dispatch({ type: 'REPLACE_STATE', payload: { language: code } })}
+                  className={`flex flex-col items-center gap-1 py-3 px-2 rounded-xl border font-outfit font-medium transition-all ${
+                    settings.language === code
+                      ? 'bg-sky-500 text-white border-sky-500 shadow-md shadow-sky-200'
+                      : 'bg-white border-sky-100 text-sky-800 hover:border-sky-300 hover:bg-sky-50'
+                  }`}>
+                  <span className="text-xl">{flag}</span>
+                  <span className="text-[11px] leading-tight text-center">{label}</span>
                 </button>
               ))}
             </div>
           </motion.div>
 
-          {/* Color Filters */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-sky-100 p-8 shadow-sm">
-            <h2 className="font-syne text-xl font-bold text-sky-900 mb-6 flex items-center gap-2">
-              <Palette className="w-5 h-5 text-sky-500" /> Color Filters
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-3 mb-6">
-              <ToggleBtn active={settings.invertColors} onClick={() => toggle('TOGGLE_INVERT_COLORS')} icon={EyeOff} label="Invert Colors" />
-            </div>
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <label className="font-outfit font-semibold text-sm text-sky-900">Grayscale Intensity</label>
-                <span className="font-outfit text-sm text-sky-500">{settings.grayscale}%</span>
+          {/* Text & Reading */}
+          <SectionCard icon={Type} title="Text & Reading" badgeCount={textBadge} delay={0.05}>
+            {/* Font size */}
+            <div className="pb-4 mb-1 border-b border-sky-50">
+              <p className="font-outfit font-semibold text-sm text-sky-900 mb-0.5">Text Size</p>
+              <p className="font-outfit text-xs text-sky-400 mb-3">Scale the base font size across the entire app</p>
+              <div className="flex gap-1.5">
+                {FONT_SIZE_STEPS.map(({ display, value, textSize }, i) => {
+                  const active = display === 'M' ? settings.fontSize === 'medium'
+                    : display === 'L' ? settings.fontSize === 'large'
+                    : display === 'XL' ? settings.fontSize === 'xlarge' && i === 4
+                    : display === 'XXL' ? settings.fontSize === 'xlarge' && i === 5
+                    : display === 'S' ? settings.fontSize === 'small' && i === 1
+                    : settings.fontSize === 'small' && i === 0
+                  return (
+                    <button key={`${display}-${i}`} onClick={() => dispatch({ type: 'SET_FONT_SIZE', payload: value })}
+                      className={`flex-1 py-2.5 rounded-xl border font-outfit font-bold transition-all ${textSize} ${
+                        active ? 'bg-sky-500 text-white border-sky-500 shadow-md shadow-sky-200'
+                               : 'bg-white border-sky-100 text-sky-700 hover:border-sky-300 hover:bg-sky-50'
+                      }`}>
+                      {display}
+                    </button>
+                  )
+                })}
               </div>
-              <input
-                type="range" min="0" max="100" value={settings.grayscale}
-                onChange={(e) => setGrayscale(Number(e.target.value))}
-                className="w-full h-2 bg-sky-100 rounded-lg appearance-none cursor-pointer accent-sky-500"
-              />
             </div>
-          </motion.div>
+            <SettingRow label="Dyslexia-Friendly Font" description="Switches to Lexend — a font proven to improve reading speed and reduce fatigue" active={settings.dyslexiaFont} onToggle={() => toggle('dyslexiaFont')} />
+            <SettingRow label="Increased Line Height" description="Adds extra space between lines to reduce visual crowding" active={settings.increasedLineHeight} onToggle={() => toggle('increasedLineHeight')} />
+            <SettingRow label="Increased Word Spacing" description="Spreads words apart to improve reading comfort" active={settings.increasedWordSpacing} onToggle={() => toggle('increasedWordSpacing')} />
+            <SettingRow label="Increased Letter Spacing" description="Spreads characters apart to reduce letter crowding and improve clarity" active={settings.increasedLetterSpacing} onToggle={() => toggle('increasedLetterSpacing')} />
+            <SettingRow label="Reading Ruler" description="Highlights the line under your cursor to help track your place while reading" active={settings.readingGuide} onToggle={() => dispatch({ type: 'TOGGLE_READING_GUIDE' })} />
+            <SettingRow label="Always Show Link Underlines" description="Makes links visible without relying solely on color" active={settings.alwaysUnderlineLinks} onToggle={() => toggle('alwaysUnderlineLinks')} />
+            <SettingRow label="Text to Speech" description="Click any paragraph or heading to have it read aloud using your device's voice" active={settings.textToSpeech} onToggle={() => dispatch({ type: 'TOGGLE_TEXT_TO_SPEECH' })} />
+          </SectionCard>
 
-          {/* Motion & Zoom */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-2xl border border-sky-100 p-8 shadow-sm">
-            <h2 className="font-syne text-xl font-bold text-sky-900 mb-6 flex items-center gap-2">
-              <ZoomIn className="w-5 h-5 text-sky-500" /> Motion & Zoom
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-6">
-              <div>
-                <ToggleBtn active={settings.reducedMotion} onClick={() => toggle('TOGGLE_REDUCED_MOTION')} icon={Hash} label="Reduced Motion" />
+          {/* Vision */}
+          <SectionCard icon={Eye} title="Vision" badgeCount={visionBadge} delay={0.1}>
+            <SettingRow label="High Contrast Mode" description="Maximizes foreground/background contrast for low-vision users" active={settings.highContrast} onToggle={() => toggle('highContrast')} />
+
+            {/* Color blind picker */}
+            <div className="py-3.5 border-b border-sky-50">
+              <p className="font-outfit font-semibold text-sm text-sky-900 mb-0.5">Color Blind Friendly Mode</p>
+              <p className="font-outfit text-xs text-sky-400 mb-3">Select your color vision type to apply a perceptual compensation filter</p>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <button onClick={() => dispatch({ type: 'REPLACE_STATE', payload: { colorBlindMode: 'none' } })}
+                  className={`py-2.5 px-3 rounded-xl border font-outfit text-xs font-semibold transition-all ${
+                    settings.colorBlindMode === 'none' ? 'bg-sky-500 text-white border-sky-500 shadow-md' : 'bg-white border-sky-100 text-sky-700 hover:border-sky-300 hover:bg-sky-50'
+                  }`}>None</button>
+                {COLOR_BLIND_OPTIONS.map(({ value, label, emoji, description }) => (
+                  <button key={value} onClick={() => dispatch({ type: 'REPLACE_STATE', payload: { colorBlindMode: value } })}
+                    className={`flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border font-outfit text-xs font-semibold transition-all ${
+                      settings.colorBlindMode === value ? 'bg-sky-500 text-white border-sky-500 shadow-md' : 'bg-white border-sky-100 text-sky-700 hover:border-sky-300 hover:bg-sky-50'
+                    }`}>
+                    <span className="text-base">{emoji}</span>
+                    <span>{label}</span>
+                    <span className={`text-[10px] font-normal ${settings.colorBlindMode === value ? 'text-sky-100' : 'text-sky-400'}`}>{description}</span>
+                  </button>
+                ))}
               </div>
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label className="font-outfit font-semibold text-sm text-sky-900">Page Zoom</label>
-                  <span className="font-outfit text-sm text-sky-500">{settings.zoom}%</span>
+            </div>
+
+            <SettingRow label="Large Cursor" description="Replaces the default cursor with an oversized pointer for better tracking" active={settings.largeCursor} onToggle={() => dispatch({ type: 'TOGGLE_LARGE_CURSOR' })} />
+            <SettingRow label="Reduced Transparency" description="Removes blur and glass effects that can cause disorientation or visual discomfort" active={settings.reducedTransparency} onToggle={() => toggle('reducedTransparency')} />
+
+            {/* Grayscale */}
+            <div className="pt-3.5">
+              <div className="flex items-center justify-between mb-1">
+                <div>
+                  <p className="font-outfit font-semibold text-sm text-sky-900">Grayscale Mode</p>
+                  <p className="font-outfit text-xs text-sky-400 mt-0.5">Removes all color — useful for photosensitivity or color-neutral viewing</p>
                 </div>
-                <input
-                  type="range" min="100" max="200" step="10" value={settings.zoom}
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-full h-2 bg-sky-100 rounded-lg appearance-none cursor-pointer accent-sky-500"
-                />
+                <ToggleSwitch active={settings.grayscale > 0} onToggle={() => dispatch({ type: 'SET_GRAYSCALE', payload: settings.grayscale > 0 ? 0 : 100 })} />
               </div>
+              {settings.grayscale > 0 && (
+                <div className="mt-3">
+                  <div className="flex justify-between mb-1.5">
+                    <span className="font-outfit text-xs text-sky-400">Intensity</span>
+                    <span className="font-outfit text-xs font-semibold text-sky-600">{settings.grayscale}%</span>
+                  </div>
+                  <input type="range" min="1" max="100" value={settings.grayscale}
+                    onChange={e => dispatch({ type: 'SET_GRAYSCALE', payload: Number(e.target.value) })}
+                    className="w-full h-2 bg-sky-100 rounded-lg appearance-none cursor-pointer accent-sky-500" />
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
+          {/* Motion & Interaction */}
+          <SectionCard icon={Zap} title="Motion & Interaction" badgeCount={motionBadge} delay={0.15}>
+            <SettingRow label="Reduce Motion" description="Cuts animations and transitions to near-zero for users sensitive to motion" active={settings.reducedMotion} onToggle={() => dispatch({ type: 'TOGGLE_REDUCED_MOTION' })} />
+            <SettingRow label="Enhanced Focus Indicators" description="Bold amber outlines on every focused element — critical for keyboard-only navigation" active={settings.focusIndicators} onToggle={() => toggle('focusIndicators')} />
+            <SettingRow label="Focus Spotlight" description="Dims everything except the currently focused element for distraction-free navigation" active={settings.focusSpotlight} onToggle={() => toggle('focusSpotlight')} />
+            <SettingRow label="Larger Click Targets" description="Ensures all buttons and links meet the 44×44px minimum touch target for motor impairment" active={settings.largerClickTargets} onToggle={() => toggle('largerClickTargets')} />
+            <SettingRow label="Always Show Focus Ring" description="Keeps a visible focus outline on all focused elements regardless of input device" active={settings.alwaysFocusRing} onToggle={() => toggle('alwaysFocusRing')} />
+          </SectionCard>
+
+          {/* Screen Reader */}
+          <SectionCard icon={Monitor} title="Screen Reader & Assistive Tech" badgeCount={srBadge} delay={0.2}>
+            <SettingRow label="Screen Reader Enhancements" description="Adds skip-to-content link, ARIA live announcements, and improved landmark structure" active={settings.screenReaderEnhancements} onToggle={() => toggle('screenReaderEnhancements')} />
+            <SettingRow label="Tooltip Announcements" description="Shows a visible tooltip at the bottom of the screen when hovering over elements with descriptions" active={settings.tooltipAnnouncements} onToggle={() => toggle('tooltipAnnouncements')} />
+          </SectionCard>
+
+          {/* Condition-Specific Presets */}
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: 0.25 }}
+            className="bg-white rounded-2xl border border-amber-100 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-amber-500" />
+                </div>
+                <div>
+                  <h2 className="font-syne text-lg font-bold text-sky-900">Condition-Specific Presets</h2>
+                  <p className="font-outfit text-xs text-sky-400 mt-0.5">One-tap bundles optimized for specific accessibility needs</p>
+                </div>
+              </div>
+              {presetBadge > 0 && <span className="text-xs font-semibold bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full flex-shrink-0">{presetBadge} on</span>}
+            </div>
+            <div className="mt-5 grid sm:grid-cols-2 gap-3">
+              <PresetCard icon={Brain} iconColor="text-purple-500" iconBg="bg-purple-50" borderColor="border-purple-100" activeBg="bg-purple-50/60"
+                title="ADHD Mode" description="Reduces visual noise, increases focus aids, and enlarges text for better concentration"
+                active={settings.adhdMode} onToggle={() => toggle('adhdMode')} />
+              <PresetCard icon={Move} iconColor="text-blue-500" iconBg="bg-blue-50" borderColor="border-blue-100" activeBg="bg-blue-50/60"
+                title="Parkinson's Mode" description="Larger targets, reduced hover sensitivity, and stabilized UI to accommodate tremors"
+                active={settings.parkinsonMode} onToggle={() => toggle('parkinsonMode')} />
+              <PresetCard icon={Shield} iconColor="text-red-500" iconBg="bg-red-50" borderColor="border-red-100" activeBg="bg-red-50/60"
+                title="Epilepsy / Photosensitivity Safe" description="Eliminates all flashing, strobing, and rapid animations across the entire site"
+                active={settings.epilepsyMode} onToggle={() => toggle('epilepsyMode')} />
+              <PresetCard icon={Heart} iconColor="text-pink-500" iconBg="bg-pink-50" borderColor="border-pink-100" activeBg="bg-pink-50/60"
+                title="Autism Spectrum Friendly" description="Predictable layouts, muted tones, and reduced sensory load for a calmer experience"
+                active={settings.autismMode} onToggle={() => toggle('autismMode')} />
+              <PresetCard icon={ZoomIn} iconColor="text-teal-500" iconBg="bg-teal-50" borderColor="border-teal-100" activeBg="bg-teal-50/60"
+                title="Low Vision Mode" description="Enhanced contrast, larger UI elements, and high-visibility focus rings throughout"
+                active={settings.lowVisionMode} onToggle={() => toggle('lowVisionMode')} />
+              <PresetCard icon={MousePointer} iconColor="text-indigo-500" iconBg="bg-indigo-50" borderColor="border-indigo-100" activeBg="bg-indigo-50/60"
+                title="Motor Impairment Mode" description="Larger hit targets, sticky inputs, and keyboard-first navigation across all pages"
+                active={settings.motorImpairmentMode} onToggle={() => toggle('motorImpairmentMode')} />
             </div>
           </motion.div>
 
           {/* Reset */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-center pb-8">
-            <button
-              onClick={resetAll}
-              className="px-8 py-3 rounded-xl font-outfit font-semibold text-sky-600 border-2 border-sky-200 hover:bg-sky-50 transition-all"
-            >
-              Reset All to Defaults
+          <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            className="text-center pb-12">
+            <button onClick={() => { window.localStorage.removeItem('community-connect-settings'); window.location.reload() }}
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-outfit font-semibold text-sky-600 border-2 border-sky-200 hover:bg-sky-50 hover:border-sky-300 transition-all">
+              <RotateCcw className="w-4 h-4" /> Reset All to Defaults
             </button>
-            <p className="mt-3 text-sm text-sky-400 font-outfit">Settings save automatically</p>
+            <p className="mt-3 font-outfit text-sm text-sky-400">Settings save automatically to your browser</p>
           </motion.div>
 
         </div>

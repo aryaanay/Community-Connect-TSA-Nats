@@ -138,12 +138,32 @@ export default function DashboardPage() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         >
           <Card className="p-6 sm:p-8 relative overflow-hidden">
+            {/* Static base gradient */}
             <div
               className="pointer-events-none absolute inset-0 opacity-30"
               style={{
                 background:
                   'radial-gradient(circle at 80% 50%, rgba(36,153,214,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(86,187,240,0.15) 0%, transparent 50%)',
               }}
+            />
+            {/* Drifting parallax orbs */}
+            <motion.div
+              className="pointer-events-none absolute w-64 h-64 rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(36,153,214,0.18) 0%, transparent 70%)', top: '-40%', right: '-5%' }}
+              animate={{ y: [0, -18, 0], x: [0, 10, 0], scale: [1, 1.1, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="pointer-events-none absolute w-44 h-44 rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(86,187,240,0.12) 0%, transparent 70%)', bottom: '-30%', right: '30%' }}
+              animate={{ y: [0, 14, 0], x: [0, -8, 0], scale: [1, 0.93, 1] }}
+              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 2.5 }}
+            />
+            <motion.div
+              className="pointer-events-none absolute w-32 h-32 rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)', top: '20%', left: '-5%' }}
+              animate={{ y: [0, 10, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
             />
             <div className="relative">
               <p className="font-outfit text-sm text-sky-300/70 mb-1">{getGreeting()},</p>

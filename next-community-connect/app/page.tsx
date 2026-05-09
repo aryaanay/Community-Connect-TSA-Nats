@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
@@ -20,6 +20,7 @@ const communityImages = [
   { src: '/img/optimized/playground1.jpg',     alt: 'Community playground gathering' },
   { src: '/img/optimized/community7.jpg',      alt: 'General community gathering' },
 ]
+import { useScroll, useTransform } from 'framer-motion'
 import { MapPin, CalendarDays, Clock, Search, Gift, PlusCircle, Bot, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 
@@ -123,9 +124,19 @@ const FEATURES = [
 ]
 
 function FeaturesSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const bgY = useTransform(scrollYProgress, [0, 1], [60, -60])
+
   return (
-    <section id="features" className="py-20 px-4 bg-[var(--section-bg)]">
-      <div className="max-w-5xl mx-auto">
+    <section ref={sectionRef} id="features" className="py-20 px-4 bg-[var(--section-bg)] relative overflow-hidden">
+      {/* Parallax background orb */}
+      <motion.div
+        style={{ y: bgY, background: 'radial-gradient(circle at 70% 30%, rgba(86,187,240,0.18) 0%, transparent 60%)' }}
+        className="pointer-events-none absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-30"
+        aria-hidden="true"
+      />
+      <div className="max-w-5xl mx-auto relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.5 }}
@@ -142,12 +153,13 @@ function FeaturesSection() {
           {FEATURES.map(({ icon: Icon, title, desc, color, bg, border }, i) => (
             <motion.div
               key={title}
-              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.08 }}
-              className="bg-white rounded-2xl p-6 border border-sky-100 hover:border-sky-200 hover:shadow-lg transition-all group"
+              initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.08 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="bg-white rounded-2xl p-6 border border-sky-100 hover:border-sky-200 hover:shadow-xl transition-shadow group cursor-default"
             >
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
+                className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
                 style={{ background: bg, border: `1px solid ${border}` }}
               >
                 <Icon size={20} style={{ color }} />
@@ -294,6 +306,19 @@ export default function HomePage() {
             className="bg-gradient-to-br from-sky-900 to-sky-700 rounded-2xl p-12 text-center relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(36,153,214,0.2)_0%,transparent_60%)]" />
+            {/* Floating orbs */}
+            <motion.div
+              className="pointer-events-none absolute w-48 h-48 rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(86,187,240,0.2) 0%, transparent 70%)', top: '-20%', right: '5%' }}
+              animate={{ y: [0, -20, 0], scale: [1, 1.12, 1] }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="pointer-events-none absolute w-32 h-32 rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', bottom: '-10%', left: '10%' }}
+              animate={{ y: [0, 15, 0], scale: [1, 0.9, 1] }}
+              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+            />
             <div className="relative z-10">
               <h2 className="font-space text-3xl font-bold text-white mb-4">Ready to Get Involved?</h2>
               <p className="font-outfit text-base text-white/80 max-w-md mx-auto mb-8">

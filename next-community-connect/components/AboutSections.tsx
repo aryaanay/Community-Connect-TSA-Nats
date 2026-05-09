@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap, Waves } from 'lucide-react'
 import { useSettings } from '@/context/SettingsContext'
@@ -48,17 +48,19 @@ export function AboutSections() {
   const statsRef = useRef<HTMLElement>(null)
   const [statsVisible, setStatsVisible] = useState(false)
 
+  // Parallax on stats section background
+  const { scrollYProgress: statsScroll } = useScroll({ target: statsRef, offset: ['start end', 'end start'] })
+  const statsParallaxY = useTransform(statsScroll, [0, 1], [70, -70])
+
   // Live stats from Supabase
-  const [liveEventCount, setLiveEventCount] = useState(8)       // fallback = hardcoded count
-  const [liveSupporters, setLiveSupporters] = useState(150)     // fallback
+  const [liveEventCount, setLiveEventCount] = useState(8)
+  const [liveSupporters, setLiveSupporters] = useState(150)
   const [liveDonated, setLiveDonated] = useState(0)
 
   useEffect(() => {
-    // Fetch event count
     supabase.from('events').select('id', { count: 'exact', head: true })
       .then(({ count }) => { if (count) setLiveEventCount(Math.max(8, count)) })
 
-    // Fetch supporter count + donated total from wishlist_causes
     supabase.from('wishlist_causes').select('supporter_count, current_amount')
       .then(({ data }) => {
         if (!data) return
@@ -68,7 +70,6 @@ export function AboutSections() {
         if (donated > 0) setLiveDonated(donated)
       })
 
-    // Real-time: update whenever wishlist_causes changes
     const channel = supabase.channel('about-stats')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wishlist_causes' }, () => {
         supabase.from('wishlist_causes').select('supporter_count, current_amount').then(({ data }) => {
@@ -100,21 +101,28 @@ export function AboutSections() {
   return (
     <>
       {/* ── Mission ─────────────────────────────────────────────────────────── */}
-      <section id="mission" className="py-24 bg-white">
+      <section id="mission" className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
 
             {/* Visual side */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.6 }}
+              initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="relative"
             >
               <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-sky-800 to-sky-500 flex items-center justify-center relative overflow-hidden">
                 <Waves className="w-24 h-24 text-white/15" />
                 <div className="absolute inset-0 bg-gradient-to-t from-sky-900/50 to-transparent" />
               </div>
-              <div className="absolute bottom-7 right-[-20px] bg-white rounded-xl p-4 shadow-lg flex items-center gap-3 z-10">
+              <motion.div
+                initial={{ opacity: 0, x: 20, y: 10 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                animate={{ y: [0, -6, 0] }}
+                className="absolute bottom-7 right-[-20px] bg-white rounded-xl p-4 shadow-lg flex items-center gap-3 z-10"
+              >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-sky-300 flex items-center justify-center">
                   <Users className="w-5 h-5 text-white" />
                 </div>
@@ -122,8 +130,15 @@ export function AboutSections() {
                   <div className="font-space font-bold text-lg text-[var(--text-dark)]">150+</div>
                   <div className="font-outfit text-xs text-[var(--text-muted)]">Volunteers</div>
                 </div>
-              </div>
-              <div className="absolute top-7 left-[-20px] bg-white rounded-xl p-4 shadow-lg flex items-center gap-3 z-10">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -20, y: -10 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+                animate={{ y: [0, 6, 0] }}
+                className="absolute top-7 left-[-20px] bg-white rounded-xl p-4 shadow-lg flex items-center gap-3 z-10"
+              >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
@@ -131,13 +146,13 @@ export function AboutSections() {
                   <div className="font-space font-bold text-lg text-[var(--text-dark)]">Bothell, WA</div>
                   <div className="font-outfit text-xs text-[var(--text-muted)]">Est. 2019</div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
 
             {/* Text side */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.6 }}
+              initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
               <span className="section-eyebrow">Our Mission</span>
               <h2 className="section-heading mb-4">Connecting people to the help they need</h2>
@@ -188,10 +203,28 @@ export function AboutSections() {
         ref={statsRef}
         className="py-24 bg-gradient-to-br from-sky-900 via-sky-700 to-sky-400 relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,rgba(36,153,214,0.2)_0%,transparent_55%),radial-gradient(ellipse_at_80%_50%,rgba(4,64,105,0.4)_0%,transparent_50%)]" />
+        {/* Parallax background orbs */}
+        <motion.div
+          style={{ y: statsParallaxY }}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_50%,rgba(36,153,214,0.2)_0%,transparent_55%),radial-gradient(ellipse_at_80%_50%,rgba(4,64,105,0.4)_0%,transparent_50%)]"
+        />
+        {/* Floating orbs */}
+        <motion.div
+          className="pointer-events-none absolute w-72 h-72 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(86,187,240,0.15) 0%, transparent 70%)', top: '-10%', right: '10%' }}
+          animate={{ y: [0, -25, 0], scale: [1, 1.08, 1] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="pointer-events-none absolute w-56 h-56 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(4,64,105,0.3) 0%, transparent 70%)', bottom: '-5%', left: '5%' }}
+          animate={{ y: [0, 20, 0], scale: [1, 0.92, 1] }}
+          transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        />
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.5 }}
             className="text-center mb-10"
           >
@@ -207,8 +240,8 @@ export function AboutSections() {
             ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                initial={{ opacity: 0, y: 40, scale: 0.9 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="text-center py-12 px-6"
               >
                 <div className="font-space text-4xl lg:text-5xl font-bold text-white mb-2">
@@ -222,7 +255,7 @@ export function AboutSections() {
       </section>
 
       {/* ── Timeline ─────────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[var(--section-bg)]" id="story">
+      <section className="py-24 bg-[var(--section-bg)] overflow-hidden" id="story">
         <div className="max-w-5xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -234,28 +267,63 @@ export function AboutSections() {
           </motion.div>
 
           <div className="relative">
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-sky-200 via-sky-400 to-sky-200 -translate-x-1/2 hidden lg:block" />
-            {timeline.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className={`relative grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14`}
-              >
-                <div className={i % 2 === 0 ? 'lg:text-right' : 'lg:order-2'}>
-                  <div className="bg-white border border-sky-100 rounded-xl p-5 hover:border-sky-300 hover:shadow-lg transition-all">
-                    <h3 className="font-space font-bold text-base text-[var(--text-dark)] mb-2">{item.title}</h3>
-                    <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed m-0">{item.description}</p>
-                  </div>
+            {/* Animated vertical center line */}
+            <motion.div
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+              style={{ originY: 0 }}
+              className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-sky-200 via-sky-400 to-sky-200 -translate-x-1/2 hidden lg:block"
+            />
+
+            {timeline.map((item, i) => {
+              const isLeft = i % 2 === 0
+              const Icon = timelineIconMap[item.icon] ?? Lightbulb
+              return (
+                <div key={i} className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+                  {/* Card — slides in from the side it lands on */}
+                  <motion.div
+                    initial={{ opacity: 0, x: isLeft ? -70 : 70 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    className={isLeft ? 'lg:text-right' : 'lg:order-2'}
+                  >
+                    <div className="bg-white border border-sky-100 rounded-xl p-5 hover:border-sky-300 hover:shadow-xl transition-all duration-300 group">
+                      <h3 className="font-space font-bold text-base text-[var(--text-dark)] mb-2 group-hover:text-sky-700 transition-colors">{item.title}</h3>
+                      <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed m-0">{item.description}</p>
+                    </div>
+                  </motion.div>
+
+                  {/* Icon + year — scale-bounce in */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.3 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.6, delay: 0.25, ease: [0.175, 0.885, 0.32, 1.275] }}
+                    className="hidden lg:flex lg:flex-col lg:items-center"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.15, rotate: 5 }}
+                      transition={{ type: 'spring', stiffness: 300 }}
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-600 to-sky-400 border-4 border-white shadow-md flex items-center justify-center mb-2 cursor-default"
+                    >
+                      <Icon className="w-5 h-5 text-white" />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.45 }}
+                      className="font-space text-sm font-bold text-amber-400"
+                    >
+                      {item.year}
+                    </motion.div>
+                  </motion.div>
                 </div>
-                <div className="hidden lg:flex lg:flex-col lg:items-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-600 to-sky-400 border-4 border-white shadow-md flex items-center justify-center mb-2">
-                    {(() => { const Icon = timelineIconMap[item.icon] ?? Lightbulb; return <Icon className="w-5 h-5 text-white" /> })()}
-                  </div>
-                  <div className="font-space text-sm font-bold text-amber-400">{item.year}</div>
-                </div>
-              </motion.div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -279,11 +347,12 @@ export function AboutSections() {
             {partners.map((partner, i) => (
               <motion.span
                 key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="flex items-center gap-2 bg-white border border-sky-100 rounded-full px-5 py-3 font-outfit text-sm font-medium text-[var(--text-body)] hover:border-sky-300 hover:text-sky-600 hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer"
+                transition={{ delay: i * 0.06, ease: [0.175, 0.885, 0.32, 1.275] }}
+                whileHover={{ y: -4, scale: 1.04 }}
+                className="flex items-center gap-2 bg-white border border-sky-100 rounded-full px-5 py-3 font-outfit text-sm font-medium text-[var(--text-body)] hover:border-sky-300 hover:text-sky-600 hover:shadow-lg transition-shadow cursor-pointer"
               >
                 <span className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />
                 {partner}

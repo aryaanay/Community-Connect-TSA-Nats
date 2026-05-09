@@ -1,4 +1,5 @@
 @import 'leaflet/dist/leaflet.css';
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -847,5 +848,163 @@ html {
 
 [data-theme="dark"] .testimonial-desc {
   color: rgba(198, 235, 255, 0.78) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   ACCESSIBILITY SETTINGS CSS
+═══════════════════════════════════════════════════ */
+
+/* Dyslexia-friendly font (Lexend) */
+[data-dyslexia-font="true"], [data-dyslexia-font="true"] * {
+  font-family: 'Lexend', sans-serif !important;
+}
+
+/* Increased line height */
+[data-increased-line-height="true"] p,
+[data-increased-line-height="true"] li,
+[data-increased-line-height="true"] span,
+[data-increased-line-height="true"] div {
+  line-height: 1.95 !important;
+}
+
+/* Increased word spacing */
+[data-increased-word-spacing="true"] p,
+[data-increased-word-spacing="true"] span,
+[data-increased-word-spacing="true"] li {
+  word-spacing: 0.2em !important;
+}
+
+/* Increased letter spacing */
+[data-increased-letter-spacing="true"] p,
+[data-increased-letter-spacing="true"] span,
+[data-increased-letter-spacing="true"] li {
+  letter-spacing: 0.07em !important;
+}
+
+/* Always underline links */
+[data-underline-links="true"] a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+}
+
+/* High contrast */
+[data-high-contrast="true"] body { background: #ffffff !important; color: #000000 !important; }
+[data-high-contrast="true"] .bg-white { background: #ffffff !important; }
+[data-high-contrast="true"] .text-sky-400,
+[data-high-contrast="true"] .text-sky-500,
+[data-high-contrast="true"] .text-sky-600 { color: #0040cc !important; }
+[data-high-contrast="true"] .border-sky-100,
+[data-high-contrast="true"] .border-sky-200 { border-color: #000000 !important; }
+
+/* Focus indicators — amber outlines */
+[data-focus-indicators="true"] *:focus-visible {
+  outline: 3px solid #f59e0b !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* Always show focus ring */
+[data-always-focus-ring="true"] *:focus {
+  outline: 2px solid #0ea5e9 !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+/* Larger click targets */
+[data-larger-click-targets="true"] button,
+[data-larger-click-targets="true"] a,
+[data-larger-click-targets="true"] [role="button"],
+[data-larger-click-targets="true"] input[type="checkbox"],
+[data-larger-click-targets="true"] input[type="radio"] {
+  min-height: 44px !important;
+  min-width: 44px !important;
+}
+
+/* Reduced transparency */
+[data-reduced-transparency="true"] .liquid-glass,
+[data-reduced-transparency="true"] .liquid-glass-fixed {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(2, 39, 71, 0.92) !important;
+}
+[data-reduced-transparency="true"] [style*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Screen reader enhancements — skip link */
+[data-screen-reader="true"] body::before {
+  content: 'Skip to main content';
+  position: fixed;
+  top: -100px;
+  left: 0;
+  z-index: 99999;
+  padding: 8px 16px;
+  background: #022747;
+  color: white;
+  font-family: sans-serif;
+  font-size: 14px;
+  border-bottom-right-radius: 8px;
+  transition: top 0.2s;
+}
+[data-screen-reader="true"] body:focus-within::before { top: 0; }
+
+/* ADHD mode — reduce distractions */
+[data-adhd-mode="true"] * {
+  animation-duration: 0.15ms !important;
+  transition-duration: 0.15ms !important;
+}
+[data-adhd-mode="true"] body { background: #f8fcff !important; }
+
+/* Epilepsy / photosensitivity safe */
+[data-epilepsy-mode="true"] *,
+[data-epilepsy-mode="true"] *::before,
+[data-epilepsy-mode="true"] *::after {
+  animation: none !important;
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Autism-friendly — reduce saturation */
+[data-autism-mode="true"] body { filter: saturate(0.65) !important; }
+
+/* Low vision mode */
+[data-low-vision-mode="true"] { font-size: 1.25rem !important; }
+[data-low-vision-mode="true"] *:focus-visible {
+  outline: 4px solid #f59e0b !important;
+  outline-offset: 4px !important;
+}
+
+/* Parkinson's + motor impairment — larger targets */
+[data-parkinson-mode="true"] button,
+[data-parkinson-mode="true"] a,
+[data-parkinson-mode="true"] [role="button"],
+[data-motor-mode="true"] button,
+[data-motor-mode="true"] a,
+[data-motor-mode="true"] [role="button"],
+[data-motor-mode="true"] input {
+  min-height: 52px !important;
+  min-width: 52px !important;
+}
+[data-parkinson-mode="true"] * {
+  transition-duration: 0.05ms !important;
+}
+
+/* Focus spotlight overlay */
+[data-focus-spotlight="true"] {
+  position: relative;
+}
+[data-focus-spotlight="true"]:has(*:focus-visible)::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 9998;
+  pointer-events: none;
+}
+[data-focus-spotlight="true"] *:focus-visible {
+  position: relative;
+  z-index: 9999;
 }
 
