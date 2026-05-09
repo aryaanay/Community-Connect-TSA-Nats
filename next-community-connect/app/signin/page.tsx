@@ -418,7 +418,7 @@ function SignInForm() {
           <canvas ref={rightCanvasRef} className="absolute inset-0 pointer-events-none" />
 
           <motion.div
-            className="relative z-10 w-full max-w-sm mx-auto"
+            className="relative z-10 w-full max-w-[440px] mx-auto"
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
@@ -542,6 +542,28 @@ function SignInForm() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            <motion.div
+              className="mt-6 grid grid-cols-3 gap-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
+              {[
+                { label: '30+', desc: 'Local Resources' },
+                { label: '10', desc: 'Partner Orgs' },
+                { label: '150+', desc: 'Volunteers' },
+              ].map(({ label, desc }) => (
+                <div
+                  key={desc}
+                  className="rounded-xl p-3 text-center"
+                  style={{ background: 'rgba(86,187,240,0.05)', border: '1px solid rgba(86,187,240,0.1)' }}
+                >
+                  <p className="font-syne text-lg font-black text-sky-300">{label}</p>
+                  <p className="font-outfit text-[10px] uppercase tracking-wider" style={{ color: 'rgba(198,235,255,0.35)' }}>{desc}</p>
+                </div>
+              ))}
+            </motion.div>
 
           </motion.div>
         </div>

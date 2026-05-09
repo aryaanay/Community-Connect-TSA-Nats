@@ -250,7 +250,12 @@ function LocationEvents() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {events.map((ev) => (
-              <div key={ev.name} className="lev-card rounded-2xl p-5">
+              <motion.div
+                key={ev.name}
+                className="lev-card rounded-2xl p-5"
+                whileHover={{ scale: 1.015, y: -4 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+              >
                 <div className="flex items-start gap-3 mb-3">
                   <div className="lev-icon w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
                     {ev.emoji}
@@ -280,7 +285,7 @@ function LocationEvents() {
                     <MapPin size={10} /> {ev.location}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </AnimatePresence>

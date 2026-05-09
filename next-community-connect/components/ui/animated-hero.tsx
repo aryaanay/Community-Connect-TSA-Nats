@@ -176,10 +176,9 @@ function Hero({
                   <motion.button
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all liquid-glass"
-                    style={{ color: 'white' }}
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all bg-white text-sky-900 hover:bg-sky-50"
                   >
-                    <span className="liquid-content inline-flex items-center gap-3">{primaryText} <MoveRight className="w-4 h-4" /></span>
+                    {primaryText} <MoveRight className="w-4 h-4" />
                   </motion.button>
                 </Link>
               )}
@@ -188,8 +187,7 @@ function Hero({
                   <motion.button
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all bg-white/10 border border-white/25 backdrop-blur-xl"
-                    style={{ color: 'white' }}
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-syne font-bold text-base transition-all border-2 border-white/40 text-white hover:bg-white/10 backdrop-blur-sm"
                   >
                     {secondaryText} <MoveRight className="w-4 h-4" />
                   </motion.button>
@@ -217,34 +215,38 @@ function Hero({
           </div>
 
           {isHomeHero && (
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.82, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-4 hidden xl:grid grid-cols-4 gap-3 w-full max-w-5xl"
-            >
-              {floatingCards.map(({ icon: Icon, label, value, delay }) => (
-                <motion.div
-                  key={label}
-                  className="liquid-glass rounded-2xl px-4 py-3"
-                  initial={{ opacity: 0, y: 14, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 0.9 + delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  style={{ animationDelay: `${delay * 2.5}s` }}
-                >
-                  <div className="liquid-content flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-sky-100" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-outfit text-[11px] uppercase tracking-[0.12em] text-sky-100/60 truncate">{label}</p>
-                      <p className="font-space text-sm font-semibold text-white truncate">{value}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+  <div className="absolute bottom-20 inset-x-0 hidden xl:flex justify-around px-14 pointer-events-none z-20">
+    {floatingCards.map(({ icon: Icon, label, value, delay }, i) => (
+      <motion.div
+        key={label}
+        className="liquid-glass-fixed rounded-2xl px-4 py-3"
+        initial={{ opacity: 0, y: 16, scale: 0.94 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 1.0 + delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
+          className="flex items-center gap-3"
+          animate={{ y: [0, -(5 + i * 3), 0] }}
+          transition={{
+            delay: 1.6 + delay,
+            duration: 3.5 + i * 0.8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            repeatDelay: 0,
+          }}
+        >
+          <div className="w-9 h-9 rounded-xl bg-white/14 border border-white/15 flex items-center justify-center">
+            <Icon className="w-4 h-4 text-sky-100" />
+          </div>
+          <div className="min-w-0">
+            <p className="font-outfit text-[11px] uppercase tracking-[0.12em] text-sky-100/60">{label}</p>
+            <p className="font-space text-sm font-semibold text-white">{value}</p>
+          </div>
+        </motion.div>
+      </motion.div>
+    ))}
+  </div>
+)}
         </div>
       </div>
 

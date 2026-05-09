@@ -90,7 +90,7 @@ export function Footer() {
                 <li key={link.href + link.label}>
                   <Link
                     href={link.href}
-                    className="font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-colors"
+                    className="footer-nav-link font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-all"
                     style={{ color: 'rgba(198,235,255,0.8)' }}
                   >
                     <span className="text-[9px] text-sky-400 group-hover:translate-x-1 transition-transform">›</span>
@@ -106,15 +106,14 @@ export function Footer() {
             <h4 className="font-syne text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#90D4F7' }}>Categories</h4>
             <ul className="space-y-2.5">
               {footerLinks.categories.map((link) => (
-                <li key={link.href + link.label}>
-                  <Link
-                    href={link.href}
-                    className="font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-colors"
+                <li key={link.label}>
+                  <span
+                    className="footer-nav-link font-dm-sans text-sm flex items-center gap-2 group transition-all cursor-default"
                     style={{ color: 'rgba(198,235,255,0.8)' }}
                   >
-                    <span className="text-[9px] text-sky-400 group-hover:translate-x-1 transition-transform">›</span>
+                    <span className="text-[9px] text-sky-400">›</span>
                     {link.label}
-                  </Link>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -163,7 +162,7 @@ export function Footer() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="rounded-full px-3.5 py-1.5 flex items-center gap-1.5 cursor-default backdrop-blur-sm hover:-translate-y-0.5 transition-transform"
+                className="footer-partner-pill rounded-full px-3.5 py-1.5 flex items-center gap-1.5 cursor-default backdrop-blur-sm hover:-translate-y-0.5 transition-all duration-200"
                 style={{ border: '1px solid rgba(86,187,240,0.2)', backgroundColor: 'rgba(36,153,214,0.1)', fontFamily: 'var(--font-space)', fontSize: '12px', color: 'rgba(198,235,255,0.9)' }}
               >
                 <partner.icon size={12} className="text-sky-300" />

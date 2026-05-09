@@ -1008,3 +1008,53 @@ html {
   z-index: 9999;
 }
 
+/* ── ZoomParallax background (theme-aware) ── */
+.zoom-parallax-bg {
+  background: #dbeafe;
+}
+[data-theme="dark"] .zoom-parallax-bg {
+  background: #011629;
+}
+
+/* ── Events card hover effect ── */
+.lev-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.lev-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 40px rgba(36, 153, 214, 0.18);
+  border-color: rgba(36, 153, 214, 0.3) !important;
+}
+[data-theme="dark"] .lev-card:hover {
+  box-shadow: 0 14px 40px rgba(86, 187, 240, 0.14) !important;
+  border-color: rgba(86, 187, 240, 0.28) !important;
+}
+
+/* ── Location button hover ── */
+.lev-btn:hover {
+  background: rgba(36, 153, 214, 0.12) !important;
+  border-color: rgba(36, 153, 214, 0.28) !important;
+  color: #085D8A !important;
+}
+[data-theme="dark"] .lev-btn:hover {
+  background: rgba(86, 187, 240, 0.12) !important;
+  border-color: rgba(86, 187, 240, 0.28) !important;
+  color: #90D4F7 !important;
+}
+
+/* ── Footer explore/category link hover glow ── */
+.footer-nav-link:hover {
+  color: white !important;
+  text-shadow: 0 0 12px rgba(86, 187, 240, 0.6);
+}
+.footer-nav-link:hover span {
+  color: #56BBF0 !important;
+}
+
+/* ── Footer partner pill hover glow ── */
+.footer-partner-pill:hover {
+  background: rgba(36, 153, 214, 0.22) !important;
+  border-color: rgba(86, 187, 240, 0.45) !important;
+  box-shadow: 0 0 18px rgba(86, 187, 240, 0.18);
+}
+
