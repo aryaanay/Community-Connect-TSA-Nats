@@ -443,14 +443,12 @@ function useEventRsvp(eventId: string, userId: string | undefined) {
       } catch { /* ignore */ }
       setCount(c => Math.max(0, next ? c + 1 : c - 1))
       if (userId) {
-        supabase.from('event_rsvps')
-          .upsert({ event_id: eventId, user_id: userId }, { onConflict: 'event_id,user_id' })
-          .then(() => {})
-          .catch(() => {})
-        if (!next) {
-          supabase.from('event_rsvps')
+        if (next) {
+          void supabase.from('event_rsvps')
+            .upsert({ event_id: eventId, user_id: userId }, { onConflict: 'event_id,user_id' })
+        } else {
+          void supabase.from('event_rsvps')
             .delete().eq('event_id', eventId).eq('user_id', userId)
-            .then(() => {}).catch(() => {})
         }
       }
       return next

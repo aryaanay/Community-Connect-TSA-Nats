@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSettings } from '@/context/SettingsContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { getT } from '@/lib/translations'
@@ -128,7 +128,7 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
   const { settings, dispatch } = useSettings()
   const { unlock, markPageVisited } = useAchievements()
 
-  const [rsvpPublic, setRsvpPublic] = React.useState(() => {
+  const [rsvpPublic, setRsvpPublic] = useState(() => {
     try { return localStorage.getItem('cc-rsvp-public') !== 'false' } catch { return true }
   })
   const toggleRsvpPublic = () => {

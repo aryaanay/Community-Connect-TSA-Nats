@@ -140,7 +140,7 @@ export function Navbar() {
           <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
-              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
               aria-label="Toggle dark mode"
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -148,7 +148,7 @@ export function Navbar() {
 
             <Link
               href="/settings"
-              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
               aria-label="Settings"
             >
               <Settings size={14} />
@@ -156,7 +156,7 @@ export function Navbar() {
 
             <Link
               href="/references"
-              className="liquid-glass hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white hover:bg-white/10 transition-all whitespace-nowrap"
+              className="liquid-glass hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white transition-all whitespace-nowrap"
             >
               References
             </Link>
