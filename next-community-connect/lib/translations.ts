@@ -4,7 +4,7 @@ const dict: Record<Locale, Record<string, string>> = {
   en: {
     'nav.dashboard': 'Dashboard', 'nav.resources': 'Resources', 'nav.events': 'Events',
     'nav.submit': 'Submit Resource', 'nav.donate': 'Donate', 'nav.settings': 'Settings',
-    'nav.map': 'Community Map', 'nav.back': 'Back to Home', 'nav.signout': 'Sign Out', 'nav.profile': 'My Profile', 'nav.help': 'Help & Docs', 'nav.social': 'Social', 'nav.groups': 'Groups', 'nav.lostfound': 'Lost & Found', 'nav.createevent': 'Create Event',
+    'nav.map': 'Community Map', 'nav.back': 'Back to Home', 'nav.signout': 'Sign Out', 'nav.profile': 'My Profile', 'nav.help': 'Help & Docs', 'nav.social': 'Social', 'nav.groups': 'Groups', 'nav.lostfound': 'Lost & Found', 'nav.createevent': 'Create Event', 'nav.references': 'References',
     'dash.morning': 'Good morning', 'dash.afternoon': 'Good afternoon', 'dash.evening': 'Good evening',
     'dash.welcome': 'Welcome to your Community Connect dashboard. Explore resources, discover events, and make a difference in Bothell — all from one place.',
     'dash.browse': 'Browse resources', 'dash.submit_res': 'Submit a resource',

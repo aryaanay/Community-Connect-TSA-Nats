@@ -583,6 +583,7 @@ export default function SubmitPage() {
         backgroundImage="/img/page-6.jpg"
       />
 
+      <div className="relative z-10">
       <section className="py-24 bg-[var(--section-bg)]">
         <div className="max-w-3xl mx-auto px-4">
           <motion.div
@@ -730,6 +731,7 @@ export default function SubmitPage() {
           </motion.div>
         </div>
       </section>
+      </div>
     </>
   )
 }

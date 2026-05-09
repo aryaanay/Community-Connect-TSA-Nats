@@ -255,6 +255,7 @@ export default function ResourcesPage() {
         backgroundImage="/img/page-4.jpg"
       />
 
+      <div className="relative z-10">
       <section className="py-24 resources-section" id="directory"
         style={{ background: 'linear-gradient(160deg, #EBF7FF 0%, #F0F9FF 50%, #E0F2FE 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -503,6 +504,7 @@ export default function ResourcesPage() {
       >
         <ArrowUp size={20} />
       </motion.button>
+      </div>
     </>
   )
 }

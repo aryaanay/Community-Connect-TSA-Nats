@@ -726,6 +726,7 @@ export default function DonatePage() {
         backgroundImage="/img/page-5.jpg"
       />
 
+      <div className="relative z-10">
       {/* ── DB error banner ── */}
       <AnimatePresence>
         {dbError && (
@@ -935,6 +936,7 @@ export default function DonatePage() {
         </div>
       </section>
 
+      </div>
       <AnimatePresence>
         {selected && (
           <DonationModal

@@ -5,10 +5,9 @@ import { useSettings } from '@/context/SettingsContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { getT } from '@/lib/translations'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
 import {
   Type, Eye, Zap, Brain, Shield, Heart, ZoomIn,
-  ArrowLeft, RotateCcw, CheckCircle2, Move, MousePointer, Moon, Sun,
+  RotateCcw, CheckCircle2, Move, MousePointer, Moon, Sun,
 } from 'lucide-react'
 
 // ─── Toggle switch ─────────────────────────────────────────────────────────────
@@ -185,10 +184,6 @@ export default function SettingsPage() {
 
   return (
     <>
-      <Link href="/" className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125">
-        <ArrowLeft className="w-4 h-4" /> {t('misc.back')}
-      </Link>
-
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="relative pt-28 pb-16 overflow-hidden"
         style={{ background: dk ? 'linear-gradient(180deg, #011629 0%, #022747 100%)' : 'linear-gradient(180deg, #f0f9ff 0%, #f8fcff 100%)' }}>

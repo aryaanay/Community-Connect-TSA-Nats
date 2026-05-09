@@ -6,6 +6,7 @@ import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookO
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettings } from '@/context/SettingsContext'
+import { useAuth } from '@/context/AuthContext'
 import Link from 'next/link'
 
 type SupabaseEvent = {
@@ -388,7 +389,10 @@ function PinnedCalendar({
   )
 }
 
-function EventModal({ event, onClose }: { event: EventType; onClose: () => void }) {
+function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }: {
+  event: EventType; onClose: () => void;
+  isOwned?: boolean; onDelete?: () => void; deleting?: boolean
+}) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -475,6 +479,16 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
             >
               📅 Add to Calendar
             </a>
+            {isOwned && (
+              <button
+                onClick={onDelete}
+                disabled={isDeleting}
+                className="px-4 py-3 rounded-xl border transition-all disabled:opacity-50 hover:bg-red-50"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}
+              >
+                {isDeleting ? '…' : '🗑'}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
@@ -497,6 +511,35 @@ export default function EventsPage() {
   const [calendarSelected, setCalendarSelected] = useState<EventType | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
+  const [myEventIds, setMyEventIds] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    if (!user) { setMyEventIds(new Set()); return }
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('user_events').select('id').eq('user_id', user.id)
+        if (data) setMyEventIds(new Set(data.map((r: any) => `user-${r.id}`)))
+      } catch { /* ignore */ }
+    })()
+  }, [user])
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!user) return
+    const rawId = eventId.replace('user-', '')
+    setDeleting(true)
+    try {
+      const { error } = await supabase.from('user_events').delete().eq('id', rawId).eq('user_id', user.id)
+      if (!error) {
+        setAllEvents(prev => prev.filter(e => e.id !== eventId))
+        setMyEventIds(prev => { const s = new Set(prev); s.delete(eventId); return s })
+        setSelected(null)
+        setCalendarSelected(null)
+      }
+    } catch { /* ignore */ }
+    setDeleting(false)
+  }
 
   // Fetch future events
   useEffect(() => {
@@ -601,6 +644,7 @@ export default function EventsPage() {
       />
 
       {/* Calendar + Map */}
+      <div className="relative z-10">
       <section className="events-calendar-section py-16 lg:py-20 bg-gradient-to-br from-slate-50 to-sky-50 border-b border-sky-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -959,8 +1003,17 @@ export default function EventsPage() {
         </div>
       </section>
 
+      </div>
       <AnimatePresence>
-        {selected && <EventModal event={selected} onClose={() => setSelected(null)} />}
+        {selected && (
+          <EventModal
+            event={selected}
+            onClose={() => setSelected(null)}
+            isOwned={myEventIds.has(selected.id)}
+            onDelete={() => handleDeleteEvent(selected.id)}
+            deleting={deleting}
+          />
+        )}
       </AnimatePresence>
     </>
   )

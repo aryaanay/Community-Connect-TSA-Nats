@@ -97,6 +97,7 @@ export default function DocumentationPage() {
         backgroundImage=""
       />
 
+      <div className="relative z-10">
       <section className="py-24" style={{ backgroundColor: BG, transition: 'background-color 0.3s' }}>
         <div className="max-w-4xl mx-auto px-4 space-y-14">
 
@@ -289,6 +290,7 @@ export default function DocumentationPage() {
 
         </div>
       </section>
+      </div>
     </>
   )
 }

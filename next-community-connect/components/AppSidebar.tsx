@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
   Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, Map,
-  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X,
+  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X, FileText,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
@@ -28,12 +28,13 @@ const NAV_DEFS = [
   { href: '/dashboard/social',       icon: Users2,          key: 'nav.social'    },
   { href: '/dashboard/groups',       icon: Layers,          key: 'nav.groups'    },
   { href: '/dashboard/lost-found',   icon: PackageSearch,   key: 'nav.lostfound' },
-  { href: '/dashboard/settings',     icon: Settings,        key: 'nav.settings'  },
 ]
 
 const BOTTOM_NAV = [
-  { href: '/dashboard/profile', icon: UserCircle, key: 'nav.profile' },
-  { href: '/dashboard/help',    icon: LifeBuoy,   key: 'nav.help'    },
+  { href: '/dashboard/profile',    icon: UserCircle, key: 'nav.profile'    },
+  { href: '/dashboard/help',       icon: LifeBuoy,   key: 'nav.help'       },
+  { href: '/dashboard/settings',   icon: Settings,   key: 'nav.settings'   },
+  { href: '/dashboard/references', icon: FileText,   key: 'nav.references' },
 ]
 
 function Logo({ size = 26 }: { size?: number }) {

@@ -289,6 +289,7 @@ export default function HomePage() {
         secondaryHref="#events"
         secondaryText="View Events"
       />
+      <div className="relative z-10">
       <MissionTicker />
       <AboutSections />
       <ZoomParallax images={communityImages} />
@@ -337,6 +338,7 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+      </div>
     </>
   )
 }
