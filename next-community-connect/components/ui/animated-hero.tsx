@@ -100,7 +100,7 @@ function Hero({
       </div>
 
       <div className="container mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
-        <div className="h-screen flex flex-col items-center justify-center py-10 lg:py-12">
+        <div className="h-screen flex flex-col items-center justify-center pt-24 pb-16 lg:pt-28 lg:pb-20">
           <div className="flex gap-8 items-center justify-center flex-col w-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -217,7 +217,7 @@ function Hero({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-9 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/50"
+        className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/50"
       >
         <div className="w-9 h-9 rounded-full border border-white/25 flex items-center justify-center">
           <svg className="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
