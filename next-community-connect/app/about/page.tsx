@@ -249,7 +249,7 @@ export default function AboutPage() {
             {partners.map((partner, i) => (
               <span
                 key={i}
-                className="flex items-center gap-2 bg-white border border-sky-100 rounded-full px-5 py-3 font-outfit text-sm font-medium text-[var(--text-body)] hover:border-sky-300 hover:text-sky-600 hover:-translate-y-1 hover:shadow-card transition-all cursor-pointer"
+                className="flex items-center gap-2 bg-white border border-sky-100 rounded-full px-5 py-3 font-outfit text-sm font-medium text-[var(--text-body)] hover:border-sky-300 hover:text-sky-600 hover:-translate-y-1 hover:shadow-card transition-all cursor-default"
               >
                 <span className="w-2 h-2 rounded-full bg-sky-400" />
                 {partner}
