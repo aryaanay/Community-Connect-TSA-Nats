@@ -7,6 +7,7 @@ import { Heart, Users, TrendingUp, X, Check, ChevronRight, Sparkles, ImagePlus, 
 import { useRouter } from 'next/navigation'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
+import { useAchievements } from '@/context/AchievementsContext'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import TiltCard from '@/components/TiltCard'
@@ -588,12 +589,17 @@ export default function DonatePage() {
   const { settings } = useSettings()
   const dark = settings.dark
   const router = useRouter()
+  const { unlock, markPageVisited } = useAchievements()
 
   useEffect(() => {
     if (!authLoading && !isSignedIn) {
       router.replace('/signin?redirect=/wishlist')
     }
   }, [authLoading, isSignedIn, router])
+
+  useEffect(() => {
+    if (isSignedIn) markPageVisited('wishlist')
+  }, [isSignedIn, markPageVisited])
   const tc = {
     h: dark ? '#C6EBFF' : '#0F172A',
     b: dark ? '#90D4F7' : '#64748b',
@@ -671,7 +677,12 @@ export default function DonatePage() {
         supporters: (prev[selected.id]?.supporters || 0) + 1,
       },
     }))
-    setUserDonations(prev => ({ ...prev, [selected.id]: (prev[selected.id] || 0) + amount }))
+    setUserDonations(prev => {
+      const next = { ...prev, [selected.id]: (prev[selected.id] || 0) + amount }
+      unlock('first_donation')
+      if (STATIC_CAUSES.every(c => next[c.id])) unlock('donate_all')
+      return next
+    })
     try {
       await insertDonation(user.id, selected.id, amount)
     } catch {

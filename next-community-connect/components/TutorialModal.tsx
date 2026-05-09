@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
+import { useAchievements } from '@/context/AchievementsContext'
 
 const STEPS = [
   {
@@ -80,6 +81,7 @@ const variants = {
 export function TutorialModal({ onClose }: { onClose: () => void }) {
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState(1)
+  const { unlock } = useAchievements()
 
   const go = (next: number) => {
     setDir(next > step ? 1 : -1)
@@ -243,7 +245,7 @@ export function TutorialModal({ onClose }: { onClose: () => void }) {
           )}
 
           <button
-            onClick={() => isLast ? onClose() : go(step + 1)}
+            onClick={() => { if (isLast) { unlock('tutorial_complete'); onClose() } else { go(step + 1) } }}
             className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-outfit text-sm font-semibold text-white transition-all hover:brightness-110 active:scale-95"
             style={{
               background: `linear-gradient(135deg, ${current.accent}cc, ${current.accent}99)`,

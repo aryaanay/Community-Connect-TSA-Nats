@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useAchievements } from '@/context/AchievementsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Clock, Filter, ChevronRight } from 'lucide-react'
 
@@ -291,6 +292,7 @@ function MapView({
 export default function DashboardMapPage() {
   const { isSignedIn, loading } = useAuth()
   const router = useRouter()
+  const { unlock, markPageVisited } = useAchievements()
 
   const [mounted, setMounted] = useState(false)
   const [filter, setFilter] = useState('All')
@@ -304,6 +306,10 @@ export default function DashboardMapPage() {
   useEffect(() => {
     if (!loading && !isSignedIn) router.replace('/signin')
   }, [loading, isSignedIn, router])
+
+  useEffect(() => {
+    if (isSignedIn) { unlock('explore_map'); markPageVisited('map') }
+  }, [isSignedIn, unlock, markPageVisited])
 
   if (loading || !isSignedIn || !mounted) return null
 

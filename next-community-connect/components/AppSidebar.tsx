@@ -7,12 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
   Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft, Map,
-  HelpCircle,
+  HelpCircle, UserCircle, LifeBuoy,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
 import { getT } from '@/lib/translations'
 import { TutorialModal } from '@/components/TutorialModal'
+import { AchievementPopup } from '@/components/AchievementPopup'
+import { useAchievements } from '@/context/AchievementsContext'
 
 const TUTORIAL_SEEN_KEY = 'cc-tutorial-seen'
 
@@ -24,6 +26,8 @@ const NAV_DEFS = [
   { href: '/submit',             icon: PlusCircle,      key: 'nav.submit' },
   { href: '/wishlist',           icon: Heart,           key: 'nav.donate' },
   { href: '/dashboard/settings', icon: Settings,        key: 'nav.settings' },
+  { href: '/dashboard/profile',  icon: UserCircle,      key: 'nav.profile' },
+  { href: '/dashboard/help',     icon: LifeBuoy,        key: 'nav.help'    },
 ]
 
 function Logo({ size = 26 }: { size?: number }) {
@@ -261,6 +265,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   const { user, signOut } = useAuth()
   const { settings } = useSettings()
   const t = getT(settings.language)
+  const { unlock } = useAchievements()
 
   // Auto-open tutorial on first visit
   useEffect(() => {
@@ -273,6 +278,11 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       // localStorage unavailable (SSR or private mode)
     }
   }, [])
+
+  // Unlock first_login achievement on first dashboard visit
+  useEffect(() => {
+    if (user) unlock('first_login')
+  }, [user, unlock])
 
   const handleSignOut = async () => {
     await signOut()
@@ -373,6 +383,9 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <TutorialModal onClose={() => setShowTutorial(false)} />
         )}
       </AnimatePresence>
+
+      {/* Achievement popup queue */}
+      <AchievementPopup />
     </div>
   )
 }

@@ -323,7 +323,7 @@ function SignInForm() {
       >
         {/* ═══ LEFT PANEL — repulsion field ═══ */}
         <div
-          className="hidden lg:flex flex-1 flex-col justify-center px-14 xl:px-20 py-16 relative"
+          className="hidden lg:flex lg:w-1/2 flex-col justify-center px-14 xl:px-20 py-16 relative"
           onMouseMove={(e) => {
             const r = e.currentTarget.getBoundingClientRect()
             mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top }
@@ -412,7 +412,7 @@ function SignInForm() {
 
         {/* ═══ RIGHT PANEL — swirl emitter + form ═══ */}
         <div
-          className="flex-1 lg:flex-none lg:w-[460px] relative flex flex-col justify-center px-6 sm:px-10 lg:px-12 py-12"
+          className="flex-1 lg:w-1/2 relative flex flex-col justify-center px-6 sm:px-10 lg:px-12 py-12"
           style={{
             background: 'linear-gradient(155deg, rgba(3,52,96,0.45) 0%, rgba(1,15,31,0.75) 100%)',
             borderLeft: '1px solid rgba(86,187,240,0.08)',

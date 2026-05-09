@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, AlertCircle, Mail, Phone, MapPin, Send, X, LogIn, Sparkles, ArrowRight, Bot, ShieldCheck, ShieldX, Loader2 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { useAuth } from '@/context/AuthContext'
+import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
 import Link from 'next/link'
 
@@ -483,6 +484,7 @@ function SignInModal({ onClose }: { onClose: () => void }) {
 
 export default function SubmitPage() {
   const { isSignedIn, user } = useAuth()
+  const { unlock, markPageVisited } = useAchievements()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [formData, setFormData] = useState<FormData>(EMPTY_FORM)
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -528,10 +530,13 @@ export default function SubmitPage() {
         const review = await res.json() as { approved: boolean; reason: string }
 
         // Step 3: Act on result
+        unlock('submit_resource')
+        markPageVisited('submit')
         if (review.approved) {
           await addToResources(formData)
           setReviewState('approved')
           setReviewReason(review.reason)
+          unlock('ai_approved')
         } else {
           setReviewState('rejected')
           setReviewReason(review.reason)

@@ -1,6 +1,8 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useSettings } from '@/context/SettingsContext'
+import { useAchievements } from '@/context/AchievementsContext'
 import { getT } from '@/lib/translations'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -115,9 +117,24 @@ const FONT_SIZE_STEPS: { display: string; value: 'small' | 'medium' | 'large' | 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const { settings, dispatch } = useSettings()
+  const { unlock, markPageVisited } = useAchievements()
   const t = getT(settings.language)
   const toggle = (key: keyof typeof settings) =>
     dispatch({ type: 'REPLACE_STATE', payload: { [key]: !settings[key] } as any })
+
+  useEffect(() => { markPageVisited('settings') }, [markPageVisited])
+  useEffect(() => { if (settings.dark) unlock('night_owl') }, [settings.dark, unlock])
+  useEffect(() => { if (settings.language !== 'en') unlock('polyglot') }, [settings.language, unlock])
+  useEffect(() => {
+    const accessibilityKeys: (keyof typeof settings)[] = [
+      'dyslexiaFont','increasedLineHeight','increasedWordSpacing','increasedLetterSpacing',
+      'readingGuide','alwaysUnderlineLinks','textToSpeech','highContrast','largeCursor',
+      'reducedTransparency','focusIndicators','focusSpotlight','largerClickTargets',
+      'alwaysFocusRing','reducedMotion','adhdMode','parkinsonMode','epilepsyMode',
+      'autismMode','lowVisionMode','motorImpairmentMode',
+    ]
+    if (accessibilityKeys.some(k => settings[k] === true)) unlock('accessibility_advocate')
+  }, [settings, unlock])
 
   const boolKeys = [
     'dark','reducedMotion','textToSpeech','invertColors','sepia','largeCursor','readingGuide',
