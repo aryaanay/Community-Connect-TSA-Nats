@@ -21,7 +21,7 @@ const communityImages = [
   { src: '/img/optimized/community7.jpg',      alt: 'General community gathering' },
 ]
 import { useScroll, useTransform } from 'framer-motion'
-import { MapPin, CalendarDays, Clock, Search, Gift, PlusCircle, Bot, LayoutDashboard } from 'lucide-react'
+import { MapPin, CalendarDays, Clock, Search, Gift, PlusCircle, Bot, LayoutDashboard, Map, Users2, Layers, PackageSearch, Trophy } from 'lucide-react'
 import Link from 'next/link'
 
 // ─── Location data ────────────────────────────────────────────────────────────
@@ -83,43 +83,67 @@ const FEATURES = [
   },
   {
     icon: CalendarDays,
-    title: 'Event Calendar',
-    desc: 'Browse upcoming community events across the Pacific Northwest and RSVP in one tap.',
+    title: 'Events & Creation',
+    desc: 'Browse upcoming community events and create your own — published instantly to the calendar.',
     color: '#A78BFA',
     bg: 'rgba(167,139,250,0.08)',
     border: 'rgba(167,139,250,0.18)',
   },
   {
-    icon: Gift,
-    title: 'Donation Wishlist',
-    desc: 'See exactly what local causes need and contribute items directly from your home.',
-    color: '#34D399',
-    bg: 'rgba(52,211,153,0.08)',
-    border: 'rgba(52,211,153,0.18)',
+    icon: Map,
+    title: 'Interactive Map',
+    desc: 'Explore resources and points of interest on a live map. Filter by category and tap for details.',
+    color: '#10B981',
+    bg: 'rgba(16,185,129,0.08)',
+    border: 'rgba(16,185,129,0.18)',
   },
   {
-    icon: PlusCircle,
-    title: 'Submit Resources',
-    desc: 'Know a great local resource? Add it to the directory and help your neighbors find it.',
+    icon: PackageSearch,
+    title: 'Lost & Found',
+    desc: 'Post lost or found items with photo uploads, AI-generated descriptions, and direct contact.',
     color: '#F59E0B',
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.18)',
   },
   {
+    icon: Users2,
+    title: 'Social Directory',
+    desc: 'Connect with neighbors, view profiles, and find community members who share your interests.',
+    color: '#56BBF0',
+    bg: 'rgba(86,187,240,0.08)',
+    border: 'rgba(86,187,240,0.18)',
+  },
+  {
+    icon: Layers,
+    title: 'Community Groups',
+    desc: 'Join or create groups around shared interests, neighborhoods, or causes to coordinate together.',
+    color: '#A78BFA',
+    bg: 'rgba(167,139,250,0.08)',
+    border: 'rgba(167,139,250,0.18)',
+  },
+  {
     icon: Bot,
     title: 'AI Assistant',
-    desc: 'Get personalized help finding the right resource or event for your specific situation.',
+    desc: 'Get personalized help finding the right resource, and let AI review and describe your submissions.',
     color: '#FB7185',
     bg: 'rgba(251,113,133,0.08)',
     border: 'rgba(251,113,133,0.18)',
   },
   {
-    icon: LayoutDashboard,
-    title: 'Personal Dashboard',
-    desc: 'Track your RSVPs, submitted resources, and community contributions all in one place.',
-    color: '#38BDF8',
-    bg: 'rgba(56,189,248,0.08)',
-    border: 'rgba(56,189,248,0.18)',
+    icon: Gift,
+    title: 'Donation Wishlist',
+    desc: 'See exactly what local causes need and contribute items or donations directly from your home.',
+    color: '#34D399',
+    bg: 'rgba(52,211,153,0.08)',
+    border: 'rgba(52,211,153,0.18)',
+  },
+  {
+    icon: Trophy,
+    title: 'Achievements',
+    desc: 'Earn badges as you explore and contribute. Track your community impact on your profile.',
+    color: '#F59E0B',
+    bg: 'rgba(245,158,11,0.08)',
+    border: 'rgba(245,158,11,0.18)',
   },
 ]
 

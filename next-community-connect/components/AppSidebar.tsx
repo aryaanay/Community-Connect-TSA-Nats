@@ -18,17 +18,44 @@ import { useAchievements } from '@/context/AchievementsContext'
 
 const TUTORIAL_SEEN_KEY = 'cc-tutorial-seen'
 
-const NAV_DEFS = [
-  { href: '/dashboard',              icon: LayoutDashboard, key: 'nav.dashboard' },
-  { href: '/dashboard/resources',    icon: BookOpen,        key: 'nav.resources' },
-  { href: '/dashboard/events',       icon: CalendarDays,    key: 'nav.events'    },
-  { href: '/dashboard/map',          icon: Map,             key: 'nav.map'       },
-  { href: '/submit',                 icon: PlusCircle,      key: 'nav.submit'    },
-  { href: '/wishlist',               icon: Heart,           key: 'nav.donate'    },
-  { href: '/dashboard/social',       icon: Users2,          key: 'nav.social'    },
-  { href: '/dashboard/groups',       icon: Layers,          key: 'nav.groups'    },
-  { href: '/dashboard/lost-found',   icon: PackageSearch,   key: 'nav.lostfound' },
+type NavGroup = {
+  label?: string
+  items: { href: string; icon: React.ElementType; key: string }[]
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    items: [
+      { href: '/dashboard', icon: LayoutDashboard, key: 'nav.dashboard' },
+    ],
+  },
+  {
+    label: 'Discover',
+    items: [
+      { href: '/dashboard/resources', icon: BookOpen,     key: 'nav.resources' },
+      { href: '/dashboard/events',    icon: CalendarDays, key: 'nav.events'    },
+      { href: '/dashboard/map',       icon: Map,          key: 'nav.map'       },
+    ],
+  },
+  {
+    label: 'Community',
+    items: [
+      { href: '/dashboard/social',      icon: Users2,        key: 'nav.social'    },
+      { href: '/dashboard/groups',      icon: Layers,        key: 'nav.groups'    },
+      { href: '/dashboard/lost-found',  icon: PackageSearch, key: 'nav.lostfound' },
+    ],
+  },
+  {
+    label: 'Give Back',
+    items: [
+      { href: '/submit',   icon: PlusCircle, key: 'nav.submit' },
+      { href: '/wishlist', icon: Heart,      key: 'nav.donate' },
+    ],
+  },
 ]
+
+// Flat list derived from groups — used for active-link matching
+const NAV_DEFS = NAV_GROUPS.flatMap(g => g.items)
 
 const BOTTOM_NAV = [
   { href: '/dashboard/profile',    icon: UserCircle, key: 'nav.profile'    },
@@ -115,49 +142,73 @@ function SidebarInner({
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-        {NAV_DEFS.map(({ href, icon: Icon, key }) => {
-          const label = t(key)
-          const isActive =
-            pathname === href ||
-            (href !== '/dashboard' && pathname.startsWith(href))
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onNavClick}
-              title={collapsed ? label : undefined}
-              className={`
-                flex items-center rounded-xl transition-all duration-150 group
-                ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
-                ${
-                  isActive
-                    ? 'bg-sky-500/18 text-sky-300 border border-sky-400/22'
-                    : 'text-sky-100/50 hover:text-sky-200 hover:bg-white/5'
-                }
-              `}
-            >
-              <Icon
-                size={18}
-                className={`flex-shrink-0 transition-colors ${isActive ? 'text-sky-400' : ''}`}
-              />
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -4 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="font-outfit text-sm whitespace-nowrap"
-                  >
-                    {label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </Link>
-          )
-        })}
+      <nav className="flex-1 overflow-y-auto py-3 px-2">
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? 'mt-1' : ''}>
+            {/* Group label */}
+            <AnimatePresence initial={false}>
+              {!collapsed && group.label && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="font-outfit text-[9px] font-bold uppercase tracking-widest px-3 pt-3 pb-1"
+                  style={{ color: 'rgba(86,187,240,0.28)' }}
+                >
+                  {group.label}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            {collapsed && group.label && gi > 0 && (
+              <div className="mx-auto w-5 h-px my-2" style={{ background: 'rgba(86,187,240,0.12)' }} />
+            )}
 
+            <div className="space-y-0.5">
+              {group.items.map(({ href, icon: Icon, key }) => {
+                const label = t(key)
+                const isActive =
+                  pathname === href ||
+                  (href !== '/dashboard' && pathname.startsWith(href))
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={onNavClick}
+                    title={collapsed ? label : undefined}
+                    className={`
+                      flex items-center rounded-xl transition-all duration-150 group
+                      ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
+                      ${
+                        isActive
+                          ? 'bg-sky-500/18 text-sky-300 border border-sky-400/22'
+                          : 'text-sky-100/50 hover:text-sky-200 hover:bg-white/5'
+                      }
+                    `}
+                  >
+                    <Icon
+                      size={18}
+                      className={`flex-shrink-0 transition-colors ${isActive ? 'text-sky-400' : ''}`}
+                    />
+                    <AnimatePresence initial={false}>
+                      {!collapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, x: -4 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -4 }}
+                          transition={{ duration: 0.15 }}
+                          className="font-outfit text-sm whitespace-nowrap"
+                        >
+                          {label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Bottom nav: Profile + Help */}

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback, useTransition } from 'react'
+import { useState, useEffect, useCallback, useTransition, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { PackageSearch, Plus, MapPin, Phone, Mail, Calendar, Check, X, AlertTriangle, Search, Filter } from 'lucide-react'
+import { PackageSearch, Plus, MapPin, Phone, Mail, Calendar, Check, X, Search, Camera, Upload, Sparkles, MessageCircle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
@@ -18,6 +18,7 @@ type LostFoundItem = {
   contact_phone: string
   date_occurred: string
   status: 'open' | 'resolved'
+  image_url?: string
   created_at: string
 }
 
@@ -43,6 +44,13 @@ export default function LostFoundPage() {
   const [error, setError]       = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
+  // Photo upload state
+  const fileInputRef            = useRef<HTMLInputElement>(null)
+  const [imageFile, setImageFile]     = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [aiApproval, setAiApproval]   = useState<'pending' | 'approved' | 'rejected' | null>(null)
+  const [generatingDesc, setGeneratingDesc] = useState(false)
+
   useEffect(() => { markPageVisited('lostfound') }, [markPageVisited])
 
   const fetchItems = useCallback(async () => {
@@ -60,21 +68,107 @@ export default function LostFoundPage() {
 
   useEffect(() => { fetchItems() }, [fetchItems])
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Show preview
+    const reader = new FileReader()
+    reader.onload = ev => setImagePreview(ev.target?.result as string)
+    reader.readAsDataURL(file)
+    setImageFile(file)
+    setAiApproval('pending')
+
+    // Convert to base64 for AI review
+    try {
+      const base64 = await fileToBase64(file)
+      const res = await fetch('/api/lost-found-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve_image', imageBase64: base64, mimeType: file.type }),
+      })
+      const data = await res.json()
+      if (data.approved === false) {
+        setAiApproval('rejected')
+        setImageFile(null)
+      } else {
+        setAiApproval('approved')
+      }
+    } catch {
+      setAiApproval('approved') // allow on network error
+    }
+  }
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = reader.result as string
+        // Strip the data URL prefix to get raw base64
+        resolve(result.split(',')[1])
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
+  const clearImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+    setAiApproval(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const generateDescription = async () => {
+    if (!form.title.trim()) return
+    setGeneratingDesc(true)
+    try {
+      const res = await fetch('/api/lost-found-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generate_description', title: form.title, type: form.type, location: form.location }),
+      })
+      const data = await res.json()
+      if (data.description) {
+        setForm(p => ({ ...p, description: data.description }))
+      }
+    } catch { /* silent */ } finally {
+      setGeneratingDesc(false)
+    }
+  }
+
   const handlePost = (e: React.FormEvent) => {
     e.preventDefault()
     if (!isSignedIn) { setError('Sign in to post an item.'); return }
     if (!form.title.trim()) { setError('Title is required.'); return }
+    if (aiApproval === 'rejected') { setError('Please remove the rejected photo before posting.'); return }
     setError('')
     startTransition(async () => {
+      let image_url: string | undefined
+      if (imageFile && aiApproval === 'approved') {
+        try {
+          const ext = imageFile.name.split('.').pop() ?? 'jpg'
+          const path = `${user!.id}/${Date.now()}.${ext}`
+          const { data: uploadData, error: uploadErr } = await supabase.storage
+            .from('lost-found')
+            .upload(path, imageFile, { upsert: true })
+          if (!uploadErr && uploadData) {
+            const { data: urlData } = supabase.storage.from('lost-found').getPublicUrl(uploadData.path)
+            image_url = urlData?.publicUrl
+          }
+        } catch { /* storage bucket may not exist — continue without image */ }
+      }
+
       const { error: dbErr } = await supabase.from('lost_found').insert({
-        user_id:       user!.id,
+        user_id: user!.id,
         ...form,
+        ...(image_url ? { image_url } : {}),
       })
       if (dbErr) {
         setError('Failed to post. Make sure the lost_found table exists (see supabase/community_features.sql).')
         return
       }
       setForm(EMPTY_FORM)
+      clearImage()
       setPosting(false)
       fetchItems()
     })
@@ -107,7 +201,7 @@ export default function LostFoundPage() {
               <PackageSearch size={18} style={{ color: '#F59E0B' }} />
             </div>
             <div>
-              <h1 className="font-syne text-2xl font-black text-white">Lost & Found</h1>
+              <h1 className="font-syne text-2xl font-black text-white">Lost &amp; Found</h1>
               <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>
                 {lostCount} lost · {foundCount} found · in the Bothell community
               </p>
@@ -129,7 +223,7 @@ export default function LostFoundPage() {
               <form onSubmit={handlePost} className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.25)' }}>
                 <div className="flex justify-between items-center">
                   <p className="font-syne text-sm font-bold text-white">Post an Item</p>
-                  <button type="button" onClick={() => { setPosting(false); setError('') }}><X size={15} style={{ color: 'rgba(198,235,255,0.4)' }} /></button>
+                  <button type="button" onClick={() => { setPosting(false); setError(''); clearImage() }}><X size={15} style={{ color: 'rgba(198,235,255,0.4)' }} /></button>
                 </div>
 
                 {/* Lost / Found toggle */}
@@ -151,9 +245,22 @@ export default function LostFoundPage() {
                   placeholder="Item name / title *" className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-amber-400/35"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(245,158,11,0.2)' }} />
 
-                <textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                  placeholder="Description (color, brand, size, distinguishing features…)" className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-amber-400/35 resize-none"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(245,158,11,0.2)' }} />
+                {/* Description with AI generate button */}
+                <div className="relative">
+                  <textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                    placeholder="Description (color, brand, size, distinguishing features…)" className="w-full px-4 py-2.5 pr-32 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-amber-400/35 resize-none"
+                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(245,158,11,0.2)' }} />
+                  <button
+                    type="button"
+                    onClick={generateDescription}
+                    disabled={!form.title.trim() || generatingDesc}
+                    className="absolute top-2 right-2 flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-outfit text-[10px] font-bold transition-all disabled:opacity-40 hover:brightness-110"
+                    style={{ background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.35)', color: '#F59E0B' }}
+                    title="Generate description with AI">
+                    <Sparkles size={11} />
+                    {generatingDesc ? 'Writing…' : 'AI Write'}
+                  </button>
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="relative">
@@ -185,12 +292,74 @@ export default function LostFoundPage() {
                   </div>
                 </div>
 
+                {/* Photo upload */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <p className="font-outfit text-xs font-semibold" style={{ color: 'rgba(198,235,255,0.55)' }}>Photo (optional)</p>
+                    <span className="font-outfit text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,158,11,0.12)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }}>AI-reviewed</span>
+                  </div>
+
+                  {/* Hidden file input */}
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+
+                  {imagePreview ? (
+                    <div className="relative rounded-xl overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imagePreview} alt="Preview" className="w-full h-36 object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      {/* AI status badge */}
+                      <div className="absolute top-2 right-2">
+                        {aiApproval === 'pending' && (
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full font-outfit text-[10px] font-bold" style={{ background: 'rgba(245,158,11,0.85)', color: '#000' }}>
+                            <span className="w-2 h-2 rounded-full bg-black/40 animate-pulse" /> Reviewing…
+                          </span>
+                        )}
+                        {aiApproval === 'approved' && (
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full font-outfit text-[10px] font-bold" style={{ background: 'rgba(16,185,129,0.85)', color: '#fff' }}>
+                            ✅ Approved
+                          </span>
+                        )}
+                        {aiApproval === 'rejected' && (
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full font-outfit text-[10px] font-bold" style={{ background: 'rgba(239,68,68,0.85)', color: '#fff' }}>
+                            ❌ Not suitable
+                          </span>
+                        )}
+                      </div>
+                      <button type="button" onClick={clearImage}
+                        className="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:bg-black/60"
+                        style={{ background: 'rgba(0,0,0,0.5)' }}>
+                        <X size={13} style={{ color: '#fff' }} />
+                      </button>
+                      {aiApproval === 'rejected' && (
+                        <p className="absolute bottom-2 left-2 right-2 font-outfit text-[10px] text-red-300 text-center">Photo not suitable for a lost &amp; found listing — please use a different image.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { if (fileInputRef.current) { fileInputRef.current.setAttribute('capture', 'environment'); fileInputRef.current.click() } }}
+                        className="flex-1 py-3 rounded-xl font-outfit text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5"
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,158,11,0.18)', color: 'rgba(198,235,255,0.5)' }}>
+                        <Camera size={14} /> Camera
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { if (fileInputRef.current) { fileInputRef.current.removeAttribute('capture'); fileInputRef.current.click() } }}
+                        className="flex-1 py-3 rounded-xl font-outfit text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5"
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,158,11,0.18)', color: 'rgba(198,235,255,0.5)' }}>
+                        <Upload size={14} /> Upload File
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {error && <p className="font-outfit text-xs text-red-400">{error}</p>}
 
-                <button type="submit" disabled={isPending}
+                <button type="submit" disabled={isPending || aiApproval === 'pending' || aiApproval === 'rejected'}
                   className="w-full py-2.5 rounded-xl font-outfit text-sm font-bold text-white transition-all disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg,#B45309,#F59E0B)' }}>
-                  {isPending ? 'Posting…' : 'Post Item'}
+                  {isPending ? 'Posting…' : aiApproval === 'pending' ? 'Reviewing photo…' : 'Post Item'}
                 </button>
               </form>
             </motion.div>
@@ -259,6 +428,8 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
   const accent   = isLost ? { text: '#FCA5A5', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.35)' }
                           : { text: '#6EE7B7', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.35)' }
 
+  const hasContact = item.contact_email || item.contact_phone
+
   return (
     <motion.div layout className="rounded-2xl overflow-hidden" style={{
       background: 'rgba(255,255,255,0.03)',
@@ -266,9 +437,15 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
       opacity: resolved ? 0.6 : 1,
     }}>
       <button onClick={onToggle} className="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-white/2 transition-colors">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: accent.bg, border: `1px solid ${accent.border}` }}>
-          {isLost ? '❌' : '✅'}
-        </div>
+        {/* Thumbnail or icon */}
+        {item.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.image_url} alt={item.title} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" style={{ border: `1px solid ${accent.border}` }} />
+        ) : (
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: accent.bg, border: `1px solid ${accent.border}` }}>
+            {isLost ? '❌' : '✅'}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-syne text-sm font-bold text-white truncate">{item.title}</p>
@@ -290,6 +467,12 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
             )}
           </div>
         </div>
+        {/* Contact indicator (non-owner) */}
+        {!isOwner && hasContact && !resolved && (
+          <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'rgba(86,187,240,0.1)', border: '1px solid rgba(86,187,240,0.2)' }}>
+            <MessageCircle size={12} style={{ color: '#56BBF0' }} />
+          </div>
+        )}
       </button>
 
       <AnimatePresence>
@@ -297,22 +480,59 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }} className="overflow-hidden">
             <div className="px-4 pb-4 space-y-3 border-t" style={{ borderColor: accent.border + '40' }}>
+
+              {/* Full image */}
+              {item.image_url && (
+                <div className="pt-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image_url} alt={item.title} className="w-full max-h-52 object-cover rounded-xl" style={{ border: `1px solid ${accent.border}40` }} />
+                </div>
+              )}
+
               {item.description && (
                 <p className="font-outfit text-sm pt-3 leading-relaxed" style={{ color: 'rgba(198,235,255,0.65)' }}>{item.description}</p>
               )}
 
-              <div className="flex flex-wrap gap-3">
-                {item.contact_email && (
-                  <a href={`mailto:${item.contact_email}`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-sky-300 hover:bg-sky-400/10 transition-colors" style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.2)' }}>
-                    <Mail size={12} /> {item.contact_email}
-                  </a>
-                )}
-                {item.contact_phone && (
-                  <a href={`tel:${item.contact_phone}`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-emerald-300 hover:bg-emerald-400/10 transition-colors" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                    <Phone size={12} /> {item.contact_phone}
-                  </a>
-                )}
-              </div>
+              {/* Contact Poster section */}
+              {!isOwner && hasContact && !resolved && (
+                <div className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(86,187,240,0.05)', border: '1px solid rgba(86,187,240,0.15)' }}>
+                  <p className="font-outfit text-[10px] font-bold uppercase tracking-wider" style={{ color: 'rgba(86,187,240,0.6)' }}>Contact Poster</p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.contact_email && (
+                      <a href={`mailto:${item.contact_email}`}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-sky-300 hover:bg-sky-400/10 transition-colors"
+                        style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.2)' }}>
+                        <Mail size={12} /> {item.contact_email}
+                      </a>
+                    )}
+                    {item.contact_phone && (
+                      <a href={`tel:${item.contact_phone}`}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-emerald-300 hover:bg-emerald-400/10 transition-colors"
+                        style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                        <Phone size={12} /> {item.contact_phone}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Owner contact links */}
+              {isOwner && hasContact && (
+                <div className="flex flex-wrap gap-2">
+                  {item.contact_email && (
+                    <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs text-sky-300/60"
+                      style={{ background: 'rgba(86,187,240,0.05)', border: '1px solid rgba(86,187,240,0.12)' }}>
+                      <Mail size={12} /> {item.contact_email}
+                    </span>
+                  )}
+                  {item.contact_phone && (
+                    <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs text-emerald-300/60"
+                      style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.12)' }}>
+                      <Phone size={12} /> {item.contact_phone}
+                    </span>
+                  )}
+                </div>
+              )}
 
               {isOwner && !resolved && (
                 <button onClick={onResolve} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-xs font-semibold transition-all hover:-translate-y-0.5" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#6EE7B7' }}>
