@@ -6,8 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
-  Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft, Map,
-  HelpCircle, UserCircle, LifeBuoy,
+  Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, Map,
+  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
@@ -19,15 +19,21 @@ import { useAchievements } from '@/context/AchievementsContext'
 const TUTORIAL_SEEN_KEY = 'cc-tutorial-seen'
 
 const NAV_DEFS = [
-  { href: '/dashboard',          icon: LayoutDashboard, key: 'nav.dashboard' },
-  { href: '/dashboard/resources',icon: BookOpen,        key: 'nav.resources' },
-  { href: '/dashboard/events',   icon: CalendarDays,    key: 'nav.events' },
-  { href: '/dashboard/map',      icon: Map,             key: 'nav.map' },
-  { href: '/submit',             icon: PlusCircle,      key: 'nav.submit' },
-  { href: '/wishlist',           icon: Heart,           key: 'nav.donate' },
-  { href: '/dashboard/settings', icon: Settings,        key: 'nav.settings' },
-  { href: '/dashboard/profile',  icon: UserCircle,      key: 'nav.profile' },
-  { href: '/dashboard/help',     icon: LifeBuoy,        key: 'nav.help'    },
+  { href: '/dashboard',              icon: LayoutDashboard, key: 'nav.dashboard' },
+  { href: '/dashboard/resources',    icon: BookOpen,        key: 'nav.resources' },
+  { href: '/dashboard/events',       icon: CalendarDays,    key: 'nav.events'    },
+  { href: '/dashboard/map',          icon: Map,             key: 'nav.map'       },
+  { href: '/submit',                 icon: PlusCircle,      key: 'nav.submit'    },
+  { href: '/wishlist',               icon: Heart,           key: 'nav.donate'    },
+  { href: '/dashboard/social',       icon: Users2,          key: 'nav.social'    },
+  { href: '/dashboard/groups',       icon: Layers,          key: 'nav.groups'    },
+  { href: '/dashboard/lost-found',   icon: PackageSearch,   key: 'nav.lostfound' },
+  { href: '/dashboard/settings',     icon: Settings,        key: 'nav.settings'  },
+]
+
+const BOTTOM_NAV = [
+  { href: '/dashboard/profile', icon: UserCircle, key: 'nav.profile' },
+  { href: '/dashboard/help',    icon: LifeBuoy,   key: 'nav.help'    },
 ]
 
 function Logo({ size = 26 }: { size?: number }) {
@@ -140,79 +146,63 @@ function SidebarInner({
           )
         })}
 
-        <div className="pt-3 mt-1 border-t border-sky-400/8">
-          <Link
-            href="/"
-            onClick={onNavClick}
-            title={collapsed ? t('nav.back') : undefined}
-            className={`
-              flex items-center rounded-xl transition-all duration-150
-              text-sky-100/30 hover:text-sky-200/60 hover:bg-white/4
-              ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
-            `}
-          >
-            <ArrowLeft size={16} className="flex-shrink-0" />
-            <AnimatePresence initial={false}>
-              {!collapsed && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="font-outfit text-xs whitespace-nowrap"
-                >
-                  {t('nav.back')}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Link>
-        </div>
       </nav>
 
-      {/* User + sign out */}
-      <div className="border-t border-sky-400/10 px-2 py-3 space-y-1 flex-shrink-0">
-        <AnimatePresence initial={false}>
-          {!collapsed && user?.email && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
+      {/* Bottom nav: Profile + Help */}
+      <div className="border-t border-sky-400/10 px-2 pt-2 pb-1 space-y-0.5 flex-shrink-0">
+        {BOTTOM_NAV.map(({ href, icon: Icon, key }) => {
+          const label = t(key)
+          const isActive = pathname === href || pathname.startsWith(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavClick}
+              title={collapsed ? label : undefined}
+              className={`
+                flex items-center rounded-xl transition-all duration-150
+                ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
+                ${isActive
+                  ? 'bg-sky-500/18 text-sky-300 border border-sky-400/22'
+                  : 'text-sky-100/50 hover:text-sky-200 hover:bg-white/5'
+                }
+              `}
             >
-              <div
-                className="px-3 py-2 rounded-xl mb-1"
-                style={{
-                  background: 'rgba(86,187,240,0.06)',
-                  border: '1px solid rgba(86,187,240,0.12)',
-                }}
-              >
-                <p className="font-outfit text-[10px] text-sky-300/50 mb-0.5 uppercase tracking-wider">
-                  Signed in as
-                </p>
-                <p className="font-outfit text-xs text-sky-200 truncate">{user.email}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <Icon size={16} className={`flex-shrink-0 flex-shrink-0 ${isActive ? 'text-sky-400' : ''}`} />
+              <AnimatePresence initial={false}>
+                {!collapsed && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="font-outfit text-sm whitespace-nowrap"
+                  >
+                    {label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
+          )
+        })}
+      </div>
 
-        {/* Tutorial button — above sign out */}
+      {/* Tutorial + Sign out */}
+      <div className="border-t border-sky-400/8 px-2 py-2 space-y-0.5 flex-shrink-0">
         <button
           onClick={() => { onNavClick(); onTutorial() }}
           title={collapsed ? 'Site Tutorial' : undefined}
           className={`
             flex items-center w-full rounded-xl transition-all duration-150
-            text-sky-300/60 hover:text-sky-200 hover:bg-sky-400/8
-            ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
+            text-sky-300/55 hover:text-sky-200 hover:bg-sky-400/8
+            ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
           `}
         >
-          <HelpCircle size={16} className="flex-shrink-0" />
+          <HelpCircle size={15} className="flex-shrink-0" />
           <AnimatePresence initial={false}>
             {!collapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="font-outfit text-sm whitespace-nowrap"
-              >
+              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="font-outfit text-xs whitespace-nowrap">
                 Site Tutorial
               </motion.span>
             )}
@@ -224,19 +214,15 @@ function SidebarInner({
           title={collapsed ? t('nav.signout') : undefined}
           className={`
             flex items-center w-full rounded-xl transition-all duration-150
-            text-sky-100/35 hover:text-red-300 hover:bg-red-500/8
-            ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
+            text-sky-100/30 hover:text-red-300 hover:bg-red-500/8
+            ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
           `}
         >
-          <LogOut size={16} className="flex-shrink-0" />
+          <LogOut size={15} className="flex-shrink-0" />
           <AnimatePresence initial={false}>
             {!collapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="font-outfit text-sm whitespace-nowrap"
-              >
+              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="font-outfit text-xs whitespace-nowrap">
                 {t('nav.signout')}
               </motion.span>
             )}
@@ -279,9 +265,15 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Unlock first_login achievement on first dashboard visit
+  // Unlock first_login only when the user just signed in (sessionStorage flag set by sign-in page)
   useEffect(() => {
-    if (user) unlock('first_login')
+    if (!user) return
+    try {
+      if (sessionStorage.getItem('cc-just-signed-in')) {
+        sessionStorage.removeItem('cc-just-signed-in')
+        setTimeout(() => unlock('first_login'), 1200)
+      }
+    } catch { /* private mode */ }
   }, [user, unlock])
 
   const handleSignOut = async () => {

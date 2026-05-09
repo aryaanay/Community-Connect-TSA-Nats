@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon } from 'lucide-react'
+import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon, PlusCircle } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettings } from '@/context/SettingsContext'
+import Link from 'next/link'
 
 type SupabaseEvent = {
   id: string
@@ -236,6 +237,20 @@ function formatEventDate(raw: string): string {
     return `${MONTH_NAMES[mo - 1]} ${d}, ${y}`
   }
   return raw
+}
+
+function extractDay(dateStr: string): string {
+  const m = dateStr.match(/\b(\d{1,2}),/)
+  return m ? m[1].padStart(2, '0') : '01'
+}
+
+function extractMonth(dateStr: string): string {
+  const months: Record<string, string> = {
+    January:'JAN',February:'FEB',March:'MAR',April:'APR',May:'MAY',June:'JUN',
+    July:'JUL',August:'AUG',September:'SEP',October:'OCT',November:'NOV',December:'DEC'
+  }
+  const m = dateStr.match(/^([A-Za-z]+)/)
+  return m ? (months[m[1]] || 'JAN') : 'JAN'
 }
 
 function formatEventTime(raw: string): string {
@@ -519,10 +534,38 @@ export default function EventsPage() {
           gcalEnd: e.end_time ? `${e.event_date}T${e.end_time.replace(':', '')}00` : `${e.event_date}T${e.start_time.replace(':', '')}00`,
         }))
 
+        // Also fetch user-created public events
+        let userEvts: EventType[] = []
+        try {
+          const { data: ued } = await supabase
+            .from('user_events')
+            .select('*')
+            .eq('is_public', true)
+            .order('created_at', { ascending: false })
+          userEvts = (ued || []).map((e: any) => ({
+            id: `user-${e.id}`,
+            title: e.title,
+            date: e.date,
+            time: e.time || '',
+            location: e.location || 'Bothell, WA',
+            audience: 'Community',
+            category: e.category || 'Community',
+            description: e.description || '',
+            day: extractDay(e.date),
+            month: extractMonth(e.date),
+            emoji: e.emoji || '📅',
+            color: '#7C3AED',
+            colorLight: '#F5F3FF',
+            colorMid: '#DDD6FE',
+            gcalStart: '', gcalEnd: '',
+          }))
+        } catch { /* user_events table may not exist */ }
+
         // Merge & sort by date
         const mergedAndSorted = [
-          ...events, 
-          ...transformed
+          ...events,
+          ...transformed,
+          ...userEvts,
         ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
         setAllEvents(mergedAndSorted)
@@ -708,9 +751,17 @@ export default function EventsPage() {
               <h2 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#19619f', lineHeight: 1, letterSpacing: '-1px' }}>
                 Mark Your<br />Calendar.
               </h2>
-              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: dk ? 'rgba(198,235,255,0.65)' : '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
-                All events are free and open to the public. Click any card for full details.
-              </p>
+              <div className="flex flex-col items-start lg:items-end gap-3">
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: dk ? 'rgba(198,235,255,0.65)' : '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
+                  All events are free and open to the public. Click any card for full details.
+                </p>
+                <Link href="/dashboard/create-event"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 active:scale-95"
+                  style={{ fontFamily: 'var(--font-outfit)', background: dk ? 'linear-gradient(135deg,#0857A0,#2499D6)' : 'linear-gradient(135deg,#085D8A,#0E9ECC)', boxShadow: '0 2px 12px rgba(8,87,160,0.35)' }}>
+                  <PlusCircle size={15} />
+                  Create Event
+                </Link>
+              </div>
             </div>
           </motion.div>
 

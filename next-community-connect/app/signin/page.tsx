@@ -276,6 +276,7 @@ function SignInForm() {
     startTransition(async () => {
       try {
         tab === 'signup' ? await signUp(email, password) : await signIn(email, password)
+        try { sessionStorage.setItem('cc-just-signed-in', '1') } catch { /* ignore */ }
         setShowWelcome(true)
       } catch (err: any) {
         setError(err.message || (tab === 'signup' ? 'Sign up failed' : 'Login failed'))

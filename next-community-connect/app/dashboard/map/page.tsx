@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Clock, Filter, ChevronRight } from 'lucide-react'
+import { supabase } from '@/lib/supabaseClient'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -145,7 +146,7 @@ const EVENTS: MappedEvent[] = [
   },
 ]
 
-const CATEGORIES = ['All', 'Volunteer', 'Education', 'Donation', 'Community', 'Health']
+const CATEGORIES = ['All', 'Volunteer', 'Education', 'Donation', 'Community', 'Health', 'Social', 'Sports', 'Arts', 'Other']
 
 const CATEGORY_COLORS: Record<string, string> = {
   Volunteer: '#10b981',
@@ -153,6 +154,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   Donation: '#f59e0b',
   Community: '#0ea5e9',
   Health: '#ef4444',
+  Social: '#ec4899',
+  Sports: '#f97316',
+  Arts: '#a855f7',
+  Other: '#64748b',
 }
 
 // ---------------------------------------------------------------------------
@@ -298,6 +303,7 @@ export default function DashboardMapPage() {
   const [filter, setFilter] = useState('All')
   const [activeId, setActiveId] = useState<string | null>(null)
   const [panelOpen, setPanelOpen] = useState(true)
+  const [userEvents, setUserEvents] = useState<MappedEvent[]>([])
 
   // Wait for client mount before rendering map (avoids SSR issues)
   useEffect(() => { setMounted(true) }, [])
@@ -311,15 +317,49 @@ export default function DashboardMapPage() {
     if (isSignedIn) { unlock('explore_map'); markPageVisited('map') }
   }, [isSignedIn, unlock, markPageVisited])
 
+  useEffect(() => {
+    if (!isSignedIn) return
+    ;(async () => {
+      try {
+        const { data } = await supabase
+          .from('user_events')
+          .select('*')
+          .eq('is_public', true)
+        if (!data) return
+        setUserEvents(data.map((e: any, i: number) => {
+          const seed = parseInt((e.id as string).replace(/-/g, '').slice(0, 8), 16) || i
+          const latOff = ((seed % 200) - 100) * 0.00015
+          const lngOff = (((seed >> 8) % 200) - 100) * 0.00018
+          return {
+            id: `user-${e.id}`,
+            title: e.title,
+            date: e.date || '',
+            time: e.time || '',
+            location: e.location || 'Bothell, WA',
+            audience: 'Community',
+            category: e.category || 'Community',
+            description: e.description || '',
+            emoji: e.emoji || '📅',
+            color: '#7C3AED',
+            lat: 47.7623 + latOff,
+            lng: -122.2054 + lngOff,
+          } as MappedEvent
+        }))
+      } catch { /* table may not exist yet */ }
+    })()
+  }, [isSignedIn])
+
   if (loading || !isSignedIn || !mounted) return null
+
+  const allEvents = [...EVENTS, ...userEvents]
 
   const visibleIds = new Set(
     filter === 'All'
-      ? EVENTS.map((e) => e.id)
-      : EVENTS.filter((e) => e.category === filter).map((e) => e.id)
+      ? allEvents.map((e) => e.id)
+      : allEvents.filter((e) => e.category === filter).map((e) => e.id)
   )
 
-  const filteredList = filter === 'All' ? EVENTS : EVENTS.filter((e) => e.category === filter)
+  const filteredList = filter === 'All' ? allEvents : allEvents.filter((e) => e.category === filter)
 
   return (
     <div className="flex flex-col h-full bg-[#f0f7ff]">
@@ -330,7 +370,7 @@ export default function DashboardMapPage() {
         <div>
           <h1 className="font-syne text-xl font-bold text-sky-900">Community Map</h1>
           <p className="font-outfit text-xs text-sky-500 mt-0.5">
-            {EVENTS.length} upcoming events in the Bothell area
+            {allEvents.length} upcoming events in the Bothell area
           </p>
         </div>
         <button
@@ -375,7 +415,7 @@ export default function DashboardMapPage() {
               )}
               {cat}
               <span className="ml-0.5 opacity-60 text-[10px]">
-                ({cat === 'All' ? EVENTS.length : EVENTS.filter((e) => e.category === cat).length})
+                ({cat === 'All' ? allEvents.length : allEvents.filter((e) => e.category === cat).length})
               </span>
             </button>
           )
@@ -389,7 +429,7 @@ export default function DashboardMapPage() {
       <div className="flex flex-1 overflow-hidden relative">
         <div className="flex-1 relative isolate">
           <MapView
-            allEvents={EVENTS}
+            allEvents={allEvents}
             visibleIds={visibleIds}
             activeId={activeId}
             onMarkerClick={setActiveId}
