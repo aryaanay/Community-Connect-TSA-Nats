@@ -57,6 +57,12 @@ export function Navbar() {
           {/* ─── Logo pill ───────────────────────────────────────────────── */}
           <Link
             href="/"
+            onClick={(e) => {
+              if (pathname === '/') {
+                e.preventDefault()
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
             className="liquid-glass pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
           >
             <svg width="24" height="24" viewBox="0 0 34 34" fill="none">

@@ -72,7 +72,7 @@ export function HowItWorks() {
             className="font-outfit text-sm max-w-md mx-auto"
             style={{ color: 'rgba(186,230,253,0.7)' }}
           >
-            CommunityConnect makes it effortless to engage with the people and causes around you.
+            Community Connect makes it effortless to engage with the people and causes around you.
           </p>
         </motion.div>
 

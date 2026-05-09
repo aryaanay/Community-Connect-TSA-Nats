@@ -80,7 +80,7 @@ export default function AboutPage() {
               className="relative"
             >
               <div className="aspect-[4/3] rounded-[var(--radius-lg)] relative overflow-hidden">
-                <img src="/img/optimized/community7.jpg" alt="Community members in Bothell, WA" className="w-full h-full object-cover" />
+                <img src="/img/optimized/garden2.jpg" alt="Community garden in Bothell, WA" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-sky-900/50 to-transparent" />
               </div>
               <div className="absolute bottom-7 right-[-20px] bg-white rounded-[var(--radius-md)] p-4 shadow-lg flex items-center gap-3 z-10">

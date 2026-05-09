@@ -71,14 +71,14 @@ function Hero({
       {/* Parallax background image */}
       {isHomeHero ? (
         <motion.div
-          className="absolute -top-[15%] -bottom-[15%] -left-[8%] -right-[8%]"
+          className="absolute -top-[15%] -bottom-[15%] -left-[12%] -right-[12%]"
           style={{
             backgroundImage: "linear-gradient(145deg, rgba(1,22,41,0.86) 0%, rgba(4,64,105,0.76) 45%, rgba(13,123,181,0.48) 78%, rgba(255,140,66,0.22) 140%), url('/img/avess-berge-ua2IF9HNaXs-unsplash.png')",
             backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
             y: bgY,
           }}
-          animate={{ x: [0, 55] }}
-          transition={{ duration: 110, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
+          animate={{ x: [0, 220] }}
+          transition={{ duration: 38, repeat: Infinity, repeatType: 'mirror', ease: 'linear' }}
         />
       ) : backgroundImage ? (
         <motion.div className="absolute inset-0 -top-[15%] -bottom-[15%]"

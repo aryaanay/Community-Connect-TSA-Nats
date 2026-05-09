@@ -8,12 +8,12 @@ import { useSettings } from '@/context/SettingsContext'
 import { supabase } from '@/lib/supabaseClient'
 
 const timeline = [
-  { year: '2019', title: 'The Idea Takes Root', description: 'Two Washington residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb', image: '/img/optimized/library3.jpg' },
-  { year: '2020', title: 'Launch & First Resources', description: 'The platform goes live with an initial set of hand-researched Washington-area resources. During the pandemic, residents search for food assistance and health support.', icon: 'laptop', image: '/img/optimized/foodpantry5.jpg' },
-  { year: '2022', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Washington residents at community meetings and city events.', icon: 'handshake', image: '/img/optimized/heartwithhands6.jpg' },
+  { year: '2019', title: 'The Idea Takes Root', description: 'Two Bothell residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb', image: '/img/optimized/library3.jpg' },
+  { year: '2020', title: 'Launch & First Resources', description: 'The platform goes live with an initial set of hand-researched Bothell-area resources. During the pandemic, residents search for food assistance and health support.', icon: 'laptop', image: '/img/optimized/foodpantry5.jpg' },
+  { year: '2022', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Bothell residents at community meetings and city events.', icon: 'handshake', image: '/img/optimized/heartwithhands6.jpg' },
   { year: '2023', title: 'Growing Directory & First Events', description: 'The directory grows steadily. The first Community Resource Fair brings together local organizations and community members.', icon: 'star', image: '/img/optimized/community7.jpg' },
   { year: '2025', title: 'Volunteer Network Expands', description: 'Community volunteers sign up to help verify listings, run workshops, and support events. The platform becomes genuinely community-run.', icon: 'users', image: '/img/optimized/cleanup4.jpg' },
-  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Washington residents using the platform monthly.', icon: 'rocket', image: '/img/optimized/playground1.jpg' },
+  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Bothell residents using the platform monthly.', icon: 'rocket', image: '/img/optimized/playground1.jpg' },
 ]
 
 const partners = [
@@ -229,7 +229,7 @@ export function AboutSections() {
             className="text-center mb-10"
           >
             <span className="font-outfit text-xs font-semibold uppercase tracking-widest text-sky-300/70">By the Numbers</span>
-            <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2">Our Impact in Washington</h2>
+            <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2">Our Impact in Bothell, WA</h2>
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
             {[
@@ -263,7 +263,7 @@ export function AboutSections() {
           >
             <span className="section-eyebrow">Our Journey</span>
             <h2 className="section-heading">How We Got Here</h2>
-            <p className="section-subtext mx-auto">From a weekend project to a Washington institution, here is the story of Community Connect.</p>
+            <p className="section-subtext mx-auto">From a weekend project to a Bothell institution, here is the story of Community Connect.</p>
           </motion.div>
 
           <div className="relative">
