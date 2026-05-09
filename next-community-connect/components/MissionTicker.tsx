@@ -48,7 +48,7 @@ export function MissionTicker() {
           {repeated.map(({ Icon, label, note }, i) => (
             <div
               key={`${label}-${i}`}
-              className="group/item inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-left shadow-sm backdrop-blur-xl transition-all duration-300"
+              className="group/item inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-left shadow-sm backdrop-blur-xl transition-all duration-300 cursor-default select-none"
               style={dark ? {
                 background: 'rgba(2,39,71,0.70)',
                 border: '1px solid rgba(86,187,240,0.20)',
