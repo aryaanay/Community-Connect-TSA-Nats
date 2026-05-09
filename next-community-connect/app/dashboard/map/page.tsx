@@ -57,6 +57,7 @@ function LeafletMap({
     const init = async () => {
       if (!containerRef.current || mapRef.current) return
       const L = (await import('leaflet')).default
+      // @ts-ignore
       await import('leaflet/dist/leaflet.css')
 
       // Fix default icon paths
