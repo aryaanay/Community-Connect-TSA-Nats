@@ -339,28 +339,6 @@ function SignInForm() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Logo */}
-            <Link href="/" className="inline-flex items-center gap-2.5 mb-10">
-              <Logo size={28} />
-              <span className="font-syne text-sm font-light text-white">
-                Community<strong className="font-black">Connect</strong>
-              </span>
-            </Link>
-
-            {/* Feature pills */}
-            <div className="flex flex-col gap-2.5 mb-9">
-              {PILLS.map(({ Icon, label }) => (
-                <div
-                  key={label}
-                  className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full w-fit"
-                  style={{ background: 'rgba(86,187,240,0.07)', border: '1px solid rgba(86,187,240,0.16)' }}
-                >
-                  <Icon size={13} style={{ color: '#56BBF0' }} />
-                  <span className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.8)' }}>{label}</span>
-                </div>
-              ))}
-            </div>
-
             {/* Heading */}
             <h1 className="font-syne text-5xl xl:text-[3.75rem] font-black text-white mb-4 leading-none">
               Community<br />
@@ -408,6 +386,20 @@ function SignInForm() {
                 Or use Sign Up to create your own account.
               </p>
             </motion.div>
+
+            {/* Feature pills */}
+            <div className="flex flex-col gap-2.5 mt-5">
+              {PILLS.map(({ Icon, label }) => (
+                <div
+                  key={label}
+                  className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full w-fit"
+                  style={{ background: 'rgba(86,187,240,0.07)', border: '1px solid rgba(86,187,240,0.16)' }}
+                >
+                  <Icon size={13} style={{ color: '#56BBF0' }} />
+                  <span className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.8)' }}>{label}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
 
