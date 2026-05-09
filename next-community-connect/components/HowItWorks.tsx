@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion'
 import { Search, Users, Heart } from 'lucide-react'
 import { GlowCard } from '@/components/ui/spotlight-card'
-import { useSettings } from '@/context/SettingsContext'
 
 const STEPS = [
   {
@@ -42,16 +41,14 @@ const STEPS = [
 ]
 
 export function HowItWorks() {
-  const { settings } = useSettings()
-  const dk = settings.dark
-
   return (
     <section
       className="py-20 px-4"
       style={{
-        background: dk ? 'rgba(1,22,41,0.88)' : 'rgba(240,249,255,0.88)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)), rgba(5,22,42,0.54)',
+        border: '1px solid rgba(198,235,255,0.18)',
+        backdropFilter: 'blur(24px) saturate(1.5)',
+        WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
       }}
     >
       <div className="max-w-5xl mx-auto">
@@ -62,10 +59,10 @@ export function HowItWorks() {
           transition={{ duration: 0.55 }}
           className="text-center mb-12"
         >
-          <span className="section-eyebrow">Simple Steps</span>
+          <span className="section-eyebrow" style={{ color: '#56BBF0' }}>Simple Steps</span>
           <h2
             className="font-syne text-3xl sm:text-4xl font-bold mt-2 mb-3"
-            style={{ color: dk ? '#E0F2FE' : '#0B2A44' }}
+            style={{ color: '#E0F2FE' }}
           >
             Find.{' '}
             <span style={{ color: '#56BBF0' }}>Connect.</span>{' '}
@@ -73,7 +70,7 @@ export function HowItWorks() {
           </h2>
           <p
             className="font-outfit text-sm max-w-md mx-auto"
-            style={{ color: dk ? 'rgba(186,230,253,0.65)' : 'rgba(8,93,138,0.7)' }}
+            style={{ color: 'rgba(186,230,253,0.7)' }}
           >
             CommunityConnect makes it effortless to engage with the people and causes around you.
           </p>
@@ -91,7 +88,7 @@ export function HowItWorks() {
             >
               <GlowCard
                 glowColor={color}
-                dark={dk}
+                dark
                 customSize
                 className="w-full p-7 flex flex-col gap-5"
               >
@@ -119,13 +116,13 @@ export function HowItWorks() {
                 <div>
                   <h3
                     className="font-syne text-lg font-bold mb-2"
-                    style={{ color: dk ? '#E0F2FE' : '#0B2A44' }}
+                    style={{ color: '#E0F2FE' }}
                   >
                     {title}
                   </h3>
                   <p
                     className="font-outfit text-sm leading-relaxed"
-                    style={{ color: dk ? 'rgba(186,230,253,0.6)' : 'rgba(8,93,138,0.65)' }}
+                    style={{ color: 'rgba(186,230,253,0.65)' }}
                   >
                     {description}
                   </p>

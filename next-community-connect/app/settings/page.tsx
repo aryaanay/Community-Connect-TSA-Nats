@@ -5,9 +5,10 @@ import { useSettings } from '@/context/SettingsContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { getT } from '@/lib/translations'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import {
   Type, Eye, Zap, Brain, Shield, Heart, ZoomIn,
-  RotateCcw, CheckCircle2, Move, MousePointer, Moon, Sun,
+  RotateCcw, CheckCircle2, Move, MousePointer, Moon, Sun, ArrowLeft,
 } from 'lucide-react'
 
 // ─── Toggle switch ─────────────────────────────────────────────────────────────
@@ -189,7 +190,15 @@ export default function SettingsPage() {
         style={{ background: dk ? 'linear-gradient(180deg, #011629 0%, #022747 100%)' : 'linear-gradient(180deg, #f0f9ff 0%, #f8fcff 100%)' }}>
         <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full blur-3xl pointer-events-none ${dk ? 'bg-sky-400/8' : 'bg-sky-200/25'}`} />
         <div className={`absolute top-12 right-12 w-52 h-52 rounded-full blur-2xl pointer-events-none ${dk ? 'bg-indigo-900/20' : 'bg-indigo-100/30'}`} />
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
+        <div className="relative max-w-4xl mx-auto px-4">
+          <Link
+            href="/"
+            className={`inline-flex items-center gap-1.5 font-outfit text-sm mb-8 transition-colors ${dk ? 'text-sky-300/60 hover:text-sky-300' : 'text-sky-600/70 hover:text-sky-700'}`}
+          >
+            <ArrowLeft size={14} />
+            Back to Home
+          </Link>
+          <div className="text-center">
           <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
             <div className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 ${dk ? 'bg-sky-400/10 border border-sky-400/25' : 'bg-white border border-sky-200 shadow-sm'}`}>
               <CheckCircle2 className={`w-4 h-4 ${dk ? 'text-sky-400' : 'text-sky-500'}`} />
@@ -201,6 +210,7 @@ export default function SettingsPage() {
             <h1 className={`font-syne text-4xl md:text-5xl font-extrabold mb-4 tracking-tight ${dk ? 'text-white' : 'text-sky-900'}`}>{t('set.title')}</h1>
             <p className={`font-outfit text-lg max-w-xl mx-auto leading-relaxed ${dk ? 'text-sky-300/80' : 'text-sky-700'}`}>{t('set.subtitle')}</p>
           </motion.div>
+          </div>
         </div>
       </section>
 

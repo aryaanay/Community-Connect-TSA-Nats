@@ -107,7 +107,7 @@ function Hero({
       </div>
 
       <div className="container mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
-        <div className="min-h-screen flex flex-col items-center justify-center py-24 lg:py-28">
+        <div className="h-screen flex flex-col items-center justify-center py-10 lg:py-12">
           <div className="flex gap-8 items-center justify-center flex-col w-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -204,7 +204,7 @@ function Hero({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex justify-center divide-x divide-white/15 mt-12"
+              className="flex justify-center divide-x divide-white/15 mt-5"
             >
               {stats.map((stat, i) => (
                 <div key={i} className="text-center px-8">
@@ -221,7 +221,7 @@ function Hero({
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.82, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-10 hidden xl:grid grid-cols-4 gap-3 w-full max-w-5xl"
+              className="mt-4 hidden xl:grid grid-cols-4 gap-3 w-full max-w-5xl"
             >
               {floatingCards.map(({ icon: Icon, label, value, delay }) => (
                 <motion.div

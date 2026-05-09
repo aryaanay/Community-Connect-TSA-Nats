@@ -9,10 +9,10 @@ import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap, 
 const timeline = [
   { year: '2019', title: 'The Idea Takes Root', description: 'Two Bothell residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb' },
   { year: '2020', title: 'Launch & First Resources', description: 'The platform goes live with an initial set of hand-researched Bothell-area resources. During the pandemic, residents search for food assistance and health support.', icon: 'laptop' },
-  { year: '2021', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Bothell residents at community meetings and city events.', icon: 'handshake' },
-  { year: '2022', title: 'Growing Directory & First Events', description: 'The directory grows steadily. The first Community Resource Fair brings together local organizations and community members.', icon: 'star' },
-  { year: '2023', title: 'Volunteer Network Expands', description: 'Community volunteers sign up to help verify listings, run workshops, and support events. The platform becomes genuinely community-run.', icon: 'users' },
-  { year: '2024', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Bothell residents using the platform monthly.', icon: 'rocket' },
+  { year: '2022', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Bothell residents at community meetings and city events.', icon: 'handshake' },
+  { year: '2023', title: 'Growing Directory & First Events', description: 'The directory grows steadily. The first Community Resource Fair brings together local organizations and community members.', icon: 'star' },
+  { year: '2025', title: 'Volunteer Network Expands', description: 'Community volunteers sign up to help verify listings, run workshops, and support events. The platform becomes genuinely community-run.', icon: 'users' },
+  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Bothell residents using the platform monthly.', icon: 'rocket' },
 ]
 
 const partners = [

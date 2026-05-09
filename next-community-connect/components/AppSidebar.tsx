@@ -211,86 +211,107 @@ function SidebarInner({
         ))}
       </nav>
 
-      {/* Bottom nav: Profile + Help */}
-      <div className="border-t border-sky-400/10 px-2 pt-2 pb-1 space-y-0.5 flex-shrink-0">
-        {BOTTOM_NAV.map(({ href, icon: Icon, key }) => {
-          const label = t(key)
-          const isActive = pathname === href || pathname.startsWith(href)
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onNavClick}
-              title={collapsed ? label : undefined}
+      {/* Account section — visually separated from main nav tools */}
+      <div className="flex-shrink-0 border-t border-sky-400/10 px-2 pt-2 pb-2">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{
+            background: 'rgba(86,187,240,0.045)',
+            border: '1px solid rgba(86,187,240,0.1)',
+          }}
+        >
+          <AnimatePresence initial={false}>
+            {!collapsed && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="font-outfit text-[9px] font-bold uppercase tracking-widest px-3 pt-2.5 pb-1"
+                style={{ color: 'rgba(86,187,240,0.3)' }}
+              >
+                Account
+              </motion.p>
+            )}
+          </AnimatePresence>
+          <div className={`p-1 space-y-0.5 ${collapsed ? 'pt-2' : ''}`}>
+            {BOTTOM_NAV.map(({ href, icon: Icon, key }) => {
+              const label = t(key)
+              const isActive = pathname === href || pathname.startsWith(href)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={onNavClick}
+                  title={collapsed ? label : undefined}
+                  className={`
+                    flex items-center rounded-lg transition-all duration-150
+                    ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
+                    ${isActive
+                      ? 'bg-sky-500/15 text-sky-300 border border-sky-400/20'
+                      : 'text-sky-100/40 hover:text-sky-200 hover:bg-white/5'
+                    }
+                  `}
+                >
+                  <Icon size={15} className={`flex-shrink-0 ${isActive ? 'text-sky-400' : ''}`} />
+                  <AnimatePresence initial={false}>
+                    {!collapsed && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -4 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="font-outfit text-xs whitespace-nowrap"
+                      >
+                        {label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+              )
+            })}
+
+            <button
+              onClick={() => { onNavClick(); onTutorial() }}
+              title={collapsed ? 'Site Tutorial' : undefined}
               className={`
-                flex items-center rounded-xl transition-all duration-150
-                ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
-                ${isActive
-                  ? 'bg-sky-500/18 text-sky-300 border border-sky-400/22'
-                  : 'text-sky-100/50 hover:text-sky-200 hover:bg-white/5'
-                }
+                flex items-center w-full rounded-lg transition-all duration-150
+                text-sky-300/40 hover:text-sky-200 hover:bg-sky-400/8
+                ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
               `}
             >
-              <Icon size={16} className={`flex-shrink-0 flex-shrink-0 ${isActive ? 'text-sky-400' : ''}`} />
+              <HelpCircle size={15} className="flex-shrink-0" />
               <AnimatePresence initial={false}>
                 {!collapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -4 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="font-outfit text-sm whitespace-nowrap"
-                  >
-                    {label}
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="font-outfit text-xs whitespace-nowrap">
+                    Site Tutorial
                   </motion.span>
                 )}
               </AnimatePresence>
-            </Link>
-          )
-        })}
-      </div>
+            </button>
 
-      {/* Tutorial + Sign out */}
-      <div className="border-t border-sky-400/8 px-2 py-2 space-y-0.5 flex-shrink-0">
-        <button
-          onClick={() => { onNavClick(); onTutorial() }}
-          title={collapsed ? 'Site Tutorial' : undefined}
-          className={`
-            flex items-center w-full rounded-xl transition-all duration-150
-            text-sky-300/55 hover:text-sky-200 hover:bg-sky-400/8
-            ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
-          `}
-        >
-          <HelpCircle size={15} className="flex-shrink-0" />
-          <AnimatePresence initial={false}>
-            {!collapsed && (
-              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="font-outfit text-xs whitespace-nowrap">
-                Site Tutorial
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-
-        <button
-          onClick={onSignOut}
-          title={collapsed ? t('nav.signout') : undefined}
-          className={`
-            flex items-center w-full rounded-xl transition-all duration-150
-            text-sky-100/30 hover:text-red-300 hover:bg-red-500/8
-            ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
-          `}
-        >
-          <LogOut size={15} className="flex-shrink-0" />
-          <AnimatePresence initial={false}>
-            {!collapsed && (
-              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="font-outfit text-xs whitespace-nowrap">
-                {t('nav.signout')}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
+            <button
+              onClick={onSignOut}
+              title={collapsed ? t('nav.signout') : undefined}
+              className={`
+                flex items-center w-full rounded-lg transition-all duration-150
+                text-sky-100/25 hover:text-red-300 hover:bg-red-500/8
+                ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
+              `}
+            >
+              <LogOut size={15} className="flex-shrink-0" />
+              <AnimatePresence initial={false}>
+                {!collapsed && (
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="font-outfit text-xs whitespace-nowrap">
+                    {t('nav.signout')}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Collapse toggle */}
