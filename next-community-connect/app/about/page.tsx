@@ -274,10 +274,10 @@ export default function AboutPage() {
                 Browse our full directory of community resources, submit a resource you know about, or come to an upcoming event.
               </p>
               <div className="flex gap-3 justify-center flex-wrap">
-                <Link href="/resources" className="btn-primary px-6 py-3 rounded-xl font-outfit font-semibold flex items-center gap-2">
+                <Link href="/resources" className="px-6 py-3 rounded-xl font-outfit font-semibold border-2 border-white/60 text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all flex items-center gap-2">
                   Browse Resources
                 </Link>
-                <Link href="/events" className="px-6 py-3 rounded-xl font-outfit font-semibold border-2 border-white/40 text-white hover:bg-white/10 transition-all flex items-center gap-2">
+                <Link href="/events" className="px-6 py-3 rounded-xl font-outfit font-semibold border-2 border-white/40 text-white hover:bg-white/10 backdrop-blur-sm transition-all flex items-center gap-2">
                   Upcoming Events
                 </Link>
               </div>

@@ -168,11 +168,9 @@ function Hero({
                   <motion.button
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    className="liquid-glass inline-flex items-center px-8 py-3.5 rounded-2xl font-syne font-bold text-base transition-all"
+                    className="inline-flex items-center gap-3 px-8 py-3.5 rounded-2xl font-syne font-bold text-base transition-all border-2 border-white/60 text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm"
                   >
-                    <span className="liquid-content flex items-center gap-3 text-white">
-                      {primaryText} <MoveRight className="w-4 h-4" />
-                    </span>
+                    {primaryText} <MoveRight className="w-4 h-4" />
                   </motion.button>
                 </Link>
               )}
