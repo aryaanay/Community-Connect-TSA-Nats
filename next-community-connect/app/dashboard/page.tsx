@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -9,13 +9,8 @@ import {
   ArrowUpRight, MapPin, Clock, CheckCircle2, Star, TrendingUp,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-
-function getGreeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 17) return 'Good afternoon'
-  return 'Good evening'
-}
+import { useSettings } from '@/context/SettingsContext'
+import { getT } from '@/lib/translations'
 
 const STATS = [
   { label: 'Local Resources', value: '30+', icon: BookOpen, color: '#2499D6' },
@@ -101,8 +96,12 @@ function Card({ children, className = '', style = {} }: { children: React.ReactN
 
 export default function DashboardPage() {
   const { user, isSignedIn, loading } = useAuth()
+  const { settings } = useSettings()
+  const t = getT(settings.language)
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -111,6 +110,19 @@ export default function DashboardPage() {
       router.push('/signin?redirect=/dashboard')
     }
   }, [loading, isSignedIn, mounted, router])
+
+  // Scroll parallax — track the <main> element's scroll position
+  useEffect(() => {
+    const mainEl = scrollRef.current?.closest('[class*="overflow-y-auto"]') as HTMLElement
+      ?? document.querySelector('main') as HTMLElement
+    if (!mainEl) return
+    const onScroll = () => setScrollY(mainEl.scrollTop)
+    mainEl.addEventListener('scroll', onScroll, { passive: true })
+    return () => mainEl.removeEventListener('scroll', onScroll)
+  }, [mounted])
+
+  const h = new Date().getHours()
+  const greeting = h < 12 ? t('dash.morning') : h < 17 ? t('dash.afternoon') : t('dash.evening')
 
   if (loading || !mounted) {
     return (
@@ -126,6 +138,7 @@ export default function DashboardPage() {
 
   return (
     <div
+      ref={scrollRef}
       className="min-h-full px-4 sm:px-6 lg:px-8 py-8"
       style={{ background: 'linear-gradient(150deg, #011629 0%, #022747 60%, #011629 100%)' }}
     >
@@ -146,46 +159,58 @@ export default function DashboardPage() {
                   'radial-gradient(circle at 80% 50%, rgba(36,153,214,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(86,187,240,0.15) 0%, transparent 50%)',
               }}
             />
-            {/* Drifting parallax orbs */}
+            {/* Parallax orbs — shift based on scroll position */}
             <motion.div
               className="pointer-events-none absolute w-64 h-64 rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(36,153,214,0.18) 0%, transparent 70%)', top: '-40%', right: '-5%' }}
-              animate={{ y: [0, -18, 0], x: [0, 10, 0], scale: [1, 1.1, 1] }}
+              style={{
+                background: 'radial-gradient(circle, rgba(36,153,214,0.18) 0%, transparent 70%)',
+                top: '-40%', right: '-5%',
+                transform: `translateY(${scrollY * 0.25}px)`,
+              }}
+              animate={{ x: [0, 10, 0], scale: [1, 1.1, 1] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
             />
             <motion.div
               className="pointer-events-none absolute w-44 h-44 rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(86,187,240,0.12) 0%, transparent 70%)', bottom: '-30%', right: '30%' }}
-              animate={{ y: [0, 14, 0], x: [0, -8, 0], scale: [1, 0.93, 1] }}
+              style={{
+                background: 'radial-gradient(circle, rgba(86,187,240,0.12) 0%, transparent 70%)',
+                bottom: '-30%', right: '30%',
+                transform: `translateY(${scrollY * 0.15}px)`,
+              }}
+              animate={{ x: [0, -8, 0], scale: [1, 0.93, 1] }}
               transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 2.5 }}
             />
             <motion.div
               className="pointer-events-none absolute w-32 h-32 rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)', top: '20%', left: '-5%' }}
-              animate={{ y: [0, 10, 0], scale: [1, 1.15, 1] }}
+              style={{
+                background: 'radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)',
+                top: '20%', left: '-5%',
+                transform: `translateY(${-scrollY * 0.2}px)`,
+              }}
+              animate={{ scale: [1, 1.15, 1] }}
               transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
             />
             <div className="relative">
-              <p className="font-outfit text-sm text-sky-300/70 mb-1">{getGreeting()},</p>
+              <p className="font-outfit text-sm text-sky-300/70 mb-1">{greeting},</p>
               <h1 className="font-syne text-2xl sm:text-3xl font-bold text-white mb-2">
                 {firstName} <span className="text-sky-400">👋</span>
               </h1>
               <p className="font-outfit text-sm leading-relaxed max-w-lg" style={{ color: 'rgba(198,235,255,0.65)' }}>
-                Welcome to your Community Connect dashboard. Explore resources, discover events, and make a difference in Bothell — all from one place.
+                {t('dash.welcome')}
               </p>
               <div className="flex flex-wrap gap-3 mt-5">
                 <Link
                   href="/resources"
                   className="inline-flex items-center gap-1.5 font-outfit text-sm font-semibold text-sky-300 hover:text-sky-200 transition-colors"
                 >
-                  Browse resources <ArrowUpRight size={14} />
+                  {t('dash.browse')} <ArrowUpRight size={14} />
                 </Link>
                 <span className="text-sky-400/30">·</span>
                 <Link
                   href="/submit"
                   className="inline-flex items-center gap-1.5 font-outfit text-sm font-semibold text-sky-300/70 hover:text-sky-300 transition-colors"
                 >
-                  Submit a resource <ArrowUpRight size={14} />
+                  {t('dash.submit_res')} <ArrowUpRight size={14} />
                 </Link>
               </div>
             </div>

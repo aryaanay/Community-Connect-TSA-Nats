@@ -6,17 +6,20 @@ import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
-  Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft,
+  Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft, Map,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useSettings } from '@/context/SettingsContext'
+import { getT } from '@/lib/translations'
 
-const NAV = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard/resources', icon: BookOpen, label: 'Resources' },
-  { href: '/dashboard/events', icon: CalendarDays, label: 'Events' },
-  { href: '/submit', icon: PlusCircle, label: 'Submit Resource' },
-  { href: '/wishlist', icon: Heart, label: 'Donate' },
-  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
+const NAV_DEFS = [
+  { href: '/dashboard',          icon: LayoutDashboard, key: 'nav.dashboard' },
+  { href: '/dashboard/resources',icon: BookOpen,        key: 'nav.resources' },
+  { href: '/dashboard/events',   icon: CalendarDays,    key: 'nav.events' },
+  { href: '/submit',             icon: PlusCircle,      key: 'nav.submit' },
+  { href: '/wishlist',           icon: Heart,           key: 'nav.donate' },
+  { href: '/dashboard/map',      icon: Map,             key: 'nav.map' },
+  { href: '/dashboard/settings', icon: Settings,        key: 'nav.settings' },
 ]
 
 function Logo({ size = 26 }: { size?: number }) {
@@ -41,6 +44,7 @@ function SidebarInner({
   user,
   onSignOut,
   onNavClick,
+  t,
 }: {
   collapsed: boolean
   setCollapsed: (fn: (v: boolean) => boolean) => void
@@ -48,6 +52,7 @@ function SidebarInner({
   user: { email?: string } | null
   onSignOut: () => void
   onNavClick: () => void
+  t: (key: string) => string
 }) {
   return (
     <div className="flex flex-col h-full relative">
@@ -83,7 +88,8 @@ function SidebarInner({
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-        {NAV.map(({ href, icon: Icon, label }) => {
+        {NAV_DEFS.map(({ href, icon: Icon, key }) => {
+          const label = t(key)
           const isActive =
             pathname === href ||
             (href !== '/dashboard' && pathname.startsWith(href))
@@ -128,7 +134,7 @@ function SidebarInner({
           <Link
             href="/"
             onClick={onNavClick}
-            title={collapsed ? 'Back to Home' : undefined}
+            title={collapsed ? t('nav.back') : undefined}
             className={`
               flex items-center rounded-xl transition-all duration-150
               text-sky-100/30 hover:text-sky-200/60 hover:bg-white/4
@@ -144,7 +150,7 @@ function SidebarInner({
                   exit={{ opacity: 0 }}
                   className="font-outfit text-xs whitespace-nowrap"
                 >
-                  Back to Home
+                  {t('nav.back')}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -179,7 +185,7 @@ function SidebarInner({
         </AnimatePresence>
         <button
           onClick={onSignOut}
-          title={collapsed ? 'Sign Out' : undefined}
+          title={collapsed ? t('nav.signout') : undefined}
           className={`
             flex items-center w-full rounded-xl transition-all duration-150
             text-sky-100/35 hover:text-red-300 hover:bg-red-500/8
@@ -195,7 +201,7 @@ function SidebarInner({
                 exit={{ opacity: 0 }}
                 className="font-outfit text-sm whitespace-nowrap"
               >
-                Sign Out
+                {t('nav.signout')}
               </motion.span>
             )}
           </AnimatePresence>
@@ -220,6 +226,8 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, signOut } = useAuth()
+  const { settings } = useSettings()
+  const t = getT(settings.language)
 
   const handleSignOut = async () => {
     await signOut()
@@ -230,6 +238,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
     pathname,
     user,
     onSignOut: handleSignOut,
+    t,
   }
 
   return (
