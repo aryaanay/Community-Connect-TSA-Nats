@@ -46,7 +46,14 @@ export function HowItWorks() {
   const dk = settings.dark
 
   return (
-    <section className="py-20 px-4" style={{ background: 'transparent' }}>
+    <section
+      className="py-20 px-4"
+      style={{
+        background: dk ? 'rgba(1,22,41,0.88)' : 'rgba(240,249,255,0.88)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+      }}
+    >
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

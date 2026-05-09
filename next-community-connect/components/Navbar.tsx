@@ -31,9 +31,10 @@ export function Navbar() {
 
   useEffect(() => {
     const handle = () => {
-      const scrolled = window.scrollY > 80
+      // Collapse only once the hero image is fully scrolled past
+      const scrolled = window.scrollY > window.innerHeight * 0.88
       setIsScrolled(scrolled)
-      setExpanded(false) // always collapse on any scroll
+      if (scrolled) setExpanded(false)
     }
     window.addEventListener('scroll', handle, { passive: true })
     return () => window.removeEventListener('scroll', handle)
