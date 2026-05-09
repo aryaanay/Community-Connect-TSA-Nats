@@ -1,24 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
   Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, ArrowLeft, Map,
+  HelpCircle,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
 import { getT } from '@/lib/translations'
+import { TutorialModal } from '@/components/TutorialModal'
+
+const TUTORIAL_SEEN_KEY = 'cc-tutorial-seen'
 
 const NAV_DEFS = [
   { href: '/dashboard',          icon: LayoutDashboard, key: 'nav.dashboard' },
   { href: '/dashboard/resources',icon: BookOpen,        key: 'nav.resources' },
   { href: '/dashboard/events',   icon: CalendarDays,    key: 'nav.events' },
+  { href: '/dashboard/map',      icon: Map,             key: 'nav.map' },
   { href: '/submit',             icon: PlusCircle,      key: 'nav.submit' },
   { href: '/wishlist',           icon: Heart,           key: 'nav.donate' },
-  { href: '/dashboard/map',      icon: Map,             key: 'nav.map' },
   { href: '/dashboard/settings', icon: Settings,        key: 'nav.settings' },
 ]
 
@@ -44,6 +48,7 @@ function SidebarInner({
   user,
   onSignOut,
   onNavClick,
+  onTutorial,
   t,
 }: {
   collapsed: boolean
@@ -52,6 +57,7 @@ function SidebarInner({
   user: { email?: string } | null
   onSignOut: () => void
   onNavClick: () => void
+  onTutorial: () => void
   t: (key: string) => string
 }) {
   return (
@@ -183,6 +189,32 @@ function SidebarInner({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Tutorial button — above sign out */}
+        <button
+          onClick={() => { onNavClick(); onTutorial() }}
+          title={collapsed ? 'Site Tutorial' : undefined}
+          className={`
+            flex items-center w-full rounded-xl transition-all duration-150
+            text-sky-300/60 hover:text-sky-200 hover:bg-sky-400/8
+            ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'}
+          `}
+        >
+          <HelpCircle size={16} className="flex-shrink-0" />
+          <AnimatePresence initial={false}>
+            {!collapsed && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="font-outfit text-sm whitespace-nowrap"
+              >
+                Site Tutorial
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+
         <button
           onClick={onSignOut}
           title={collapsed ? t('nav.signout') : undefined}
@@ -223,11 +255,24 @@ function SidebarInner({
 export function AppSidebar({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { user, signOut } = useAuth()
   const { settings } = useSettings()
   const t = getT(settings.language)
+
+  // Auto-open tutorial on first visit
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(TUTORIAL_SEEN_KEY)) {
+        setShowTutorial(true)
+        localStorage.setItem(TUTORIAL_SEEN_KEY, '1')
+      }
+    } catch {
+      // localStorage unavailable (SSR or private mode)
+    }
+  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -238,6 +283,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
     pathname,
     user,
     onSignOut: handleSignOut,
+    onTutorial: () => setShowTutorial(true),
     t,
   }
 
@@ -320,6 +366,13 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
 
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
+
+      {/* Tutorial modal — rendered at the top level so it overlays everything */}
+      <AnimatePresence>
+        {showTutorial && (
+          <TutorialModal onClose={() => setShowTutorial(false)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
