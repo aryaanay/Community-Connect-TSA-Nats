@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionTemplate } from 'framer-motion'
 import Link from 'next/link'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
-import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap } from 'lucide-react'
+import { Heart, Shield, Users, Zap } from 'lucide-react'
 
 const timeline = [
   { year: '2019', title: 'The Idea Takes Root', description: 'Two Bothell residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb', image: '/img/optimized/library3.jpg' },
@@ -21,8 +21,40 @@ const partners = [
   'Public Library System', 'Community Clinic Network',
 ]
 
-const timelineIconMap: Record<string, React.ElementType> = {
-  lightbulb: Lightbulb, laptop: Laptop, handshake: Handshake, star: Star, users: Users, rocket: Rocket,
+type TimelineItem = typeof timeline[0]
+
+function TimelineTile({ item }: { item: TimelineItem }) {
+  const ref = useRef<HTMLElement>(null)
+  const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+
+  const blur    = useTransform(p, [0, 0.5, 1], [10, 0, 10])
+  const bright  = useTransform(p, [0, 0.5, 1], [0.15, 1, 0.15])
+  const imgFilter = useMotionTemplate`blur(${blur}px) brightness(${bright})`
+
+  const ty      = useTransform(p, [0, 0.5, 1], ['90px', '0px', '-90px'])
+  const tz      = useTransform(p, [0, 0.5, 1], [280, 0, 280])
+  const rx      = useTransform(p, [0, 0.5, 1], [50, 0, -50])
+  const opacity = useTransform(p, [0.08, 0.28, 0.72, 0.92], [0, 1, 1, 0])
+
+  return (
+    <motion.article ref={ref} style={{ perspective: 1000 }} className="m-0">
+      <motion.div
+        style={{ y: ty, z: tz, rotateX: rx, opacity }}
+        className="flex overflow-hidden rounded-2xl bg-white border border-sky-100 shadow-sm h-44 sm:h-52"
+      >
+        <motion.div
+          className="w-2/5 sm:w-1/3 flex-shrink-0 overflow-hidden"
+          style={{ filter: imgFilter }}
+        >
+          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+        </motion.div>
+        <div className="flex-1 px-6 py-5 flex flex-col justify-center min-w-0">
+          <h3 className="font-space font-bold text-base sm:text-lg text-[var(--text-dark)] mb-2 leading-snug">{item.title}</h3>
+          <p className="font-outfit text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed line-clamp-4">{item.description}</p>
+        </div>
+      </motion.div>
+    </motion.article>
+  )
 }
 
 function AnimatedCounter({ target }: { target: number }) {
@@ -180,7 +212,7 @@ export default function AboutPage() {
 
       {/* Timeline */}
       <section className="py-24 bg-[var(--section-bg)]" id="story">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} className="text-center mb-14"
@@ -189,33 +221,9 @@ export default function AboutPage() {
             <h2 className="section-heading">How We Got Here</h2>
             <p className="section-subtext mx-auto">From a weekend project to a Bothell institution, here is the story of Community Connect.</p>
           </motion.div>
-          <div className="relative">
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-sky-200 via-sky-400 to-sky-200 -translate-x-1/2 hidden lg:block" />
+          <div className="space-y-6">
             {timeline.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className={`relative grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14 ${i % 2 === 1 ? 'lg:direction-rtl' : ''}`}
-              >
-                <div className={`${i % 2 === 0 ? 'lg:text-right' : 'lg:order-2'} lg:direction-ltr`}>
-                  <div className="bg-white border border-sky-100 rounded-[var(--radius-md)] overflow-hidden hover:border-sky-200 hover:shadow-card transition-all">
-                    {item.image && (
-                      <img src={item.image} alt={item.title} className="w-full h-32 object-cover" />
-                    )}
-                    <div className="p-5">
-                      <h3 className="font-space font-bold text-base text-[var(--text-dark)] mb-2">{item.title}</h3>
-                      <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed m-0">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="hidden lg:flex lg:flex-col lg:items-center lg:direction-ltr">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-600 to-sky-400 border-4 border-white shadow-md flex items-center justify-center mb-2">
-                    {(() => { const Icon = timelineIconMap[item.icon] ?? Lightbulb; return <Icon className="w-5 h-5 text-white" /> })()}
-                  </div>
-                  <div className="font-space text-sm font-bold text-amber-500">{item.year}</div>
-                </div>
-              </motion.div>
+              <TimelineTile key={i} item={item} />
             ))}
           </div>
         </div>
