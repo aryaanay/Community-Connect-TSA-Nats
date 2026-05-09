@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionTemplate } from 'framer-motion'
 import Link from 'next/link'
-import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap } from 'lucide-react'
+import { Users, Heart, Shield, Zap } from 'lucide-react'
 import { useSettings } from '@/context/SettingsContext'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -22,8 +22,36 @@ const partners = [
   'Public Library System', 'Community Clinic Network',
 ]
 
-const timelineIconMap: Record<string, React.ElementType> = {
-  lightbulb: Lightbulb, laptop: Laptop, handshake: Handshake, star: Star, users: Users, rocket: Rocket,
+type TimelineItem = typeof timeline[0]
+
+function TimelineTile({ item }: { item: TimelineItem }) {
+  const ref = useRef<HTMLElement>(null)
+  const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+
+  const blur      = useTransform(p, [0, 0.5, 1], [10, 0, 10])
+  const bright    = useTransform(p, [0, 0.5, 1], [0.15, 1, 0.15])
+  const imgFilter = useMotionTemplate`blur(${blur}px) brightness(${bright})`
+  const ty        = useTransform(p, [0, 0.5, 1], ['90px', '0px', '-90px'])
+  const tz        = useTransform(p, [0, 0.5, 1], [280, 0, 280])
+  const rx        = useTransform(p, [0, 0.5, 1], [50, 0, -50])
+  const opacity   = useTransform(p, [0.08, 0.28, 0.72, 0.92], [0, 1, 1, 0])
+
+  return (
+    <motion.article ref={ref} style={{ perspective: 1000 }} className="m-0">
+      <motion.div
+        style={{ y: ty, z: tz, rotateX: rx, opacity }}
+        className="flex overflow-hidden rounded-2xl bg-white border border-sky-100 shadow-sm h-44 sm:h-52"
+      >
+        <motion.div className="w-2/5 sm:w-1/3 flex-shrink-0 overflow-hidden" style={{ filter: imgFilter }}>
+          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+        </motion.div>
+        <div className="flex-1 px-6 py-5 flex flex-col justify-center min-w-0">
+          <h3 className="font-space font-bold text-base sm:text-lg text-[var(--text-dark)] mb-2 leading-snug">{item.title}</h3>
+          <p className="font-outfit text-xs sm:text-sm text-[var(--text-muted)] leading-relaxed line-clamp-4">{item.description}</p>
+        </div>
+      </motion.div>
+    </motion.article>
+  )
 }
 
 function AnimatedCounter({ target }: { target: number }) {
@@ -256,7 +284,7 @@ export function AboutSections() {
 
       {/* ── Timeline ─────────────────────────────────────────────────────────── */}
       <section className="py-24 bg-[var(--section-bg)] overflow-hidden" id="story">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} className="text-center mb-14"
@@ -265,70 +293,10 @@ export function AboutSections() {
             <h2 className="section-heading">How We Got Here</h2>
             <p className="section-subtext mx-auto">From a weekend project to a Bothell institution, here is the story of Community Connect.</p>
           </motion.div>
-
-          <div className="relative">
-            {/* Animated vertical center line */}
-            <motion.div
-              initial={{ scaleY: 0 }}
-              whileInView={{ scaleY: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-              style={{ originY: 0 }}
-              className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-sky-200 via-sky-400 to-sky-200 -translate-x-1/2 hidden lg:block"
-            />
-
-            {timeline.map((item, i) => {
-              const isLeft = i % 2 === 0
-              const Icon = timelineIconMap[item.icon] ?? Lightbulb
-              return (
-                <div key={i} className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
-                  {/* Card — slides in from the side it lands on */}
-                  <motion.div
-                    initial={{ opacity: 0, x: isLeft ? -70 : 70 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: '-60px' }}
-                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                    className={isLeft ? 'lg:text-right' : 'lg:order-2'}
-                  >
-                    <div className="bg-white border border-sky-100 rounded-xl overflow-hidden hover:border-sky-300 hover:shadow-xl transition-all duration-300 group">
-                      {item.image && (
-                        <img src={item.image} alt={item.title} className="w-full h-32 object-cover" />
-                      )}
-                      <div className="p-5">
-                        <h3 className="font-space font-bold text-base text-[var(--text-dark)] mb-2 group-hover:text-sky-700 transition-colors">{item.title}</h3>
-                        <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed m-0">{item.description}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Icon + year — scale-bounce in */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.3 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, margin: '-60px' }}
-                    transition={{ duration: 0.6, delay: 0.25, ease: [0.175, 0.885, 0.32, 1.275] }}
-                    className="hidden lg:flex lg:flex-col lg:items-center"
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.15, rotate: 5 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-600 to-sky-400 border-4 border-white shadow-md flex items-center justify-center mb-2 cursor-default"
-                    >
-                      <Icon className="w-5 h-5 text-white" />
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 4 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.45 }}
-                      className="font-space text-sm font-bold text-amber-400"
-                    >
-                      {item.year}
-                    </motion.div>
-                  </motion.div>
-                </div>
-              )
-            })}
+          <div className="space-y-6">
+            {timeline.map((item, i) => (
+              <TimelineTile key={i} item={item} />
+            ))}
           </div>
         </div>
       </section>

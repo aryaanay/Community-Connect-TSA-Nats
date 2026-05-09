@@ -8,6 +8,7 @@ import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { MissionTicker } from '@/components/MissionTicker'
 import { Testimonials } from '@/components/Testimonials'
 import { HowItWorks } from '@/components/HowItWorks'
+import { AboutSections } from '@/components/AboutSections'
 import { ZoomParallax } from '@/components/ZoomParallax'
 
 const communityImages = [
@@ -319,6 +320,7 @@ export default function HomePage() {
       />
       <div className="relative z-10">
       <MissionTicker />
+      <AboutSections />
       <ZoomParallax images={communityImages} />
       <div id="testimonials"><Testimonials /></div>
       <div id="how-it-works"><HowItWorks /></div>
