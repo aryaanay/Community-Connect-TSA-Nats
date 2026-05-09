@@ -64,7 +64,7 @@ export function HowItWorks() {
             className="font-syne text-3xl sm:text-4xl font-bold mt-2 mb-3"
             style={{ color: '#E0F2FE' }}
           >
-            Find.{' '}
+            Discover.{' '}
             <span style={{ color: '#56BBF0' }}>Connect.</span>{' '}
             Give Back.
           </h2>
