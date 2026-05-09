@@ -24,38 +24,38 @@ const events = [
   {
     id: 'cleanup',
     title: 'Community Cleanup Drive',
-    date: 'April 25, 2026',
+    date: 'May 25, 2026',
     time: '10:00 AM - 1:00 PM',
     location: 'Bothell Landing Park, 9919 NE 180th St, Bothell WA',
     audience: 'All ages welcome',
     category: 'Volunteer',
     description: "Join neighbors for a city-wide cleanup. We'll provide gloves, bags, and light refreshments. Meet at the south entrance.",
     day: '25',
-    month: 'APR',
+    month: 'MAY',
     emoji: '🌿',
     color: '#085D8A',
     colorLight: '#EBF7FF',
     colorMid: '#C6EBFF',
-    gcalStart: '20260425T100000',
-    gcalEnd: '20260425T130000',
+    gcalStart: '20260525T100000',
+    gcalEnd: '20260525T130000',
   },
   {
     id: 'stem',
     title: 'STEM Mentorship Workshop',
-    date: 'May 2, 2026',
+    date: 'June 2, 2026',
     time: '4:00 PM - 6:30 PM',
     location: 'Bothell Regional Library, 18215 98th Ave NE, Bothell WA',
     audience: 'Students 12+',
     category: 'Education',
     description: 'Guest speakers from local universities and hands-on breakout sessions for aspiring STEM students. Hosted at Bothell Regional Library.',
     day: '02',
-    month: 'MAY',
+    month: 'JUN',
     emoji: '💻',
     color: '#044069',
     colorLight: '#EBF7FF',
     colorMid: '#90D4F7',
-    gcalStart: '20260502T160000',
-    gcalEnd: '20260502T183000',
+    gcalStart: '20260602T160000',
+    gcalEnd: '20260602T183000',
   },
   {
     id: 'food',
@@ -561,12 +561,15 @@ export default function EventsPage() {
           }))
         } catch { /* user_events table may not exist */ }
 
-        // Merge & sort by date
+        // Merge, filter past events, and sort by date
+        const today = new Date(); today.setHours(0, 0, 0, 0)
         const mergedAndSorted = [
           ...events,
           ...transformed,
           ...userEvts,
-        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        ]
+          .filter(e => { const d = new Date(e.date); return isNaN(d.getTime()) || d >= today })
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
         setAllEvents(mergedAndSorted)
       // AFTER

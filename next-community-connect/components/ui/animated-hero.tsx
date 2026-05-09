@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 import { CalendarDays, HeartHandshake, MapPin, MoveRight, Search, Sparkles } from "lucide-react"
 import Link from "next/link"
 
@@ -36,6 +36,9 @@ function Hero({
 }: HeroProps) {
   const [titleNumber, setTitleNumber] = useState(0)
   const isHomeHero = backgroundImage === undefined
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end start'] })
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '28%'])
   const floatingCards = [
     { icon: Search, label: 'Food assistance', value: '12 nearby', delay: 0 },
     { icon: CalendarDays, label: 'This weekend', value: '4 events', delay: 0.15 },
@@ -56,32 +59,32 @@ function Hero({
 
   return (
     <div
+      ref={containerRef}
       className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{
-        backgroundColor: '#022747',
-        backgroundImage: isHomeHero
-          ? "linear-gradient(145deg, rgba(1,22,41,0.86) 0%, rgba(4,64,105,0.76) 45%, rgba(13,123,181,0.48) 78%, rgba(255,140,66,0.22) 140%), url('/img/avess-berge-ua2IF9HNaXs-unsplash.png')"
-          : undefined,
-        backgroundSize: isHomeHero ? 'cover' : undefined,
-        backgroundPosition: isHomeHero ? 'center' : undefined,
-        backgroundRepeat: isHomeHero ? 'no-repeat' : undefined,
-        ...(backgroundImage !== null && backgroundImage !== undefined && backgroundImage !== '' ? {
-          backgroundImage: `url('${backgroundImage}')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        } : backgroundImage === undefined && !isHomeHero ? {
-          backgroundImage: `url('/img/avess-berge-ua2IF9HNaXs-unsplash.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        } : {}),
-      }}
+      style={{ backgroundColor: '#022747' }}
     >
-      {/* Solid blue cover when no image wanted */}
-      {backgroundImage === '' && <div className="absolute inset-0" style={{ backgroundColor: '#011629' }} />}
-      {/* Dark overlay for readability - skip on homepage (no backgroundImage) */}
-      {backgroundImage && <div className="absolute inset-0 bg-sky-950/60" />}
+      {/* Parallax background image */}
+      {isHomeHero ? (
+        <motion.div className="absolute inset-0 -top-[15%] -bottom-[15%]"
+          style={{
+            backgroundImage: "linear-gradient(145deg, rgba(1,22,41,0.86) 0%, rgba(4,64,105,0.76) 45%, rgba(13,123,181,0.48) 78%, rgba(255,140,66,0.22) 140%), url('/img/avess-berge-ua2IF9HNaXs-unsplash.png')",
+            backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+            y: bgY,
+          }}
+        />
+      ) : backgroundImage ? (
+        <motion.div className="absolute inset-0 -top-[15%] -bottom-[15%]"
+          style={{
+            backgroundImage: `url('${backgroundImage}')`,
+            backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+            y: bgY,
+          }}
+        />
+      ) : backgroundImage === '' ? (
+        <div className="absolute inset-0" style={{ backgroundColor: '#011629' }} />
+      ) : null}
+      {/* Dark overlay for readability on pages with a photo background */}
+      {backgroundImage && backgroundImage !== '' && <div className="absolute inset-0 bg-sky-950/60" />}
       {/* Background Effects */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(36,153,214,0.4)_0%,transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(4,64,105,0.5)_0%,transparent_50%),radial-gradient(ellipse_at_60%_10%,rgba(198,235,255,0.2)_0%,transparent_40%)]" />

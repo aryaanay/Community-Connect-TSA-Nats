@@ -12,12 +12,14 @@ const RARITY = {
 }
 
 function Card3D({ achievement }: { achievement: Achievement }) {
-  const cardRef   = useRef<HTMLDivElement>(null)
-  const animRef   = useRef<number>()
-  const current   = useRef({ x: 0, y: 0 })
-  const target    = useRef({ x: 0, y: 0 })
-  const [rot, setRot]       = useState({ x: 0, y: 0 })
-  const [glare, setGlare]   = useState({ x: 50, y: 50 })
+  const cardRef    = useRef<HTMLDivElement>(null)
+  const animRef    = useRef<number>()
+  const current    = useRef({ x: 0, y: 0 })
+  const target     = useRef({ x: 0, y: 0 })
+  const autoAngle  = useRef(0)         // auto-rotation accumulator (degrees)
+  const [rot, setRot]         = useState({ x: 0, y: 0 })
+  const [glare, setGlare]     = useState({ x: 50, y: 50 })
+  const [flashlight, setFlashlight] = useState({ x: 50, y: 50, active: false })
   const [hovered, setHovered] = useState(false)
   const [flipped, setFlipped] = useState(false)
 
@@ -32,25 +34,36 @@ function Card3D({ achievement }: { achievement: Achievement }) {
       x: -((e.clientY - cy) / (rect.height / 2)) * 22,
       y:  ((e.clientX - cx) / (rect.width  / 2)) * 22,
     }
-    setGlare({
-      x: ((e.clientX - rect.left) / rect.width)  * 100,
-      y: ((e.clientY - rect.top)  / rect.height) * 100,
-    })
+    const gx = ((e.clientX - rect.left) / rect.width)  * 100
+    const gy = ((e.clientY - rect.top)  / rect.height) * 100
+    setGlare({ x: gx, y: gy })
+    setFlashlight({ x: gx, y: gy, active: true })
   }, [])
 
   useEffect(() => {
     const tick = () => {
-      current.current.x += (target.current.x - current.current.x) * 0.11
-      current.current.y += (target.current.y - current.current.y) * 0.11
+      if (!hovered && !flipped) {
+        // Auto-rotate around Y at ~18°/sec (0.3° per frame at 60fps)
+        autoAngle.current = (autoAngle.current + 0.3) % 360
+        const autoY = autoAngle.current
+        const autoX = Math.sin(autoAngle.current * Math.PI / 180) * 6
+        target.current = { x: autoX, y: autoY % 360 > 180 ? -(360 - autoY % 360) * 0.5 : (autoY % 360) * 0.5 }
+      }
+      current.current.x += (target.current.x - current.current.x) * 0.08
+      current.current.y += (target.current.y - current.current.y) * 0.08
       setRot({ x: current.current.x, y: current.current.y })
       animRef.current = requestAnimationFrame(tick)
     }
     animRef.current = requestAnimationFrame(tick)
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
-  }, [])
+  }, [hovered, flipped])
 
   useEffect(() => {
-    if (!hovered) target.current = { x: 0, y: 0 }
+    if (hovered) {
+      // Smoothly transition target back to mouse-following (already handled in onMouseMove)
+    } else {
+      setFlashlight(f => ({ ...f, active: false }))
+    }
   }, [hovered])
 
   const transform = flipped
@@ -89,7 +102,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
               transparent 0deg, ${cfg.shimmer}22 40deg, transparent 80deg,
               ${cfg.shimmer}12 160deg, transparent 220deg,
               ${cfg.shimmer}20 280deg, transparent 340deg, ${cfg.shimmer}12 360deg)`,
-            opacity: hovered ? 1 : 0.5,
+            opacity: hovered ? 1 : 0.6,
             transition: 'opacity 0.3s',
           }} />
 
@@ -98,6 +111,15 @@ function Card3D({ achievement }: { achievement: Achievement }) {
             <div style={{
               position: 'absolute', inset: 0, pointerEvents: 'none',
               background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,0.22) 0%, transparent 58%)`,
+            }} />
+          )}
+
+          {/* flashlight beam */}
+          {flashlight.active && (
+            <div style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'screen',
+              background: `radial-gradient(ellipse 45% 55% at ${flashlight.x}% ${flashlight.y}%, rgba(255,255,255,0.18) 0%, ${cfg.shimmer}18 35%, transparent 70%)`,
+              transition: 'background 0.05s',
             }} />
           )}
 
@@ -139,7 +161,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
 
             <p style={{ fontSize: 8.5, fontFamily: 'outfit,sans-serif',
               color: 'rgba(255,255,255,0.18)', textAlign: 'center', marginTop: 14 }}>
-              Click to flip · Move mouse to rotate
+              Click to flip · Hover to control rotation
             </p>
           </div>
         </div>
@@ -170,6 +192,14 @@ function Card3D({ achievement }: { achievement: Achievement }) {
               ${cfg.shimmer}06 18px, ${cfg.shimmer}06 19px
             )`,
           }} />
+
+          {/* flashlight on back too */}
+          {flashlight.active && (
+            <div style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'screen',
+              background: `radial-gradient(ellipse 45% 55% at ${flashlight.x}% ${flashlight.y}%, rgba(255,255,255,0.15) 0%, ${cfg.shimmer}14 35%, transparent 70%)`,
+            }} />
+          )}
 
           <div style={{
             padding: 30, display: 'flex', flexDirection: 'column',

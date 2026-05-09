@@ -38,8 +38,8 @@ type Evt = { emoji: string; name: string; date: string; time: string; location: 
 
 const EVENTS: Record<string, Evt[]> = {
   bothell: [
-    { emoji: '🌿', name: 'Community Cleanup Drive', date: 'Apr 25', time: '10am–1pm', location: 'Bothell Landing Park', category: 'Environment' },
-    { emoji: '📚', name: 'STEM Mentorship Workshop', date: 'May 2', time: '4pm', location: 'Northshore Library', category: 'Education' },
+    { emoji: '🌿', name: 'Community Cleanup Drive', date: 'May 25', time: '10am–1pm', location: 'Bothell Landing Park', category: 'Environment' },
+    { emoji: '📚', name: 'STEM Mentorship Workshop', date: 'Jun 2', time: '4pm', location: 'Northshore Library', category: 'Education' },
     { emoji: '🥫', name: 'Northshore Food Drive', date: 'May 16', time: '9am–4pm', location: 'Multiple drop-offs', category: 'Community' },
   ],
   kenmore: [

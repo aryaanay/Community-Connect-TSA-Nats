@@ -1,8 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Search, BookOpen, CalendarDays, Map, PlusCircle, Heart, Settings, UserCircle, HelpCircle, Bot, Shield, Wifi, Moon, Languages } from 'lucide-react'
+import {
+  ChevronDown, Search, BookOpen, CalendarDays, Map, PlusCircle,
+  Heart, Settings, UserCircle, HelpCircle, Bot, Shield, Wifi,
+  Users2, Layers, PackageSearch, Sparkles, Loader2,
+} from 'lucide-react'
 
 const SECTIONS = [
   {
@@ -17,7 +21,7 @@ const SECTIONS = [
       },
       {
         q: 'What is CommunityConnect?',
-        a: 'CommunityConnect is a hub for the Bothell, WA community. It lets you find local resources (food banks, health clinics, youth programs, etc.), browse upcoming events, explore a live community map, donate to local causes, and submit new resources for the directory.',
+        a: 'CommunityConnect is a hub for the Bothell, WA community. It lets you find local resources (food banks, health clinics, youth programs, etc.), browse upcoming events, explore a live community map, donate to local causes, submit new resources, create events, connect with other community members, form groups, and report lost & found items.',
       },
       {
         q: 'Is my data safe?',
@@ -61,15 +65,43 @@ const SECTIONS = [
     items: [
       {
         q: 'How do I see event details?',
-        a: 'On the Events page, click any event card to expand a detail panel on the right side. It shows the full description, date, time, location, category, and target audience.',
+        a: 'On the Events page, click any event card to expand a detail panel. It shows the full description, date, time, location, category, and target audience. You can also add the event to Google Calendar or get directions.',
       },
       {
         q: 'Can I filter events by type?',
-        a: 'Yes — use the category filter chips at the top of the Events page to filter by type (Volunteer, Workshop, Health, etc.). You can also switch between list view and calendar view using the toggle in the top-right.',
+        a: 'Yes — use the category filter chips at the top of the Events page to filter by type (Volunteer, Workshop, Health, etc.). You can also switch between bento grid view and calendar view using the toggle in the top-right.',
       },
       {
-        q: 'Are the events real?',
-        a: 'The events shown are curated examples representing real types of community activities in the Bothell area. This is a demonstration platform for TSA, so exact dates and availability may vary.',
+        q: 'How do I create my own event?',
+        a: 'Click "Create Event" on the Events page or find it in the sidebar. Choose public (visible to all community members on the Events page and map) or private (invite specific people by email). Fill in the title, description, date, time, location, category, and emoji. Private events automatically draft an email invitation to your specified addresses.',
+      },
+      {
+        q: 'Why don\'t I see past events?',
+        a: 'The platform automatically filters out past events so you always see what\'s coming up. Both the Events page and Community Map only show upcoming events in real time.',
+      },
+    ],
+  },
+  {
+    id: 'create-event',
+    icon: PlusCircle,
+    color: '#7C3AED',
+    title: 'Creating Events',
+    items: [
+      {
+        q: 'What\'s the difference between public and private events?',
+        a: 'Public events are visible to all signed-in community members on the Events page, the bento grid, and the Community Map (shown as purple markers). Private events are not listed publicly — instead, you provide a list of email addresses and the platform drafts an email invitation for you to send.',
+      },
+      {
+        q: 'Can I pick a custom emoji for my event?',
+        a: 'Yes! The Create Event form has an emoji picker with 15 options. Your chosen emoji appears on the event card and, for public events, on the map marker popup.',
+      },
+      {
+        q: 'What categories can I use for my event?',
+        a: 'You can choose from: Community, Volunteer, Education, Health, Donation, Social, Sports, Arts, and Other. The category determines how the event is tagged and filtered across the site.',
+      },
+      {
+        q: 'Where does my public event appear?',
+        a: 'Public events appear on the main Events page bento grid (merged with community events), in the calendar view, and on the Community Map as purple markers near the Bothell area. They\'re also included in event count stats.',
       },
     ],
   },
@@ -88,8 +120,84 @@ const SECTIONS = [
         a: 'Use the category filter strip above the map to show only certain types of events. Click any pin on the map to see the event name, date, and time in a popup. Click "Show list" to see a sidebar list of all visible events.',
       },
       {
+        q: 'I see purple markers — what are those?',
+        a: 'Purple markers represent user-created public events. They\'re placed near the center of Bothell since exact geocoding isn\'t available for user events. Click them to see full details in the side panel.',
+      },
+      {
         q: 'The map isn\'t loading — what should I do?',
         a: 'The map uses Leaflet + OpenStreetMap and requires a network connection. If the map appears blank, try refreshing the page. Ad blockers occasionally block map tile requests — try temporarily disabling them if the issue persists.',
+      },
+    ],
+  },
+  {
+    id: 'social',
+    icon: Users2,
+    color: '#56BBF0',
+    title: 'Social & Directory',
+    items: [
+      {
+        q: 'How do I appear in the Community Directory?',
+        a: 'Go to the Social page and click "Create Profile" in the "Your Community Profile" section. Enter your display name, an optional bio, and toggle your profile to "Visible in directory". Once saved, your profile appears to other signed-in community members.',
+      },
+      {
+        q: 'How do I connect with someone?',
+        a: 'On the Social page under the Community Directory tab, browse or search for profiles by name or email. Click "Connect" on any profile card. They\'ll appear under "My Connections" for quick access later.',
+      },
+      {
+        q: 'How do I contact a community member?',
+        a: 'Each profile card has a mail icon that opens a pre-addressed email (mailto: link) in your default email client. Your connections tab shows the same email button for all your connected members.',
+      },
+      {
+        q: 'Where are my connections stored?',
+        a: 'Connections are stored in your browser\'s localStorage — they\'re private to your device. If you clear your browser data or switch devices, your connection list will be reset. This is a demo platform; cloud-synced connections aren\'t implemented.',
+      },
+    ],
+  },
+  {
+    id: 'groups',
+    icon: Layers,
+    color: '#EC4899',
+    title: 'Community Groups',
+    items: [
+      {
+        q: 'How do I create a community group?',
+        a: 'Go to the Groups page and click "Create Group". Enter a group name, optional description, and the email addresses of members you\'d like to invite (comma or newline separated). You become the group admin (creator).',
+      },
+      {
+        q: 'What can group admins do?',
+        a: 'As the group creator (admin), you can add or remove members, delete the group, and email all members at once. Regular members can view the group and leave it, but cannot modify membership or delete the group.',
+      },
+      {
+        q: 'How does "Email All Members" work?',
+        a: '"Email All Members" opens a draft in your default email client with all member emails pre-filled in the BCC field. This lets you send one message to the entire group without revealing individual addresses to each other.',
+      },
+      {
+        q: 'Where is group data stored?',
+        a: 'Groups are stored in the Supabase database (community_groups and group_members tables). They persist across sessions and are visible to all members who are signed in. See supabase/community_features.sql for the required migration.',
+      },
+    ],
+  },
+  {
+    id: 'lost-found',
+    icon: PackageSearch,
+    color: '#F59E0B',
+    title: 'Lost & Found',
+    items: [
+      {
+        q: 'How do I post a lost or found item?',
+        a: 'Go to the Lost & Found page and click "Report Item". Toggle between "Lost" and "Found", then fill in the item title, description, location, date, and your contact info (email and/or phone). Click Post to publish it to the community board.',
+      },
+      {
+        q: 'How do I contact someone about an item?',
+        a: 'Click on any item card to expand it and see full contact details. You\'ll see email and phone buttons that open your mail client or phone dialer respectively. All contact is handled directly between community members.',
+      },
+      {
+        q: 'How do I mark an item as resolved?',
+        a: 'Only the person who posted the item can resolve it. If you\'re the owner, expand your item card and click "Mark Resolved". Resolved items are hidden from the active listing but remain in the database.',
+      },
+      {
+        q: 'Can I filter to see only lost or only found items?',
+        a: 'Yes — use the filter pills at the top of the Lost & Found page to view All, Lost only, or Found only. There\'s also a search bar to find items by title or description.',
       },
     ],
   },
@@ -110,10 +218,6 @@ const SECTIONS = [
       {
         q: 'What causes can I support?',
         a: 'There are 6 community causes: Bothell Food Bank, Youth Mentorship, Senior Companions, Parks & Rec Fund, Homeless Outreach, and Animal Rescue Network. Each has a real-time fundraising progress bar that updates as simulated donations are recorded.',
-      },
-      {
-        q: 'Can I donate more than once to the same cause?',
-        a: 'Yes — you can donate multiple times to any cause. Each donation is recorded and reflected in the live progress totals.',
       },
     ],
   },
@@ -145,7 +249,7 @@ const SECTIONS = [
     items: [
       {
         q: 'How do I earn achievements?',
-        a: 'Achievements unlock automatically as you use the site. Sign in for the first time, complete the tutorial, visit each page, submit a resource, make a donation, enable dark mode, change the language, or enable accessibility features. Each achievement awards XP that contributes to your level.',
+        a: 'Achievements unlock automatically as you use the site. Sign in for the first time, complete the tutorial, visit each page, submit a resource, make a donation, create an event, connect with someone, create a group, enable dark mode, change the language, or enable accessibility features. Each achievement awards XP that contributes to your level.',
       },
       {
         q: 'What are the different rarity levels?',
@@ -156,12 +260,12 @@ const SECTIONS = [
         a: 'Your level is based on total XP earned: Level 1 (0–99 XP) "Community Newcomer", Level 2 (100–299 XP) "Active Member", Level 3 (300–599 XP) "Resource Champion", Level 4 (600–999 XP) "Community Hero", and Level 5 (1000+ XP) "Local Legend".',
       },
       {
-        q: 'Where do I see my achievements?',
-        a: 'Go to your Profile page (My Profile in the sidebar) to see your full achievement collection, XP total, level, and progress bar. Locked achievements are shown greyed out so you know what to aim for.',
+        q: 'Why does the achievement card spin?',
+        a: 'Achievement cards auto-rotate around their vertical axis to show off the holographic sheen. Hover over the card to take control of the rotation with your mouse. Click to flip the card and see the back side with your XP total.',
       },
       {
-        q: 'Why did my achievement popup disappear?',
-        a: 'Achievement popups auto-dismiss after 9 seconds. You can also click anywhere to dismiss them manually. Your achievements are permanently saved in your browser\'s localStorage — check your Profile page to see everything you\'ve earned.',
+        q: 'Where do I see my achievements?',
+        a: 'Go to your Profile page (My Profile in the sidebar) to see your full achievement collection, XP total, level, and progress bar. Locked achievements are shown greyed out so you know what to aim for.',
       },
     ],
   },
@@ -173,7 +277,7 @@ const SECTIONS = [
     items: [
       {
         q: 'How do I enable dark mode?',
-        a: 'Go to Settings (the gear icon in the sidebar) and toggle "Dark Mode" in the Language & Appearance section. Your preference is saved automatically in your browser.',
+        a: 'Go to Settings (the gear icon in the sidebar) and toggle "Dark Mode" in the Appearance section. Your preference is saved automatically in your browser.',
       },
       {
         q: 'How do I change the language?',
@@ -208,8 +312,8 @@ const SECTIONS = [
         a: 'Achievements are stored in your browser\'s localStorage. If you cleared your browser data, switched browsers, or used private/incognito mode, they may be reset. This is a demo platform — persistent cloud storage for achievements is not implemented.',
       },
       {
-        q: 'The real-time donation counter isn\'t updating — is that normal?',
-        a: 'Real-time updates rely on a Supabase WebSocket connection. If you\'re on a slow connection or behind a restrictive network, updates may be delayed. Try refreshing the page to see the latest totals.',
+        q: 'Why aren\'t my Supabase features (Groups, Social, Lost & Found) working?',
+        a: 'These features require the database tables to be created. Run the SQL migration at supabase/community_features.sql in your Supabase project SQL editor. If the tables don\'t exist, pages will gracefully show empty states without crashing.',
       },
     ],
   },
@@ -218,41 +322,17 @@ const SECTIONS = [
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false)
   return (
-    <div
-      className="border-b last:border-0 transition-colors"
-      style={{ borderColor: 'rgba(86,187,240,0.1)' }}
-    >
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between gap-4 py-4 text-left group"
-      >
-        <span className="font-outfit text-sm font-semibold text-white group-hover:text-sky-200 transition-colors leading-snug">
-          {q}
-        </span>
-        <ChevronDown
-          size={15}
-          className="flex-shrink-0 transition-transform duration-200"
-          style={{
-            color: 'rgba(198,235,255,0.4)',
-            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-          }}
-        />
+    <div className="border-b last:border-0 transition-colors" style={{ borderColor: 'rgba(86,187,240,0.1)' }}>
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between gap-4 py-4 text-left group">
+        <span className="font-outfit text-sm font-semibold text-white group-hover:text-sky-200 transition-colors leading-snug">{q}</span>
+        <ChevronDown size={15} className="flex-shrink-0 transition-transform duration-200"
+          style={{ color: 'rgba(198,235,255,0.4)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
-          >
-            <p
-              className="font-outfit text-sm leading-relaxed pb-4"
-              style={{ color: 'rgba(198,235,255,0.6)' }}
-            >
-              {a}
-            </p>
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+            <p className="font-outfit text-sm leading-relaxed pb-4" style={{ color: 'rgba(198,235,255,0.6)' }}>{a}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -261,39 +341,49 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function HelpPage() {
-  const [search, setSearch] = useState('')
+  const [search, setSearch]         = useState('')
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [aiAnswer, setAiAnswer]     = useState<string | null>(null)
+  const [aiLoading, setAiLoading]   = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
 
   const query = search.toLowerCase().trim()
   const filtered = SECTIONS.map(s => ({
     ...s,
-    items: s.items.filter(
-      i => !query || i.q.toLowerCase().includes(query) || i.a.toLowerCase().includes(query)
-    ),
+    items: s.items.filter(i => !query || i.q.toLowerCase().includes(query) || i.a.toLowerCase().includes(query)),
   })).filter(s => s.items.length > 0)
 
+  const handleSearchChange = (val: string) => {
+    setSearch(val)
+    setAiAnswer(null)
+    clearTimeout(debounceRef.current)
+    if (val.trim().length < 6) return
+    debounceRef.current = setTimeout(async () => {
+      setAiLoading(true)
+      try {
+        const res = await fetch('/api/help-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: val.trim() }),
+        })
+        const data = await res.json()
+        if (data.answer) setAiAnswer(data.answer)
+      } catch { /* ignore */ } finally {
+        setAiLoading(false)
+      }
+    }, 700)
+  }
+
   return (
-    <div
-      className="min-h-full px-4 sm:px-6 lg:px-8 py-8"
-      style={{ background: 'linear-gradient(150deg, #011629 0%, #022747 60%, #011629 100%)' }}
-    >
+    <div className="min-h-full px-4 sm:px-6 lg:px-8 py-8"
+      style={{ background: 'linear-gradient(150deg, #011629 0%, #022747 60%, #011629 100%)' }}>
       <div className="max-w-3xl mx-auto space-y-6">
 
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="rounded-3xl p-6 sm:p-8 relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(2,39,71,0.6)',
-            border: '1px solid rgba(86,187,240,0.18)',
-            backdropFilter: 'blur(20px)',
-          }}
-        >
-          <div className="absolute inset-0 pointer-events-none" style={{
-            background: 'radial-gradient(ellipse at 20% 50%, rgba(86,187,240,0.12) 0%, transparent 60%)',
-          }} />
+          style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(2,39,71,0.6)', border: '1px solid rgba(86,187,240,0.18)', backdropFilter: 'blur(20px)' }}>
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(86,187,240,0.12) 0%, transparent 60%)' }} />
           <div className="relative">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(86,187,240,0.15)', border: '1px solid rgba(86,187,240,0.3)' }}>
@@ -310,50 +400,51 @@ export default function HelpPage() {
             {/* Search */}
             <div className="relative mt-5">
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search help articles…"
+              <input type="text" value={search} onChange={e => handleSearchChange(e.target.value)}
+                placeholder="Ask anything about CommunityConnect…"
                 className="w-full pl-10 pr-4 py-3 rounded-xl font-outfit text-sm outline-none focus:ring-1 focus:ring-sky-400/35 text-white placeholder:text-sky-300/30"
-                style={{
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(86,187,240,0.18)',
-                }}
-              />
+                style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)' }} />
+              {aiLoading && <Loader2 size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin" style={{ color: 'rgba(198,235,255,0.4)' }} />}
             </div>
+
+            {/* AI Answer */}
+            <AnimatePresence>
+              {(aiAnswer || aiLoading) && (
+                <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                  className="mt-3 rounded-xl p-4 flex gap-3"
+                  style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.2)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ background: 'rgba(86,187,240,0.15)', border: '1px solid rgba(86,187,240,0.25)' }}>
+                    <Sparkles size={13} style={{ color: '#56BBF0' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-outfit text-[10px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#56BBF0' }}>AI Answer</p>
+                    {aiLoading
+                      ? <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>Thinking…</p>
+                      : <p className="font-outfit text-sm leading-relaxed" style={{ color: 'rgba(198,235,255,0.75)' }}>{aiAnswer}</p>
+                    }
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
 
         {/* Section nav pills */}
         {!search && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-wrap gap-2"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+            className="flex flex-wrap gap-2">
             {SECTIONS.map(s => {
               const Icon = s.icon
               const active = activeSection === s.id
               return (
-                <button
-                  key={s.id}
+                <button key={s.id}
                   onClick={() => {
                     setActiveSection(active ? null : s.id)
-                    if (!active) {
-                      setTimeout(() => {
-                        document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                      }, 50)
-                    }
+                    if (!active) setTimeout(() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-outfit text-xs font-semibold transition-all"
-                  style={{
-                    background: active ? `${s.color}22` : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${active ? s.color + '55' : 'rgba(86,187,240,0.1)'}`,
-                    color: active ? s.color : 'rgba(198,235,255,0.55)',
-                  }}
-                >
+                  style={{ background: active ? `${s.color}22` : 'rgba(255,255,255,0.05)', border: `1px solid ${active ? s.color + '55' : 'rgba(86,187,240,0.1)'}`, color: active ? s.color : 'rgba(198,235,255,0.55)' }}>
                   <Icon size={11} />
                   {s.title}
                 </button>
@@ -374,43 +465,24 @@ export default function HelpPage() {
           filtered.map((section, si) => {
             const Icon = section.icon
             return (
-              <motion.div
-                id={section.id}
-                key={section.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.08 + si * 0.05 }}
+              <motion.div id={section.id} key={section.id}
+                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 + si * 0.04 }}
                 className="rounded-2xl overflow-hidden"
-                style={{
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)), rgba(2,39,71,0.5)',
-                  border: '1px solid rgba(86,187,240,0.12)',
-                }}
-              >
-                {/* Section header */}
-                <div
-                  className="flex items-center gap-3 px-5 py-4 border-b"
-                  style={{ borderColor: 'rgba(86,187,240,0.08)' }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${section.color}18`, border: `1px solid ${section.color}30` }}
-                  >
+                style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)), rgba(2,39,71,0.5)', border: '1px solid rgba(86,187,240,0.12)' }}>
+                <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: 'rgba(86,187,240,0.08)' }}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${section.color}18`, border: `1px solid ${section.color}30` }}>
                     <Icon size={15} style={{ color: section.color }} />
                   </div>
                   <h2 className="font-syne text-sm font-bold text-white">{section.title}</h2>
-                  <span
-                    className="ml-auto font-outfit text-[10px] px-2 py-0.5 rounded-full"
-                    style={{ background: `${section.color}15`, color: section.color, border: `1px solid ${section.color}25` }}
-                  >
+                  <span className="ml-auto font-outfit text-[10px] px-2 py-0.5 rounded-full"
+                    style={{ background: `${section.color}15`, color: section.color, border: `1px solid ${section.color}25` }}>
                     {section.items.length} article{section.items.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-
-                {/* FAQ items */}
                 <div className="px-5">
-                  {section.items.map((item, ii) => (
-                    <FAQItem key={ii} q={item.q} a={item.a} />
-                  ))}
+                  {section.items.map((item, ii) => <FAQItem key={ii} q={item.q} a={item.a} />)}
                 </div>
               </motion.div>
             )

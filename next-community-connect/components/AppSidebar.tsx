@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
   Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, Map,
-  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch,
+  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
@@ -60,6 +60,7 @@ function SidebarInner({
   onNavClick,
   onTutorial,
   t,
+  isMobile,
 }: {
   collapsed: boolean
   setCollapsed: (fn: (v: boolean) => boolean) => void
@@ -69,6 +70,7 @@ function SidebarInner({
   onNavClick: () => void
   onTutorial: () => void
   t: (key: string) => string
+  isMobile?: boolean
 }) {
   return (
     <div className="flex flex-col h-full relative">
@@ -88,7 +90,7 @@ function SidebarInner({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -6 }}
               transition={{ duration: 0.18 }}
-              className="overflow-hidden min-w-0"
+              className="overflow-hidden min-w-0 flex-1"
             >
               <Link href="/dashboard" onClick={onNavClick} className="block whitespace-nowrap leading-none">
                 <span className="font-syne text-sm font-light text-white">Community</span>
@@ -100,6 +102,15 @@ function SidebarInner({
             </motion.div>
           )}
         </AnimatePresence>
+        {isMobile && (
+          <button
+            onClick={onNavClick}
+            className="ml-auto flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl text-sky-300/60 hover:text-sky-200 hover:bg-sky-400/10 transition-all"
+            aria-label="Close menu"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -341,6 +352,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
               collapsed={false}
               setCollapsed={() => {}}
               onNavClick={() => setMobileOpen(false)}
+              isMobile
             />
           </motion.aside>
         )}

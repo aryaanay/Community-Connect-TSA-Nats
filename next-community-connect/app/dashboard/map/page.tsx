@@ -35,7 +35,7 @@ const EVENTS: MappedEvent[] = [
   {
     id: 'cleanup',
     title: 'Community Cleanup Drive',
-    date: 'April 25, 2026',
+    date: 'May 25, 2026',
     time: '10:00 AM – 1:00 PM',
     location: 'Bothell Landing Park',
     audience: 'All ages',
@@ -49,7 +49,7 @@ const EVENTS: MappedEvent[] = [
   {
     id: 'stem',
     title: 'STEM Mentorship Workshop',
-    date: 'May 2, 2026',
+    date: 'June 2, 2026',
     time: '4:00 PM – 6:30 PM',
     location: 'Bothell Regional Library',
     audience: 'Students 12+',
@@ -351,7 +351,10 @@ export default function DashboardMapPage() {
 
   if (loading || !isSignedIn || !mounted) return null
 
-  const allEvents = [...EVENTS, ...userEvents]
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const allEvents = [...EVENTS, ...userEvents].filter(e => {
+    const d = new Date(e.date); return isNaN(d.getTime()) || d >= today
+  })
 
   const visibleIds = new Set(
     filter === 'All'

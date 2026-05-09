@@ -30,7 +30,7 @@ function SettingRow({ label, description, active, onToggle }: { label: string; d
     <div className="flex items-center justify-between gap-4 py-3.5 border-b border-sky-50 last:border-0">
       <div className="min-w-0">
         <p className="font-outfit font-semibold text-sm text-sky-900 leading-tight">{label}</p>
-        <p className="font-outfit text-xs text-sky-400 mt-0.5 leading-snug">{description}</p>
+        <p className="font-outfit text-xs text-sky-600 mt-0.5 leading-snug">{description}</p>
       </div>
       <ToggleSwitch active={active} onToggle={onToggle} />
     </div>
@@ -75,10 +75,10 @@ function PresetCard({ icon: Icon, iconColor, iconBg, borderColor, activeBg, titl
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <p className={`font-outfit font-semibold text-sm leading-tight ${active ? 'text-sky-900' : 'text-gray-600'}`}>{title}</p>
+          <p className={`font-outfit font-semibold text-sm leading-tight ${active ? 'text-sky-900' : 'text-gray-800'}`}>{title}</p>
           <ToggleSwitch active={active} onToggle={onToggle} />
         </div>
-        <p className={`font-outfit text-xs mt-1 leading-snug ${active ? 'text-sky-500' : 'text-gray-400'}`}>{description}</p>
+        <p className={`font-outfit text-xs mt-1 leading-snug ${active ? 'text-sky-600' : 'text-gray-600'}`}>{description}</p>
       </div>
     </div>
   )
@@ -181,7 +181,7 @@ export default function SettingsPage() {
               {activeCount > 0 && <span className="w-5 h-5 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center">{activeCount}</span>}
             </div>
             <h1 className="font-syne text-4xl md:text-5xl font-extrabold text-sky-900 mb-4 tracking-tight">{t('set.title')}</h1>
-            <p className="font-outfit text-sky-500 text-lg max-w-xl mx-auto leading-relaxed">{t('set.subtitle')}</p>
+            <p className="font-outfit text-sky-700 text-lg max-w-xl mx-auto leading-relaxed">{t('set.subtitle')}</p>
           </motion.div>
         </div>
       </section>
@@ -238,7 +238,7 @@ export default function SettingsPage() {
           <SectionCard icon={Type} title={t('sec.text')} badgeCount={textBadge} onLabel={onLabel} delay={0.05}>
             <div className="pb-4 mb-1 border-b border-sky-50">
               <p className="font-outfit font-semibold text-sm text-sky-900 mb-0.5">{t('tog.textsize')}</p>
-              <p className="font-outfit text-xs text-sky-400 mb-3">Scale the base font size across the entire app</p>
+              <p className="font-outfit text-xs text-sky-600 mb-3">Scale the base font size across the entire app</p>
               <div className="flex gap-1.5">
                 {FONT_SIZE_STEPS.map(({ display, value, textSize }, i) => {
                   const active = display === 'M' ? settings.fontSize === 'medium'
@@ -274,7 +274,7 @@ export default function SettingsPage() {
 
             <div className="py-3.5 border-b border-sky-50">
               <p className="font-outfit font-semibold text-sm text-sky-900 mb-0.5">{t('tog.colorblind')}</p>
-              <p className="font-outfit text-xs text-sky-400 mb-3">Select your color vision type to apply a perceptual compensation filter</p>
+              <p className="font-outfit text-xs text-sky-600 mb-3">Select your color vision type to apply a perceptual compensation filter</p>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                 <button onClick={() => dispatch({ type: 'REPLACE_STATE', payload: { colorBlindMode: 'none' } })}
                   className={`py-2.5 px-3 rounded-xl border font-outfit text-xs font-semibold transition-all ${
@@ -300,7 +300,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between mb-1">
                 <div>
                   <p className="font-outfit font-semibold text-sm text-sky-900">{t('tog.grayscale')}</p>
-                  <p className="font-outfit text-xs text-sky-400 mt-0.5">Removes all color — useful for photosensitivity or color-neutral viewing</p>
+                  <p className="font-outfit text-xs text-sky-600 mt-0.5">Removes all color — useful for photosensitivity or color-neutral viewing</p>
                 </div>
                 <ToggleSwitch active={settings.grayscale > 0} onToggle={() => dispatch({ type: 'SET_GRAYSCALE', payload: settings.grayscale > 0 ? 0 : 100 })} />
               </div>
@@ -337,7 +337,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <h2 className="font-syne text-lg font-bold text-sky-900">{t('sec.presets')}</h2>
-                  <p className="font-outfit text-xs text-sky-400 mt-0.5">{t('sec.presets.sub')}</p>
+                  <p className="font-outfit text-xs text-sky-600 mt-0.5">{t('sec.presets.sub')}</p>
                 </div>
               </div>
               {presetBadge > 0 && <span className="text-xs font-semibold bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full flex-shrink-0">{presetBadge} {onLabel}</span>}
