@@ -43,7 +43,7 @@ export default function JudgesPage() {
           style={{ backgroundColor: 'rgba(36,153,214,0.15)', borderColor: 'rgba(86,187,240,0.35)' }}
         >
           <Star className="w-4 h-4 text-sky-300" fill="currentColor" />
-          <span className="font-syne text-xs font-bold uppercase tracking-widest text-sky-300">TSA Webmaster — State 2026</span>
+          <span className="font-syne text-xs font-bold uppercase tracking-widest text-sky-300">TSA Webmaster, State 2026</span>
         </motion.div>
 
         {/* Heading */}

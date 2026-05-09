@@ -36,7 +36,7 @@ const EMPTY_FORM: FormData = {
 }
 
 function getErrorMessage(err: unknown): string {
-  if (!err) return 'Submission failed — please try again.'
+  if (!err) return 'Submission failed. Please try again.'
   if (typeof err === 'string') return err
   if (typeof err === 'object') {
     const e = err as Record<string, unknown>
@@ -45,7 +45,7 @@ function getErrorMessage(err: unknown): string {
     if (typeof e.hint   === 'string' && e.hint)    return e.hint
     if (typeof e.code   === 'string' && e.code)    return `Database error (code: ${e.code})`
   }
-  return 'Submission failed — please try again.'
+  return 'Submission failed. Please try again.'
 }
 
 async function saveToSubmissions(data: FormData) {
@@ -609,7 +609,7 @@ export default function SubmitPage() {
             <div className="bg-sky-50 border border-sky-200 rounded-[var(--radius-md)] p-4 mb-8 flex items-start gap-3">
               <Bot className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
               <div className="font-outfit text-sm text-sky-800">
-                <strong className="text-sky-900">AI-powered moderation</strong> — your submission is instantly reviewed by our AI to ensure it meets community guidelines. Approved resources are added to the directory immediately.
+                <strong className="text-sky-900">AI-powered moderation:</strong> your submission is instantly reviewed by our AI to ensure it meets community guidelines. Approved resources are added to the directory immediately.
               </div>
             </div>
 

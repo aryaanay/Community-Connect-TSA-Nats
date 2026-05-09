@@ -84,7 +84,7 @@ const FEATURES = [
   {
     icon: CalendarDays,
     title: 'Events & Creation',
-    desc: 'Browse upcoming community events and create your own — published instantly to the calendar.',
+    desc: 'Browse upcoming community events and create your own, published instantly to the calendar.',
     color: '#A78BFA',
     bg: 'rgba(167,139,250,0.08)',
     border: 'rgba(167,139,250,0.18)',

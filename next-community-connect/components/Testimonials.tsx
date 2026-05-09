@@ -8,14 +8,14 @@ const testimonialData = [
     id: 1,
     name: 'Maria Rodriguez',
     role: 'Parent, Eastside Neighborhood',
-    avatarColor: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)',
+    avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
     description: 'Through Community Connect, I found volunteer tutors who helped my daughter excel in math. Weekly sessions became a mentorship that changed her confidence.',
   },
   {
     id: 2,
     name: 'James Chen',
     role: 'Volunteer, 2 years',
-    avatarColor: 'linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)',
+    avatar: 'https://randomuser.me/api/portraits/men/33.jpg',
     description: 'I wanted to give back but did not know where to start. Community Connect matched me with our local food bank, and now I volunteer every weekend.',
   },
   {
@@ -29,7 +29,7 @@ const testimonialData = [
     id: 4,
     name: 'Aisha Patel',
     role: 'Caregiver',
-    avatarColor: 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)',
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
     description: 'The resource directory helped me find senior transportation and meal support for my dad in one afternoon. Incredibly easy to use.',
   },
   {
@@ -43,14 +43,14 @@ const testimonialData = [
     id: 6,
     name: 'Derek Osei',
     role: 'Job Seeker',
-    avatarColor: 'linear-gradient(135deg, #1d4ed8 0%, #60a5fa 100%)',
+    avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
     description: 'I found a resume workshop and interview coaching sessions listed on Community Connect. Two months later I had a job offer. Cannot thank this platform enough.',
   },
   {
     id: 7,
     name: 'Linda Nakamura',
     role: 'Senior Resident',
-    avatarColor: 'linear-gradient(135deg, #065f46 0%, #34d399 100%)',
+    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
     description: 'At 74, navigating city services felt overwhelming. Community Connect gave me a simple list of what is available near me and who to call. Life-changing.',
   },
 ]

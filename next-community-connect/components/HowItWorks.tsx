@@ -10,7 +10,7 @@ const STEPS = [
     icon: Search,
     title: 'Discover',
     description:
-      'Browse local resources, upcoming events, and volunteer opportunities curated for your neighborhood — all in one place.',
+      'Browse local resources, upcoming events, and volunteer opportunities curated for your neighborhood, all in one place.',
     color: 'blue' as const,
     iconColor: '#56BBF0',
     accent: 'rgba(86,187,240,0.15)',

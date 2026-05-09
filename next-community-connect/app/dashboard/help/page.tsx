@@ -17,7 +17,7 @@ const SECTIONS = [
     items: [
       {
         q: 'How do I sign in or create an account?',
-        a: 'Go to the Sign In page and enter your email and password. If you don\'t have an account, click "Sign Up" — you\'ll need an email and a password with at least 8 characters, one uppercase letter, one number, and one special character. You can also use the TSA Judge credentials (email: judges@tsa.com, password: judges!) to explore the site without signing up.',
+        a: 'Go to the Sign In page and enter your email and password. If you don\'t have an account, click "Sign Up". You\'ll need an email and a password with at least 8 characters, one uppercase letter, one number, and one special character. You can also use the TSA Judge credentials (email: judges@tsa.com, password: judges!) to explore the site without signing up.',
       },
       {
         q: 'What is CommunityConnect?',
@@ -45,7 +45,7 @@ const SECTIONS = [
       },
       {
         q: 'How do I submit a new resource?',
-        a: 'Click "Submit Resource" in the sidebar or go to the Submit page. Fill in the resource name, category, description, contact email, phone, and address. Our AI moderator reviews submissions instantly — if approved, the resource appears in the directory right away.',
+        a: 'Click "Submit Resource" in the sidebar or go to the Submit page. Fill in the resource name, category, description, contact email, phone, and address. Our AI moderator reviews submissions instantly. If approved, the resource appears in the directory right away.',
       },
       {
         q: 'Why was my submission rejected by the AI?',
@@ -69,7 +69,7 @@ const SECTIONS = [
       },
       {
         q: 'Can I filter events by type?',
-        a: 'Yes — use the category filter chips at the top of the Events page to filter by type (Volunteer, Workshop, Health, etc.). You can also switch between bento grid view and calendar view using the toggle in the top-right.',
+        a: 'Yes, use the category filter chips at the top of the Events page to filter by type (Volunteer, Workshop, Health, etc.). You can also switch between bento grid view and calendar view using the toggle in the top-right.',
       },
       {
         q: 'How do I create my own event?',
@@ -89,7 +89,7 @@ const SECTIONS = [
     items: [
       {
         q: 'What\'s the difference between public and private events?',
-        a: 'Public events are visible to all signed-in community members on the Events page, the bento grid, and the Community Map (shown as purple markers). Private events are not listed publicly — instead, you provide a list of email addresses and the platform drafts an email invitation for you to send.',
+        a: 'Public events are visible to all signed-in community members on the Events page, the bento grid, and the Community Map (shown as purple markers). Private events are not listed publicly. Instead, you provide a list of email addresses and the platform drafts an email invitation for you to send.',
       },
       {
         q: 'Can I pick a custom emoji for my event?',
@@ -120,12 +120,12 @@ const SECTIONS = [
         a: 'Use the category filter strip above the map to show only certain types of events. Click any pin on the map to see the event name, date, and time in a popup. Click "Show list" to see a sidebar list of all visible events.',
       },
       {
-        q: 'I see purple markers — what are those?',
+        q: 'I see purple markers. What are those?',
         a: 'Purple markers represent user-created public events. They\'re placed near the center of Bothell since exact geocoding isn\'t available for user events. Click them to see full details in the side panel.',
       },
       {
-        q: 'The map isn\'t loading — what should I do?',
-        a: 'The map uses Leaflet + OpenStreetMap and requires a network connection. If the map appears blank, try refreshing the page. Ad blockers occasionally block map tile requests — try temporarily disabling them if the issue persists.',
+        q: 'The map isn\'t loading. What should I do?',
+        a: 'The map uses Leaflet + OpenStreetMap and requires a network connection. If the map appears blank, try refreshing the page. Ad blockers occasionally block map tile requests. Try temporarily disabling them if the issue persists.',
       },
     ],
   },
@@ -149,7 +149,7 @@ const SECTIONS = [
       },
       {
         q: 'Where are my connections stored?',
-        a: 'Connections are stored in your browser\'s localStorage — they\'re private to your device. If you clear your browser data or switch devices, your connection list will be reset. This is a demo platform; cloud-synced connections aren\'t implemented.',
+        a: 'Connections are stored in your browser\'s localStorage. They\'re private to your device. If you clear your browser data or switch devices, your connection list will be reset. This is a demo platform; cloud-synced connections aren\'t implemented.',
       },
     ],
   },
@@ -197,7 +197,7 @@ const SECTIONS = [
       },
       {
         q: 'Can I filter to see only lost or only found items?',
-        a: 'Yes — use the filter pills at the top of the Lost & Found page to view All, Lost only, or Found only. There\'s also a search bar to find items by title or description.',
+        a: 'Yes, use the filter pills at the top of the Lost & Found page to view All, Lost only, or Found only. There\'s also a search bar to find items by title or description.',
       },
     ],
   },
@@ -213,7 +213,7 @@ const SECTIONS = [
       },
       {
         q: 'Why do I see a "Simulated Payment" notice?',
-        a: 'We display this notice clearly to make it obvious that no real transaction is occurring. This is a TSA competition demo — the donation UI is functional but does not connect to a real payment processor.',
+        a: 'We display this notice clearly to make it obvious that no real transaction is occurring. This is a TSA competition demo. The donation UI is functional but does not connect to a real payment processor.',
       },
       {
         q: 'What causes can I support?',
@@ -233,11 +233,11 @@ const SECTIONS = [
       },
       {
         q: 'What AI model is used?',
-        a: 'The resource moderator uses Groq\'s llama-3.1-8b-instant model — a fast, capable language model that evaluates submissions against a community standards prompt. If the API is unavailable, a rule-based fallback (checking name/description length and email validity) is used automatically.',
+        a: 'The resource moderator uses Groq\'s llama-3.1-8b-instant model, a fast and capable language model that evaluates submissions against a community standards prompt. If the API is unavailable, a rule-based fallback (checking name/description length and email validity) is used automatically.',
       },
       {
         q: 'Can I appeal an AI rejection?',
-        a: 'Not in the current version — but you can improve your submission and resubmit. The AI is not perfect, and occasionally valid resources may be flagged. If you believe the rejection was incorrect, try rewriting the description with more specific community-relevant details.',
+        a: 'Not in the current version, but you can improve your submission and resubmit. The AI is not perfect, and occasionally valid resources may be flagged. If you believe the rejection was incorrect, try rewriting the description with more specific community-relevant details.',
       },
     ],
   },
@@ -289,7 +289,7 @@ const SECTIONS = [
       },
       {
         q: 'Do settings persist after I close the browser?',
-        a: 'Yes — all settings are stored in your browser\'s localStorage and persist between sessions. Resetting to defaults clears this storage.',
+        a: 'Yes, all settings are stored in your browser\'s localStorage and persist between sessions. Resetting to defaults clears this storage.',
       },
     ],
   },
@@ -300,16 +300,16 @@ const SECTIONS = [
     title: 'Technical Issues',
     items: [
       {
-        q: 'The page isn\'t loading properly — what should I do?',
+        q: 'The page isn\'t loading properly. What should I do?',
         a: 'Try a hard refresh (Ctrl+Shift+R on Windows, Cmd+Shift+R on Mac). If issues persist, clear your browser cache or try a different browser. CommunityConnect works best in modern browsers (Chrome, Firefox, Edge, Safari).',
       },
       {
-        q: 'I\'m getting a sign-in error — what\'s wrong?',
-        a: 'Double-check your email and password. Passwords are case-sensitive. If you just signed up, Supabase may require email confirmation depending on project settings — try the judge credentials (judges@tsa.com / judges!) to verify the platform is working.',
+        q: 'I\'m getting a sign-in error. What\'s wrong?',
+        a: 'Double-check your email and password. Passwords are case-sensitive. If you just signed up, Supabase may require email confirmation depending on project settings. Try the judge credentials (judges@tsa.com / judges!) to verify the platform is working.',
       },
       {
-        q: 'The achievements I earned are gone — what happened?',
-        a: 'Achievements are stored in your browser\'s localStorage. If you cleared your browser data, switched browsers, or used private/incognito mode, they may be reset. This is a demo platform — persistent cloud storage for achievements is not implemented.',
+        q: 'The achievements I earned are gone. What happened?',
+        a: 'Achievements are stored in your browser\'s localStorage. If you cleared your browser data, switched browsers, or used private/incognito mode, they may be reset. This is a demo platform. Persistent cloud storage for achievements is not implemented.',
       },
       {
         q: 'Why aren\'t my Supabase features (Groups, Social, Lost & Found) working?',

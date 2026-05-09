@@ -280,7 +280,7 @@ export default function SettingsPage() {
                 })}
               </div>
             </div>
-            <SettingRow dk={dk} label={t('tog.dyslexia')} description="Switches to Lexend — a font proven to improve reading speed and reduce fatigue" active={settings.dyslexiaFont} onToggle={() => toggle('dyslexiaFont')} />
+            <SettingRow dk={dk} label={t('tog.dyslexia')} description="Switches to Lexend, a font proven to improve reading speed and reduce fatigue" active={settings.dyslexiaFont} onToggle={() => toggle('dyslexiaFont')} />
             <SettingRow dk={dk} label={t('tog.lineheight')} description="Adds extra space between lines to reduce visual crowding" active={settings.increasedLineHeight} onToggle={() => toggle('increasedLineHeight')} />
             <SettingRow dk={dk} label={t('tog.wordspacing')} description="Spreads words apart to improve reading comfort" active={settings.increasedWordSpacing} onToggle={() => toggle('increasedWordSpacing')} />
             <SettingRow dk={dk} label={t('tog.letterspacing')} description="Spreads characters apart to reduce letter crowding and improve clarity" active={settings.increasedLetterSpacing} onToggle={() => toggle('increasedLetterSpacing')} />
@@ -319,7 +319,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between mb-1">
                 <div>
                   <p className={`font-outfit font-semibold text-sm ${dk ? 'text-sky-100' : 'text-sky-900'}`}>{t('tog.grayscale')}</p>
-                  <p className={`font-outfit text-xs mt-0.5 ${dk ? 'text-sky-300/70' : 'text-sky-600'}`}>Removes all color — useful for photosensitivity or color-neutral viewing</p>
+                  <p className={`font-outfit text-xs mt-0.5 ${dk ? 'text-sky-300/70' : 'text-sky-600'}`}>Removes all color, useful for photosensitivity or color-neutral viewing</p>
                 </div>
                 <ToggleSwitch active={settings.grayscale > 0} onToggle={() => dispatch({ type: 'SET_GRAYSCALE', payload: settings.grayscale > 0 ? 0 : 100 })} dk={dk} />
               </div>
@@ -340,7 +340,7 @@ export default function SettingsPage() {
           {/* Motion & Interaction */}
           <SectionCard icon={Zap} iconColor="text-sky-500" iconBg="bg-sky-50" iconBgDk="bg-sky-900/40" title={t('sec.motion')} badgeCount={motionBadge} onLabel={onLabel} delay={0.15} dk={dk}>
             <SettingRow dk={dk} label={t('tog.reducemotion')} description="Cuts animations and transitions to near-zero for users sensitive to motion" active={settings.reducedMotion} onToggle={() => dispatch({ type: 'TOGGLE_REDUCED_MOTION' })} />
-            <SettingRow dk={dk} label={t('tog.focus')} description="Bold amber outlines on every focused element — critical for keyboard-only navigation" active={settings.focusIndicators} onToggle={() => toggle('focusIndicators')} />
+            <SettingRow dk={dk} label={t('tog.focus')} description="Bold amber outlines on every focused element, critical for keyboard-only navigation" active={settings.focusIndicators} onToggle={() => toggle('focusIndicators')} />
             <SettingRow dk={dk} label={t('tog.spotlight')} description="Dims everything except the currently focused element for distraction-free navigation" active={settings.focusSpotlight} onToggle={() => toggle('focusSpotlight')} />
             <SettingRow dk={dk} label={t('tog.targets')} description="Ensures all buttons and links meet the 44×44px minimum touch target for motor impairment" active={settings.largerClickTargets} onToggle={() => toggle('largerClickTargets')} />
             <SettingRow dk={dk} label={t('tog.focusring')} description="Keeps a visible focus outline on all focused elements regardless of input device" active={settings.alwaysFocusRing} onToggle={() => toggle('alwaysFocusRing')} />

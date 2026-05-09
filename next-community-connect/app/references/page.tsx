@@ -14,7 +14,8 @@ const checklistItems = [
   'Hero background images sourced from Unsplash (free license) and team-provided photos',
   'All community organization names and contact data reference real Bothell-area nonprofits (publicly available)',
   'No copyrighted logos, trademarks, or branded content are reproduced',
-  'No images from third-party sources are used without license verification',
+  'Profile photos for testimonials sourced from RandomUser.me (free for educational and non-commercial use)',
+  'Timeline and mission section photos sourced from Unsplash and Pexels (free license)',
   'All event data is fictional, created for competition demonstration purposes only',
 ]
 
@@ -40,6 +41,7 @@ const sources = [
   { resource: 'Resources page – parallax (cleanup4.jpg alt)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/3k3l2brxmwQ' },
   { resource: 'Resources page – parallax (library3.jpg alt)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/zeH-ljawHtg' },
   { resource: 'Resources page – parallax (garden2.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/bY_q4VodUc0' },
+  { resource: 'Testimonial profile photos (Maria, James, Aisha, Derek, Linda)', type: 'Photography', license: 'Free for educational use', url: 'randomuser.me' },
   { resource: 'Bothell, WA geographic and org data', type: 'Reference', license: 'Public domain', url: 'bothellwa.gov' },
   { resource: 'KCLS (King County Library System)', type: 'Reference', license: 'Public domain', url: 'kcls.org' },
   { resource: 'Northshore School District', type: 'Reference', license: 'Public domain', url: 'nsd.org' },

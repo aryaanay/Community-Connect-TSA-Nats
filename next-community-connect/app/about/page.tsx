@@ -4,15 +4,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
-import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap, Waves } from 'lucide-react'
+import { Lightbulb, Laptop, Handshake, Star, Users, Rocket, Heart, Shield, Zap } from 'lucide-react'
 
 const timeline = [
-  { year: '2019', title: 'The Idea Takes Root', description: 'Two Bothell residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb' },
-  { year: '2020', title: 'Launch & First Resources', description: 'The platform goes live with an initial set of hand-researched Bothell-area resources. During the pandemic, residents search for food assistance and health support.', icon: 'laptop' },
-  { year: '2022', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Bothell residents at community meetings and city events.', icon: 'handshake' },
-  { year: '2023', title: 'Growing Directory & First Events', description: 'The directory grows steadily. The first Community Resource Fair brings together local organizations and community members.', icon: 'star' },
-  { year: '2025', title: 'Volunteer Network Expands', description: 'Community volunteers sign up to help verify listings, run workshops, and support events. The platform becomes genuinely community-run.', icon: 'users' },
-  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Bothell residents using the platform monthly.', icon: 'rocket' },
+  { year: '2019', title: 'The Idea Takes Root', description: 'Two Bothell residents meet at a local hackathon and sketch out the first version of Community Connect. The goal is simple: one searchable list of every resource in town.', icon: 'lightbulb', image: '/img/optimized/library3.jpg' },
+  { year: '2020', title: 'Launch & First Resources', description: 'The platform goes live with an initial set of hand-researched Bothell-area resources. During the pandemic, residents search for food assistance and health support.', icon: 'laptop', image: '/img/optimized/foodpantry5.jpg' },
+  { year: '2022', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Bothell residents at community meetings and city events.', icon: 'handshake', image: '/img/optimized/heartwithhands6.jpg' },
+  { year: '2023', title: 'Growing Directory & First Events', description: 'The directory grows steadily. The first Community Resource Fair brings together local organizations and community members.', icon: 'star', image: '/img/optimized/community7.jpg' },
+  { year: '2025', title: 'Volunteer Network Expands', description: 'Community volunteers sign up to help verify listings, run workshops, and support events. The platform becomes genuinely community-run.', icon: 'users', image: '/img/optimized/cleanup4.jpg' },
+  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Bothell residents using the platform monthly.', icon: 'rocket', image: '/img/optimized/playground1.jpg' },
 ]
 
 const partners = [
@@ -79,8 +79,8 @@ export default function AboutPage() {
               viewport={{ once: true }} transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div className="aspect-[4/3] rounded-[var(--radius-lg)] bg-gradient-to-br from-sky-800 to-sky-500 flex items-center justify-center relative overflow-hidden">
-                <Waves className="w-24 h-24 text-white/15" />
+              <div className="aspect-[4/3] rounded-[var(--radius-lg)] relative overflow-hidden">
+                <img src="/img/optimized/community7.jpg" alt="Community members in Bothell, WA" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-sky-900/50 to-transparent" />
               </div>
               <div className="absolute bottom-7 right-[-20px] bg-white rounded-[var(--radius-md)] p-4 shadow-lg flex items-center gap-3 z-10">
@@ -199,9 +199,14 @@ export default function AboutPage() {
                 className={`relative grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14 ${i % 2 === 1 ? 'lg:direction-rtl' : ''}`}
               >
                 <div className={`${i % 2 === 0 ? 'lg:text-right' : 'lg:order-2'} lg:direction-ltr`}>
-                  <div className="bg-white border border-sky-100 rounded-[var(--radius-md)] p-5 hover:border-sky-200 hover:shadow-card transition-all">
-                    <h3 className="font-space font-bold text-base text-[var(--text-dark)] mb-2">{item.title}</h3>
-                    <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed m-0">{item.description}</p>
+                  <div className="bg-white border border-sky-100 rounded-[var(--radius-md)] overflow-hidden hover:border-sky-200 hover:shadow-card transition-all">
+                    {item.image && (
+                      <img src={item.image} alt={item.title} className="w-full h-32 object-cover" />
+                    )}
+                    <div className="p-5">
+                      <h3 className="font-space font-bold text-base text-[var(--text-dark)] mb-2">{item.title}</h3>
+                      <p className="font-outfit text-sm text-[var(--text-muted)] leading-relaxed m-0">{item.description}</p>
+                    </div>
                   </div>
                 </div>
                 <div className="hidden lg:flex lg:flex-col lg:items-center lg:direction-ltr">

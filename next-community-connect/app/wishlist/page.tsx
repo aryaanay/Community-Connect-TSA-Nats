@@ -269,7 +269,7 @@ function DonationModal({ cause, onClose, onDonate }: {
                 ← Back
               </button>
               <p style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
-                Pay via Zelle — <span style={{ color: cause.color }}>${finalAmount}</span> to {cause.title}
+                Pay via Zelle: <span style={{ color: cause.color }}>${finalAmount}</span> to {cause.title}
               </p>
               <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginBottom: '24px' }}>
                 Send the amount directly through your Zelle app using the info below.
@@ -280,7 +280,7 @@ function DonationModal({ cause, onClose, onDonate }: {
                 <p style={{ fontFamily: 'var(--font-space)', fontSize: '18px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
                   donate@communityconnect.org
                 </p>
-                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>Community Connect — {cause.title}</p>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>Community Connect: {cause.title}</p>
               </div>
 
               <button
@@ -297,7 +297,7 @@ function DonationModal({ cause, onClose, onDonate }: {
 
               <div className="rounded-xl p-4 mb-5" style={{ background: dark ? 'rgba(245,158,11,0.1)' : '#FFFBEB', border: '1px solid rgba(245,158,11,0.3)' }}>
                 <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dark ? '#FCD34D' : '#92400e', lineHeight: 1.6 }}>
-                  <strong>Demo mode:</strong> No real payment method is set up for this project. This is a simulation — no actual Zelle transfer is needed. Just click the button below to simulate your contribution.
+                  <strong>Demo mode:</strong> No real payment method is set up for this project. This is a simulation. No actual Zelle transfer is needed. Just click the button below to simulate your contribution.
                 </p>
               </div>
 
@@ -327,7 +327,7 @@ function DonationModal({ cause, onClose, onDonate }: {
                   <span style={{ fontSize: '20px', lineHeight: 1 }}>⚠️</span>
                   <div>
                     <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 700, color: dark ? '#FCD34D' : '#92400e', marginBottom: '6px' }}>
-                      Simulated Payment — Demo Only
+                      Simulated Payment (Demo Only)
                     </p>
                     <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dark ? '#FDE68A' : '#78350f', lineHeight: 1.6 }}>
                       No real payment method has been set up for this project demo. No actual charge will occur. Click below to simulate a successful donation.
@@ -453,7 +453,7 @@ function DonationModal({ cause, onClose, onDonate }: {
                   style={{ background: dark ? 'rgba(245,158,11,0.08)' : '#FFFBEB', border: '1px solid rgba(245,158,11,0.3)' }}>
                   <span style={{ fontSize: '13px' }}>⚠️</span>
                   <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: dark ? '#FDE68A' : '#92400e' }}>
-                    Demo mode — no real payment method is set up. Donations are simulated.
+                    Demo mode. No real payment method is set up. Donations are simulated.
                   </p>
                 </div>
 
@@ -695,7 +695,7 @@ export default function DonatePage() {
         },
       }))
       setUserDonations(prev => ({ ...prev, [selected.id]: (prev[selected.id] || 0) - amount }))
-      throw new Error('Donation failed — please try again.')
+      throw new Error('Donation failed. Please try again.')
     }
   }
 
