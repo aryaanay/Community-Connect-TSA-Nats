@@ -207,7 +207,7 @@ const dict: Record<Locale, Record<string, string>> = {
     // About sections
     'about.mission_eyebrow': 'Our Mission',
     'about.mission_heading': 'One place. Every resource. Zero confusion.',
-    'about.mission_p1': 'CommunityConnect was built because finding local help shouldn\'t be harder than the challenge itself. Whether you\'re looking for food assistance, job training, health services, or volunteer opportunities — everything is here, organized, verified, and up to date.',
+    'about.mission_p1': 'CommunityConnect was built because finding local help shouldn\'t be harder than the challenge itself. Whether you\'re looking for food assistance, job training, health services, or volunteer opportunities, everything is here, organized, verified, and up to date.',
     'about.mission_p2': 'We believe every Bothell resident deserves clear, fast access to the resources and community connections that can change their life. No confusing government websites. No outdated phone numbers. Just real help, right now.',
     'about.quote': '"Alone we can do so little; together we can do so much."',
     'about.quote_attr': '— Helen Keller',
