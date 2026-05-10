@@ -141,6 +141,7 @@ export default function LostFoundPage() {
     if (!isSignedIn) { setError('Sign in to post an item.'); return }
     if (!form.title.trim()) { setError('Title is required.'); return }
     if (aiApproval === 'rejected') { setError('Please remove the rejected photo before posting.'); return }
+    if (user!.id === 'demo-judge-001') { setError('The judge demo account cannot create posts.'); return }
     setError('')
     startTransition(async () => {
       let image_url: string | undefined
@@ -164,7 +165,7 @@ export default function LostFoundPage() {
         ...(image_url ? { image_url } : {}),
       })
       if (dbErr) {
-        setError('Failed to post. Make sure the lost_found table exists (see supabase/community_features.sql).')
+        setError(`Failed to post: ${dbErr.message} (code: ${dbErr.code})`)
         return
       }
       setForm(EMPTY_FORM)
