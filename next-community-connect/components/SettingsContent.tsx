@@ -273,6 +273,9 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
                 </button>
               ))}
             </div>
+            <p className={`mt-3 text-[11px] font-outfit ${dk ? 'text-sky-400/60' : 'text-sky-400'}`}>
+              Translations are in development — some pages may still appear in English.
+            </p>
           </motion.div>
 
           {/* Dark Mode */}
