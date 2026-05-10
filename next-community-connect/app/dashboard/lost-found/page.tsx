@@ -144,6 +144,9 @@ export default function LostFoundPage() {
     if (user!.id === 'demo-judge-001') { setError('The judge demo account cannot create posts.'); return }
     setError('')
     startTransition(async () => {
+      // Ensure session JWT is attached before writing
+      await supabase.auth.getSession()
+
       let image_url: string | undefined
       if (imageFile && aiApproval === 'approved') {
         try {
