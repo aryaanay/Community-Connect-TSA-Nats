@@ -44,13 +44,13 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.liquid-glass:hover {
+button.liquid-glass:hover, a.liquid-glass:hover {
   background:
     linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)),
     rgba(1,10,25,0.90);
 }
 
-.liquid-glass:active {
+button.liquid-glass:active, a.liquid-glass:active {
   background:
     linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)),
     rgba(2,39,71,0.85);
@@ -88,13 +88,13 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.liquid-glass-fixed:hover {
+button.liquid-glass-fixed:hover, a.liquid-glass-fixed:hover {
   background:
     linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.10)),
     rgba(2,39,71,0.80);
 }
 
-.liquid-glass-fixed:active {
+button.liquid-glass-fixed:active, a.liquid-glass-fixed:active {
   background:
     linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)),
     rgba(2,39,71,0.85);
