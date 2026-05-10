@@ -8,6 +8,7 @@ import { useAchievements } from '@/context/AchievementsContext'
 import { useT } from '@/lib/useT'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import { JudgeNotice } from '@/components/JudgeNotice'
 
 const CATEGORIES = ['Community', 'Volunteer', 'Education', 'Health', 'Donation', 'Social', 'Sports', 'Arts', 'Other']
 const EMOJIS     = ['📅','🌿','💻','🥫','🧥','🌱','💙','🎆','🎒','🎨','🏃','🤝','🎵','🍕','📚']
@@ -103,6 +104,8 @@ export default function CreateEventPage() {
   return (
     <div className="min-h-full px-4 sm:px-6 lg:px-8 py-8" style={{ background: 'linear-gradient(150deg,#011629 0%,#022747 60%,#011629 100%)' }}>
       <div className="max-w-2xl mx-auto">
+
+        <JudgeNotice action="create events" />
 
         <AnimatePresence mode="wait">
           {done ? (

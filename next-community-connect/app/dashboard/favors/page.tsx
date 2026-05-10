@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
 import { useT } from '@/lib/useT'
+import { JudgeNotice } from '@/components/JudgeNotice'
 
 type Favor = {
   id: string
@@ -140,6 +141,8 @@ export default function FavorsPage() {
     <div className="min-h-full px-4 sm:px-6 lg:px-8 py-8"
       style={{ background: 'linear-gradient(150deg,#011629 0%,#022747 60%,#011629 100%)' }}>
       <div className="max-w-3xl mx-auto space-y-5">
+
+        <JudgeNotice action="post or help with favors" />
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">

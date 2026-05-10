@@ -51,12 +51,12 @@ function Card3D({ achievement }: { achievement: Achievement }) {
           setRotX(currentX.current)
           setRotY(interpY)
         } else {
-          // Gentle sway — oscillates ±22° so back face is never visible
+          // Full 360° continuous spin
           const elapsed = (Date.now() - swayOrigin.current) / 1000
-          const sway = 22 * Math.sin(elapsed * 0.7)
+          const spin = elapsed * 220
           currentX.current += (0 - currentX.current) * 0.05
           setRotX(currentX.current)
-          setRotY(sway)
+          setRotY(spin)
         }
       }
       animRef.current = requestAnimationFrame(tick)
@@ -79,8 +79,8 @@ function Card3D({ achievement }: { achievement: Achievement }) {
         setHovered(false)
         setGlare({ x: 50, y: 50 })
         setFlashlight(f => ({ ...f, active: false }))
-        // Reset sway origin so it resumes smoothly from current angle
-        swayOrigin.current = Date.now() - (Math.asin(Math.max(-1, Math.min(1, rotY / 22))) / 0.7) * 1000
+        // Resume spin from current angle for continuity
+        swayOrigin.current = Date.now() - (rotY / 220) * 1000
       }}
       onClick={() => setFlipped(f => !f)}
     >
@@ -165,7 +165,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
 
             <p style={{ fontSize: 8.5, fontFamily: 'outfit,sans-serif',
               color: 'rgba(255,255,255,0.40)', textAlign: 'center', marginTop: 14 }}>
-              Click to flip · Hover to control
+              Click to flip · Hover for tilt
             </p>
           </div>
         </div>
