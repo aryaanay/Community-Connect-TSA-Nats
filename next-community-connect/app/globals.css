@@ -130,31 +130,34 @@
   background: linear-gradient(to left, #022747, transparent) !important;
 }
 
-/* Ticker card buttons in dark mode */
-[data-theme="dark"] .audience-ticker button {
+/* Ticker pills in dark mode */
+[data-theme="dark"] .ticker-pill {
   background: rgba(3,52,96,0.85) !important;
-  border-color: rgba(86,187,240,0.35) !important;
+  border-color: rgba(86,187,240,0.25) !important;
 }
 
-[data-theme="dark"] .audience-ticker button:hover {
+[data-theme="dark"] .ticker-pill:hover {
   background: rgba(4,64,105,0.95) !important;
-  border-color: rgba(86,187,240,0.6) !important;
+  border-color: rgba(86,187,240,0.55) !important;
+  box-shadow: 0 4px 16px rgba(86,187,240,0.12) !important;
 }
 
-[data-theme="dark"] .audience-ticker .font-syne {
-  color: #C6EBFF !important;
-}
-
-[data-theme="dark"] .audience-ticker .font-outfit {
+[data-theme="dark"] .ticker-icon {
+  background: rgba(4,64,105,0.7) !important;
+  border-color: rgba(86,187,240,0.35) !important;
   color: #90D4F7 !important;
 }
 
-[data-theme="dark"] .audience-ticker span.bg-sky-100 {
-  background-color: rgba(4,64,105,0.7) !important;
-  border-color: rgba(86,187,240,0.4) !important;
+[data-theme="dark"] .ticker-pill:hover .ticker-icon {
+  background: rgba(14,165,233,0.85) !important;
+  color: #fff !important;
 }
 
-[data-theme="dark"] .audience-ticker span.text-sky-700 {
+[data-theme="dark"] .ticker-label {
+  color: #C6EBFF !important;
+}
+
+[data-theme="dark"] .ticker-note {
   color: #90D4F7 !important;
 }
 

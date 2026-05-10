@@ -1,7 +1,6 @@
 'use client'
 
 import { Baby, Briefcase, GraduationCap, HandHeart, UserRound, UsersRound } from 'lucide-react'
-import { useSettings } from '@/context/SettingsContext'
 
 const audiences = [
   { Icon: Baby, label: 'Kids & Families', note: 'Programs, meals, care' },
@@ -14,76 +13,25 @@ const audiences = [
 
 export function MissionTicker() {
   const repeated = [...audiences, ...audiences, ...audiences, ...audiences]
-  const { settings } = useSettings()
-  const dark = settings.dark
 
   return (
-    <section
-      className="audience-ticker relative overflow-hidden border-y py-5 backdrop-blur-xl"
-      style={dark ? {
-        background: 'rgba(1,22,41,0.85)',
-        borderColor: 'rgba(86,187,240,0.15)',
-      } : {
-        background: 'rgba(240,249,255,0.80)',
-        borderColor: 'rgba(186,230,253,0.70)',
-      }}
-    >
-      <div
-        className="audience-ticker-fade-left pointer-events-none absolute inset-y-0 left-0 z-10 w-24"
-        style={{ background: dark
-          ? 'linear-gradient(to right, rgba(1,22,41,0.85), transparent)'
-          : 'linear-gradient(to right, rgb(240,249,255), transparent)'
-        }}
-      />
-      <div
-        className="audience-ticker-fade-right pointer-events-none absolute inset-y-0 right-0 z-10 w-24"
-        style={{ background: dark
-          ? 'linear-gradient(to left, rgba(1,22,41,0.85), transparent)'
-          : 'linear-gradient(to left, rgb(240,249,255), transparent)'
-        }}
-      />
+    <section className="audience-ticker relative overflow-hidden border-y border-sky-200/70 bg-sky-50/80 py-5 backdrop-blur-xl">
+      <div className="audience-ticker-fade-left pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-sky-50 to-transparent" />
+      <div className="audience-ticker-fade-right pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-sky-50 to-transparent" />
 
       <div className="group/ticker flex items-center gap-5 overflow-hidden">
         <div className="audience-marquee-track flex min-w-max items-center gap-4 whitespace-nowrap group-hover/ticker:[animation-play-state:paused]">
           {repeated.map(({ Icon, label, note }, i) => (
             <div
               key={`${label}-${i}`}
-              className="group/item inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-left shadow-sm backdrop-blur-xl transition-all duration-300 cursor-default select-none"
-              style={dark ? {
-                background: 'rgba(2,39,71,0.70)',
-                border: '1px solid rgba(86,187,240,0.20)',
-              } : {
-                background: 'rgba(255,255,255,0.75)',
-                border: '1px solid rgba(186,230,253,0.80)',
-              }}
+              className="ticker-pill group/item inline-flex items-center gap-3 rounded-2xl border border-sky-200/80 bg-white/75 px-5 py-3 text-left shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-sky-300 hover:bg-white hover:shadow-md hover:shadow-sky-500/10 cursor-default select-none"
             >
-              <span
-                className="flex h-10 w-10 items-center justify-center rounded-xl transition-all"
-                style={dark ? {
-                  background: 'rgba(14,116,144,0.25)',
-                  border: '1px solid rgba(86,187,240,0.25)',
-                  color: '#56BBF0',
-                } : {
-                  background: 'rgb(224,242,254)',
-                  border: '1px solid rgb(186,230,253)',
-                  color: 'rgb(3,105,161)',
-                }}
-              >
+              <span className="ticker-icon flex h-10 w-10 items-center justify-center rounded-xl border border-sky-200 bg-sky-100 text-sky-700 transition-all group-hover/item:bg-sky-500 group-hover/item:text-white">
                 <Icon className="h-5 w-5" strokeWidth={1.7} />
               </span>
               <span>
-                <span
-                  className="block font-syne text-sm font-bold"
-                  style={{ color: dark ? '#C6EBFF' : 'rgb(12,74,110)' }}
-                >
-                  {label}
-                </span>
-                <span
-                  className="block font-outfit text-xs"
-                  style={{ color: dark ? 'rgba(86,187,240,0.75)' : 'rgb(2,132,199)' }}
-                >
-                  {note}
-                </span>
+                <span className="ticker-label block font-syne text-sm font-bold text-sky-900">{label}</span>
+                <span className="ticker-note block font-outfit text-xs text-sky-600">{note}</span>
               </span>
             </div>
           ))}
