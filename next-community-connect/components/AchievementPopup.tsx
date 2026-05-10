@@ -53,7 +53,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
         } else {
           // Full 360° continuous spin
           const elapsed = (Date.now() - swayOrigin.current) / 1000
-          const spin = elapsed * 220
+          const spin = elapsed * 90
           currentX.current += (0 - currentX.current) * 0.05
           setRotX(currentX.current)
           setRotY(spin)
@@ -80,7 +80,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
         setGlare({ x: 50, y: 50 })
         setFlashlight(f => ({ ...f, active: false }))
         // Resume spin from current angle for continuity
-        swayOrigin.current = Date.now() - (rotY / 220) * 1000
+        swayOrigin.current = Date.now() - (rotY / 90) * 1000
       }}
       onClick={() => setFlipped(f => !f)}
     >

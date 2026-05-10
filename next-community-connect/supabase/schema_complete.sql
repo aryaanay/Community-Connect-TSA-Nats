@@ -57,7 +57,8 @@ CREATE POLICY "Users can update/delete own events"
   ON user_events FOR ALL USING ((auth.uid())::uuid = user_id);
 
 -- ──────────────────────────────────────────────
--- COMMUNITY GROUPS
+-- COMMUNITY GROUPS + MEMBERS
+-- (both tables created first, policies after)
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS community_groups (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -67,6 +68,19 @@ CREATE TABLE IF NOT EXISTS community_groups (
   created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE community_groups ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE IF NOT EXISTS group_members (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id   UUID REFERENCES community_groups(id) ON DELETE CASCADE,
+  user_id    UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  email      TEXT NOT NULL,
+  role       TEXT DEFAULT 'member',
+  added_at   TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(group_id, email)
+);
+ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
+
+-- community_groups policies (reference group_members, so group_members must exist first)
 DROP POLICY IF EXISTS "Groups viewable by members" ON community_groups;
 DROP POLICY IF EXISTS "Authenticated users can create groups" ON community_groups;
 DROP POLICY IF EXISTS "Creators can update/delete own groups" ON community_groups;
@@ -84,16 +98,7 @@ CREATE POLICY "Authenticated users can create groups"
 CREATE POLICY "Creators can update/delete own groups"
   ON community_groups FOR ALL USING ((auth.uid())::uuid = creator_id);
 
-CREATE TABLE IF NOT EXISTS group_members (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  group_id   UUID REFERENCES community_groups(id) ON DELETE CASCADE,
-  user_id    UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  email      TEXT NOT NULL,
-  role       TEXT DEFAULT 'member',
-  added_at   TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(group_id, email)
-);
-ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
+-- group_members policies
 DROP POLICY IF EXISTS "Members can view their own group memberships" ON group_members;
 DROP POLICY IF EXISTS "Admins can manage members" ON group_members;
 CREATE POLICY "Members can view their own group memberships"
