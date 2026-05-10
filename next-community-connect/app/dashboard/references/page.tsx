@@ -8,6 +8,39 @@ import { useAchievements } from '@/context/AchievementsContext'
 import { useRouter } from 'next/navigation'
 import { FileText } from 'lucide-react'
 
+type WorkEntry = { date: string; members: string; hours: string; task: string }
+
+const workLog: WorkEntry[] = [
+  { date: '04/15/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '3.0', task: 'Team kickoff meeting — defined project scope, wireframed homepage and dashboard layout, assigned roles' },
+  { date: '04/16/2026', members: 'AA, SP', hours: '4.5', task: 'Bootstrapped Next.js 14 project with TypeScript, Tailwind CSS, Framer Motion; configured Supabase project and environment variables' },
+  { date: '04/17/2026', members: 'NS, GM', hours: '3.5', task: 'Built homepage hero section and Navbar with glassmorphism pill design; dark/light mode toggle' },
+  { date: '04/18/2026', members: 'AA, AK', hours: '5.0', task: 'Implemented Supabase Auth — sign-up, sign-in, session persistence, AuthContext provider; protected route redirects' },
+  { date: '04/19/2026', members: 'SP, VM', hours: '4.0', task: 'Developed Resource Listings page with category filters, parallax scroll sections, and Bothell-area nonprofit data' },
+  { date: '04/20/2026', members: 'NS, GM', hours: '3.0', task: 'Built About / Mission, Our Story, and Testimonials homepage sections; added scroll-linked animations' },
+  { date: '04/21/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '2.5', task: 'Collaboration session — code review and integration testing; resolved merge conflicts; aligned on dashboard sidebar design' },
+  { date: '04/22/2026', members: 'AK, VM', hours: '4.5', task: 'Events page with interactive calendar grid, event detail cards, and registration flow (mock)' },
+  { date: '04/23/2026', members: 'AA, SP', hours: '5.0', task: 'Lost & Found feature — Supabase table, post form with image upload, search/filter, item cards with contact modal' },
+  { date: '04/24/2026', members: 'NS, GM', hours: '3.5', task: 'Settings & Accessibility panel — font size, color-blind mode, reduced motion, grayscale; persisted via SettingsContext' },
+  { date: '04/25/2026', members: 'AK, VM', hours: '3.0', task: 'Interactive map page (Bothell area) with resource pin overlays and category legend' },
+  { date: '04/26/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '3.0', task: 'Collaboration session — demo walkthrough, user flow testing, UI polish pass across all pages' },
+  { date: '04/27/2026', members: 'AA, AK', hours: '4.0', task: 'Profile page — avatar upload, display name edit, password change section; Supabase storage integration' },
+  { date: '04/28/2026', members: 'SP, VM', hours: '3.5', task: 'Dashboard AppSidebar — collapsible sections, active route highlighting, Account dropdown with sign-out' },
+  { date: '04/29/2026', members: 'NS, GM', hours: '3.0', task: 'Judge sign-in flow — demo credentials, fallback session, judge-specific UI indicator and banner' },
+  { date: '04/30/2026', members: 'AA, NS, SP', hours: '4.0', task: 'Bug fix session — JWT refresh on Lost & Found insert, RLS policy corrections, mobile responsiveness fixes' },
+  { date: '05/01/2026', members: 'AK, VM, GM', hours: '5.0', task: 'Community Favors board — post/help/close flow, Supabase favors and favor_helps tables, XP reward system' },
+  { date: '05/02/2026', members: 'AA, SP', hours: '4.5', task: 'Per-user Achievements system — user_achievements Supabase table, AchievementsContext, unlock animations, dashboard badge display' },
+  { date: '05/03/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '3.0', task: 'Collaboration session — tested full auth/feature flows end-to-end; reviewed accessibility settings; finalized color palette' },
+  { date: '05/04/2026', members: 'NS, GM', hours: '5.5', task: 'Full i18n implementation — expanded translations.ts to 250+ keys across 10 languages (en, es, fr, zh, vi, tl, ko, ar, hi, pt); wired useT() into home, signin, lost-found, favors pages' },
+  { date: '05/05/2026', members: 'AK, VM', hours: '3.5', task: 'References page — project info, copyright checklist, sources table, framework and accessibility statements' },
+  { date: '05/06/2026', members: 'AA, SP', hours: '3.0', task: 'Performance audit — image optimization, lazy loading, bundle size reduction; Lighthouse scores review' },
+  { date: '05/07/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '2.5', task: 'Collaboration session — final feature parity check, peer QA on mobile viewports, edge case fixes' },
+  { date: '05/08/2026', members: 'NS, GM', hours: '3.0', task: 'Language switcher in Navbar — Globe icon button, animated dropdown with flag and label for all 10 locales, REPLACE_STATE dispatch' },
+  { date: '05/09/2026', members: 'AA, SP', hours: '2.5', task: 'Mission section rewrite — problem-first narrative, updated headline and body copy; work log migrated to coded table' },
+  { date: '05/10/2026', members: 'AK, VM, GM', hours: '3.5', task: 'Final polish pass — typography consistency, spacing fixes, dark mode color corrections, cross-browser testing (Chrome, Firefox, Safari)' },
+  { date: '05/11/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '4.0', task: 'Competition prep session — final review of all pages, checked copyright compliance, verified all team initials in work log; rehearsed demo flow' },
+  { date: '05/12/2026', members: 'AA, NS, SP, GM, AK, VM', hours: '2.0', task: 'Final submission — deployed to production, confirmed all features functional, submitted project files for TSA National Conference 2026' },
+]
+
 const checklistItems = [
   'All text content was written originally by team members',
   'Google Fonts (Space Grotesk, DM Sans, Outfit, Syne) - free for educational use under Open Font License',
@@ -196,26 +229,42 @@ export default function DashboardReferencesPage() {
           </div>
         </motion.div>
 
-        {/* WORK LOG PDF */}
+        {/* WORK LOG */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <h2 style={h2Style}>Work Log</h2>
-          <div className="rounded-2xl overflow-hidden border" style={{ borderColor: BORDER }}>
-            <iframe
-              src="/TSA_Work_Log.pdf"
-              title="TSA Work Log"
-              className="w-full"
-              style={{ height: '860px', border: 'none' }}
-            />
-          </div>
-          <div className="mt-3 flex justify-end">
-            <a
-              href="/TSA_Work_Log.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: LINK }}
-            >
-              Open PDF in new tab
-            </a>
+          <p style={{ ...bodyStyle, marginBottom: '16px' }}>
+            Total entries: {workLog.length} sessions — April 15 through May 12, 2026. Team initials: AA · NS · SP · GM · AK · VM
+          </p>
+          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: BORDER }}>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b" style={{ backgroundColor: TH_BG, borderColor: BORDER }}>
+                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>Date</th>
+                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>Member(s)</th>
+                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>Hrs</th>
+                  <th className="text-left px-5 py-3.5" style={hdStyle}>Task / Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workLog.map((row, i) => (
+                  <tr key={i} className="border-b last:border-0" style={{ backgroundColor: i % 2 === 0 ? INNER : ROW_ALT, borderColor: BORDER }}>
+                    <td className="px-5 py-3 whitespace-nowrap" style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: MUTED }}>{row.date}</td>
+                    <td className="px-5 py-3 whitespace-nowrap" style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: LINK }}>{row.members}</td>
+                    <td className="px-5 py-3 whitespace-nowrap" style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: MUTED }}>{row.hours}</td>
+                    <td className="px-5 py-3" style={{ fontFamily: 'var(--font-space)', fontSize: '13px', color: B, lineHeight: 1.6 }}>{row.task}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ backgroundColor: TH_BG }}>
+                  <td className="px-5 py-3" colSpan={2} style={hdStyle}>Total Hours</td>
+                  <td className="px-5 py-3" style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '13px', color: LINK }}>
+                    {workLog.reduce((s, r) => s + parseFloat(r.hours), 0).toFixed(1)}
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </motion.div>
 

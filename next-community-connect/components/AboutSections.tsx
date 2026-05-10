@@ -184,19 +184,22 @@ export function AboutSections() {
               viewport={{ once: true }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
               <span className="section-eyebrow">Our Mission</span>
-              <h2 className="section-heading mb-4">Connecting people to the help they need</h2>
+              <h2 className="section-heading mb-4">One place. Every resource. Zero confusion.</h2>
               <p className="font-outfit text-base text-[var(--text-body)] leading-relaxed mb-4">
-                Community Connect is a free, volunteer-powered platform that makes it easy to find, share, and promote local services, programs, and organizations that uplift residents of all backgrounds.
+                Our community was drowning in noise. Facebook groups, flyers, scattered websites, email chains — residents needed five different apps just to figure out what was happening two blocks away. Critical resources went unnoticed. Neighbors who needed help couldn&apos;t find it. The information existed, but no one could reach it.
               </p>
               <p className="font-outfit text-base text-[var(--text-body)] leading-relaxed mb-6">
-                We saw firsthand how many people had no idea about the resources right here in the Pacific Northwest: food banks, free tutoring, mental health support, and volunteer programs. The reason was simple. There was no single place to look. We built that place.
+                So we built the fix. Community Connect is a single, unified hub where everything lives — local resources, lost &amp; found, community favors, events, and more. No more hunting through ten platforms. No more falling through the cracks. Just one place, built for the people who call this community home.
               </p>
               <div className="border-l-4 border-sky-400 bg-sky-50 rounded-r-xl p-5 mb-6">
                 <p
-                  className="font-dm-sans text-base leading-relaxed italic m-0"
+                  className="font-dm-sans text-base leading-relaxed italic m-0 mb-2"
                   style={{ color: dk ? '#BAE6FD' : '#1e3a5f' }}
                 >
-                  &ldquo;No one should fall through the cracks just because they didn&apos;t know where to look. That&apos;s why Community Connect exists.&rdquo;
+                  &ldquo;Alone we can do so little; together we can do so much.&rdquo;
+                </p>
+                <p className="font-outfit text-sm font-semibold m-0" style={{ color: dk ? '#90D4F7' : '#2499D6' }}>
+                  — Helen Keller
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">

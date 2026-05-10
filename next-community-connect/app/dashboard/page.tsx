@@ -71,6 +71,31 @@ const UPCOMING_EVENTS = [
   { emoji: '🥫', name: 'Northshore Food Drive', date: 'May 16', time: '9am–4pm', location: 'Kenmore' },
 ]
 
+// ── Time-of-day theming ──────────────────────────────────────────────────────
+type Phase = 'night' | 'dawn' | 'morning' | 'afternoon' | 'dusk' | 'evening'
+
+function getPhase(hour: number): Phase {
+  if (hour < 5)  return 'night'
+  if (hour < 7)  return 'dawn'
+  if (hour < 12) return 'morning'
+  if (hour < 17) return 'afternoon'
+  if (hour < 20) return 'dusk'
+  return 'evening'
+}
+
+const PHASE_THEME: Record<Phase, {
+  pageBg: string
+  rayColor: string | null
+  orb1: string; orb2: string; orb3: string
+}> = {
+  night:     { pageBg: 'linear-gradient(150deg,#01080f 0%,#010d1c 55%,#01080f 100%)', rayColor: null,                   orb1:'rgba(80,50,210,0.22)',  orb2:'rgba(50,20,170,0.13)', orb3:'rgba(110,60,240,0.1)' },
+  dawn:      { pageBg: 'linear-gradient(155deg,#0f0703 0%,#1e0e07 42%,#0c1422 100%)', rayColor:'rgba(255,155,55,0.06)', orb1:'rgba(255,115,35,0.24)', orb2:'rgba(255,185,70,0.14)',orb3:'rgba(220,80,20,0.1)'  },
+  morning:   { pageBg: 'linear-gradient(150deg,#011629 0%,#022747 60%,#011629 100%)', rayColor:'rgba(255,225,110,0.05)',orb1:'rgba(36,153,214,0.24)', orb2:'rgba(255,215,85,0.14)',orb3:'rgba(56,189,248,0.1)'  },
+  afternoon: { pageBg: 'linear-gradient(150deg,#011829 0%,#02325e 60%,#011829 100%)', rayColor:'rgba(175,235,255,0.04)',orb1:'rgba(36,153,214,0.30)', orb2:'rgba(86,187,240,0.17)',orb3:'rgba(56,189,248,0.13)' },
+  dusk:      { pageBg: 'linear-gradient(155deg,#0e0702 0%,#1b0d04 38%,#100919 100%)', rayColor:'rgba(255,105,35,0.06)', orb1:'rgba(255,90,18,0.26)',  orb2:'rgba(205,55,115,0.15)',orb3:'rgba(255,145,40,0.1)'  },
+  evening:   { pageBg: 'linear-gradient(150deg,#06011a 0%,#0d051e 52%,#06011a 100%)', rayColor: null,                   orb1:'rgba(115,45,215,0.22)', orb2:'rgba(75,20,175,0.14)', orb3:'rgba(150,65,230,0.1)'  },
+}
+
 const IMPACT_FACTS = [
   { icon: CheckCircle2, text: 'Every resource is reviewed before publishing' },
   { icon: Star, text: 'Built by community members, for community members' },
@@ -123,6 +148,10 @@ export default function DashboardPage() {
 
   const h = new Date().getHours()
   const greeting = h < 12 ? t('dash.morning') : h < 17 ? t('dash.afternoon') : t('dash.evening')
+  const phase = getPhase(h)
+  const theme = PHASE_THEME[phase]
+  const showRays  = theme.rayColor !== null
+  const showStars = phase === 'night' || phase === 'evening'
 
   if (loading || !mounted) {
     return (
@@ -140,7 +169,7 @@ export default function DashboardPage() {
     <div
       ref={scrollRef}
       className="min-h-full px-4 sm:px-6 lg:px-8 py-8"
-      style={{ background: 'linear-gradient(150deg, #011629 0%, #022747 60%, #011629 100%)' }}
+      style={{ background: theme.pageBg, transition: 'background 1s ease' }}
     >
       <div className="max-w-6xl mx-auto space-y-6">
 
@@ -151,19 +180,11 @@ export default function DashboardPage() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         >
           <Card className="p-6 sm:p-8 relative overflow-hidden">
-            {/* Static base gradient */}
-            <div
-              className="pointer-events-none absolute inset-0 opacity-30"
-              style={{
-                background:
-                  'radial-gradient(circle at 80% 50%, rgba(36,153,214,0.25) 0%, transparent 60%), radial-gradient(circle at 20% 80%, rgba(86,187,240,0.15) 0%, transparent 50%)',
-              }}
-            />
-            {/* Parallax orbs — shift based on scroll position */}
+            {/* Parallax orbs — colors follow time of day */}
             <motion.div
               className="pointer-events-none absolute w-64 h-64 rounded-full"
               style={{
-                background: 'radial-gradient(circle, rgba(36,153,214,0.18) 0%, transparent 70%)',
+                background: `radial-gradient(circle, ${theme.orb1} 0%, transparent 70%)`,
                 top: '-40%', right: '-5%',
                 transform: `translateY(${scrollY * 0.25}px)`,
               }}
@@ -173,7 +194,7 @@ export default function DashboardPage() {
             <motion.div
               className="pointer-events-none absolute w-44 h-44 rounded-full"
               style={{
-                background: 'radial-gradient(circle, rgba(86,187,240,0.12) 0%, transparent 70%)',
+                background: `radial-gradient(circle, ${theme.orb2} 0%, transparent 70%)`,
                 bottom: '-30%', right: '30%',
                 transform: `translateY(${scrollY * 0.15}px)`,
               }}
@@ -183,13 +204,64 @@ export default function DashboardPage() {
             <motion.div
               className="pointer-events-none absolute w-32 h-32 rounded-full"
               style={{
-                background: 'radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)',
+                background: `radial-gradient(circle, ${theme.orb3} 0%, transparent 70%)`,
                 top: '20%', left: '-5%',
                 transform: `translateY(${-scrollY * 0.2}px)`,
               }}
               animate={{ scale: [1, 1.15, 1] }}
               transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
             />
+
+            {/* ── Sun rays (dawn / morning / afternoon / dusk) ─────────────── */}
+            {showRays && (
+              <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                {[0, 1, 2, 3, 4].map(i => (
+                  <motion.div
+                    key={i}
+                    className="absolute"
+                    style={{
+                      top: '-70%',
+                      left: `${-20 + i * 22}%`,
+                      width: '13%',
+                      height: '240%',
+                      background: `linear-gradient(180deg, transparent 0%, ${theme.rayColor} 35%, ${theme.rayColor} 65%, transparent 100%)`,
+                      transform: 'rotate(-18deg)',
+                      transformOrigin: 'top center',
+                    }}
+                    animate={{ opacity: [0.45, 1, 0.45] }}
+                    transition={{ duration: 5 + i * 1.3, repeat: Infinity, ease: 'easeInOut', delay: i * 0.85 }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* ── Starfield + moon glow (night / evening) ──────────────────── */}
+            {showStars && (
+              <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    top: '-15%', right: '12%',
+                    width: '200px', height: '200px',
+                    background: 'radial-gradient(circle, rgba(200,225,255,0.07) 0%, transparent 70%)',
+                  }}
+                />
+                {Array.from({ length: 36 }, (_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute rounded-full bg-white"
+                    style={{
+                      left: `${(i * 37 + 13) % 95}%`,
+                      top:  `${(i * 53 + 7)  % 72}%`,
+                      width:  i % 3 === 0 ? 2 : 1,
+                      height: i % 3 === 0 ? 2 : 1,
+                    }}
+                    animate={{ opacity: [0.12 + (i % 5) * 0.06, 0.32 + (i % 5) * 0.08, 0.12 + (i % 5) * 0.06] }}
+                    transition={{ duration: 2 + (i % 4), repeat: Infinity, ease: 'easeInOut', delay: (i % 7) * 0.35 }}
+                  />
+                ))}
+              </div>
+            )}
             <div className="relative">
               <p className="font-outfit text-sm text-sky-300/70 mb-1">{greeting},</p>
               <h1 className="font-syne text-2xl sm:text-3xl font-bold text-white mb-2">

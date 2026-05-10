@@ -1,12 +1,25 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
-import { Menu, X, Settings, Sun, Moon } from 'lucide-react'
+import { Menu, X, Settings, Sun, Moon, Globe } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
+
+const LANGUAGES = [
+  { code: 'en', label: 'English',    flag: '🇺🇸' },
+  { code: 'es', label: 'Español',    flag: '🇪🇸' },
+  { code: 'fr', label: 'Français',   flag: '🇫🇷' },
+  { code: 'zh', label: '中文',        flag: '🇨🇳' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'tl', label: 'Filipino',   flag: '🇵🇭' },
+  { code: 'ko', label: '한국어',      flag: '🇰🇷' },
+  { code: 'ar', label: 'العربية',    flag: '🇸🇦' },
+  { code: 'hi', label: 'हिन्दी',     flag: '🇮🇳' },
+  { code: 'pt', label: 'Português',  flag: '🇧🇷' },
+]
 
 const SCROLL_LINKS = [
   { label: 'Mission',      id: 'mission' },
@@ -23,11 +36,24 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [expanded, setExpanded] = useState(false)   // user manually re-opened pill
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const { isSignedIn, signOut } = useAuth()
   const { settings, dispatch } = useSettings()
   const isDark = settings.dark
   const isHome = pathname === '/'
+  const currentLang = LANGUAGES.find(l => l.code === settings.language) ?? LANGUAGES[0]
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false)
+      }
+    }
+    if (langOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [langOpen])
 
   useEffect(() => {
     const handle = () => {
@@ -136,7 +162,7 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* ─── Right: dark mode + settings + auth ──────────────────────── */}
+          {/* ─── Right: dark mode + lang + settings + auth ──────────────── */}
           <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
@@ -145,6 +171,45 @@ export function Navbar() {
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
+
+            {/* Language picker */}
+            <div ref={langRef} className="relative">
+              <button
+                onClick={() => setLangOpen(v => !v)}
+                className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
+                aria-label="Change language"
+              >
+                <Globe size={14} />
+              </button>
+              <AnimatePresence>
+                {langOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.15, ease: EASE }}
+                    className="absolute right-0 top-12 liquid-glass rounded-2xl overflow-hidden min-w-[160px] z-50"
+                  >
+                    {LANGUAGES.map(({ code, label, flag }) => (
+                      <button
+                        key={code}
+                        onClick={() => {
+                          dispatch({ type: 'REPLACE_STATE', payload: { ...settings, language: code } })
+                          setLangOpen(false)
+                        }}
+                        className={`w-full flex items-center gap-2.5 px-4 py-2.5 font-outfit text-sm transition-colors text-left
+                          ${settings.language === code
+                            ? 'text-sky-300 bg-white/10'
+                            : 'text-white/75 hover:text-white hover:bg-white/8'}`}
+                      >
+                        <span className="text-base leading-none">{flag}</span>
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <Link
               href="/settings"
