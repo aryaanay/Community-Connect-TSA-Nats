@@ -23,7 +23,7 @@ DROP POLICY IF EXISTS "Users manage own profile" ON profiles;
 CREATE POLICY "Public profiles are viewable by everyone"
   ON profiles FOR SELECT USING (is_public = true);
 CREATE POLICY "Users manage own profile"
-  ON profiles FOR ALL USING ((auth.uid())::uuid = user_id);
+  ON profiles FOR ALL USING (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- USER-CREATED EVENTS
@@ -50,11 +50,11 @@ DROP POLICY IF EXISTS "Public events visible to all" ON user_events;
 DROP POLICY IF EXISTS "Authenticated users can insert events" ON user_events;
 DROP POLICY IF EXISTS "Users can update/delete own events" ON user_events;
 CREATE POLICY "Public events visible to all"
-  ON user_events FOR SELECT USING (is_public = true OR (auth.uid())::uuid = user_id);
+  ON user_events FOR SELECT USING (is_public = true OR user_id::text = auth.uid()::text);
 CREATE POLICY "Authenticated users can insert events"
-  ON user_events FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+  ON user_events FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
 CREATE POLICY "Users can update/delete own events"
-  ON user_events FOR ALL USING ((auth.uid())::uuid = user_id);
+  ON user_events FOR ALL USING (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- COMMUNITY GROUPS + MEMBERS
@@ -86,30 +86,30 @@ DROP POLICY IF EXISTS "Authenticated users can create groups" ON community_group
 DROP POLICY IF EXISTS "Creators can update/delete own groups" ON community_groups;
 CREATE POLICY "Groups viewable by members"
   ON community_groups FOR SELECT USING (
-    (auth.uid())::uuid = creator_id OR
+    creator_id::text = auth.uid()::text OR
     EXISTS (
       SELECT 1 FROM group_members gm
       WHERE gm.group_id = community_groups.id
-        AND gm.user_id = (auth.uid())::uuid
+        AND gm.user_id::text = auth.uid()::text
     )
   );
 CREATE POLICY "Authenticated users can create groups"
-  ON community_groups FOR INSERT WITH CHECK ((auth.uid())::uuid = creator_id);
+  ON community_groups FOR INSERT WITH CHECK (creator_id::text = auth.uid()::text);
 CREATE POLICY "Creators can update/delete own groups"
-  ON community_groups FOR ALL USING ((auth.uid())::uuid = creator_id);
+  ON community_groups FOR ALL USING (creator_id::text = auth.uid()::text);
 
 -- group_members policies
 DROP POLICY IF EXISTS "Members can view their own group memberships" ON group_members;
 DROP POLICY IF EXISTS "Admins can manage members" ON group_members;
 CREATE POLICY "Members can view their own group memberships"
   ON group_members FOR SELECT USING (
-    (auth.uid())::uuid = user_id OR
-    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id = (auth.uid())::uuid)
+    user_id::text = auth.uid()::text OR
+    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id::text = auth.uid()::text)
   );
 CREATE POLICY "Admins can manage members"
   ON group_members FOR ALL USING (
-    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id = (auth.uid())::uuid)
-    OR (auth.uid())::uuid = user_id
+    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id::text = auth.uid()::text)
+    OR user_id::text = auth.uid()::text
   );
 
 -- ──────────────────────────────────────────────
@@ -135,9 +135,9 @@ DROP POLICY IF EXISTS "Users can update/resolve own items" ON lost_found;
 CREATE POLICY "Lost & Found items viewable by everyone"
   ON lost_found FOR SELECT USING (true);
 CREATE POLICY "Authenticated users can post items"
-  ON lost_found FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+  ON lost_found FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
 CREATE POLICY "Users can update/resolve own items"
-  ON lost_found FOR UPDATE USING ((auth.uid())::uuid = user_id);
+  ON lost_found FOR UPDATE USING (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- OFFICIAL EVENTS (curated)
@@ -176,11 +176,11 @@ DROP POLICY IF EXISTS "RSVPs viewable by owner" ON event_rsvps;
 DROP POLICY IF EXISTS "Authenticated users can RSVP" ON event_rsvps;
 DROP POLICY IF EXISTS "Users can remove own RSVP" ON event_rsvps;
 CREATE POLICY "RSVPs viewable by owner"
-  ON event_rsvps FOR SELECT USING ((auth.uid())::uuid = user_id);
+  ON event_rsvps FOR SELECT USING (user_id::text = auth.uid()::text);
 CREATE POLICY "Authenticated users can RSVP"
-  ON event_rsvps FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+  ON event_rsvps FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
 CREATE POLICY "Users can remove own RSVP"
-  ON event_rsvps FOR DELETE USING ((auth.uid())::uuid = user_id);
+  ON event_rsvps FOR DELETE USING (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- RESOURCES
@@ -280,9 +280,9 @@ ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view own donations" ON donations;
 DROP POLICY IF EXISTS "Authenticated users can donate" ON donations;
 CREATE POLICY "Users can view own donations"
-  ON donations FOR SELECT USING ((auth.uid())::uuid = user_id);
+  ON donations FOR SELECT USING (user_id::text = auth.uid()::text);
 CREATE POLICY "Authenticated users can donate"
-  ON donations FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+  ON donations FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- USER ACHIEVEMENTS
@@ -299,11 +299,11 @@ DROP POLICY IF EXISTS "Users can view own achievements" ON user_achievements;
 DROP POLICY IF EXISTS "Users can insert own achievements" ON user_achievements;
 DROP POLICY IF EXISTS "Users can delete own achievements" ON user_achievements;
 CREATE POLICY "Users can view own achievements"
-  ON user_achievements FOR SELECT USING ((auth.uid())::uuid = user_id);
+  ON user_achievements FOR SELECT USING (user_id::text = auth.uid()::text);
 CREATE POLICY "Users can insert own achievements"
-  ON user_achievements FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+  ON user_achievements FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
 CREATE POLICY "Users can delete own achievements"
-  ON user_achievements FOR DELETE USING ((auth.uid())::uuid = user_id);
+  ON user_achievements FOR DELETE USING (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- COMMUNITY FAVORS
@@ -327,9 +327,9 @@ DROP POLICY IF EXISTS "Owners can update favors" ON favors;
 CREATE POLICY "Favors viewable by everyone"
   ON favors FOR SELECT USING (true);
 CREATE POLICY "Authenticated users can post favors"
-  ON favors FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+  ON favors FOR INSERT WITH CHECK (user_id::text = auth.uid()::text);
 CREATE POLICY "Owners can update favors"
-  ON favors FOR UPDATE USING ((auth.uid())::uuid = user_id);
+  ON favors FOR UPDATE USING (user_id::text = auth.uid()::text);
 
 -- ──────────────────────────────────────────────
 -- FAVOR HELPS
@@ -347,8 +347,8 @@ DROP POLICY IF EXISTS "Helper can view own help records" ON favor_helps;
 DROP POLICY IF EXISTS "Authenticated users can offer help" ON favor_helps;
 DROP POLICY IF EXISTS "Helpers can withdraw help" ON favor_helps;
 CREATE POLICY "Helper can view own help records"
-  ON favor_helps FOR SELECT USING ((auth.uid())::uuid = helper_id);
+  ON favor_helps FOR SELECT USING (helper_id::text = auth.uid()::text);
 CREATE POLICY "Authenticated users can offer help"
-  ON favor_helps FOR INSERT WITH CHECK ((auth.uid())::uuid = helper_id);
+  ON favor_helps FOR INSERT WITH CHECK (helper_id::text = auth.uid()::text);
 CREATE POLICY "Helpers can withdraw help"
-  ON favor_helps FOR DELETE USING ((auth.uid())::uuid = helper_id);
+  ON favor_helps FOR DELETE USING (helper_id::text = auth.uid()::text);
