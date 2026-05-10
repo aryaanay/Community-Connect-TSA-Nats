@@ -29,11 +29,16 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'polyglot',               emoji: '🌐', title: 'Polyglot',                description: 'Changed the app language to explore new cultures.',              rarity: 'common',    xp: 50  },
   { id: 'accessibility_advocate', emoji: '♿', title: 'Accessibility Advocate',  description: 'Enabled an accessibility feature for more inclusive use.',       rarity: 'uncommon',  xp: 75  },
   { id: 'full_explorer',          emoji: '🏘️', title: 'Full Explorer',          description: 'Visited every section of the CommunityConnect dashboard.',       rarity: 'rare',      xp: 300 },
+  { id: 'favor_posted',           emoji: '📋', title: 'Help Wanted',             description: 'Posted your first favor request to the community.',                rarity: 'common',    xp: 50  },
+  { id: 'first_helper',           emoji: '🤝', title: 'Good Neighbor',           description: 'Offered to help with your first community favor.',                 rarity: 'common',    xp: 75  },
+  { id: 'helper_3',               emoji: '💪', title: 'Reliable Helper',         description: 'Helped out with 3 community favors.',                             rarity: 'uncommon',  xp: 150 },
+  { id: 'helper_10',              emoji: '🌟', title: 'Community Hero',          description: 'Helped out with 10 community favors.',                            rarity: 'rare',      xp: 350 },
+  { id: 'super_helper',           emoji: '👑', title: 'Legend of the Community', description: 'Helped out with 25 community favors.',                            rarity: 'legendary', xp: 1000},
 ]
 
 export const TOTAL_POSSIBLE_XP = ACHIEVEMENTS.reduce((s, a) => s + a.xp, 0)
 
-const EXPLORER_PAGES = ['resources', 'events', 'map', 'submit', 'wishlist', 'settings']
+const EXPLORER_PAGES = ['resources', 'events', 'map', 'submit', 'wishlist', 'settings', 'favors']
 
 function visitedKey(userId: string) { return `cc-visited-pages-${userId}` }
 function localKey(userId: string)   { return `cc-achievements-${userId}` }

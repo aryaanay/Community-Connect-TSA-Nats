@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
   Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, Map,
-  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X, FileText,
+  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X, FileText, HandHeart,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
@@ -43,6 +43,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/dashboard/social',      icon: Users2,        key: 'nav.social'    },
       { href: '/dashboard/groups',      icon: Layers,        key: 'nav.groups'    },
       { href: '/dashboard/lost-found',  icon: PackageSearch, key: 'nav.lostfound' },
+      { href: '/dashboard/favors',       icon: HandHeart,     key: 'nav.favors'    },
     ],
   },
   {
