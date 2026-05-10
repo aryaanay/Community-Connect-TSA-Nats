@@ -1,11 +1,141 @@
 -- ============================================================
--- Community Connect — Complete Supabase Schema
--- Paste this entire file into your Supabase SQL Editor and Run.
--- Safe to run multiple times (uses IF NOT EXISTS + ON CONFLICT).
+-- Community Connect — Full Supabase Schema (all tables)
+-- Paste this entire file into Supabase SQL Editor and Run.
+-- Safe to re-run: uses IF NOT EXISTS, DROP POLICY IF EXISTS,
+-- and ON CONFLICT DO NOTHING for seed data.
 -- ============================================================
 
 -- ──────────────────────────────────────────────
--- EVENTS (official curated events)
+-- PROFILES
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS profiles (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  display_name  TEXT NOT NULL,
+  email         TEXT NOT NULL,
+  bio           TEXT,
+  is_public     BOOLEAN DEFAULT true,
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON profiles;
+DROP POLICY IF EXISTS "Users manage own profile" ON profiles;
+CREATE POLICY "Public profiles are viewable by everyone"
+  ON profiles FOR SELECT USING (is_public = true);
+CREATE POLICY "Users manage own profile"
+  ON profiles FOR ALL USING ((auth.uid())::uuid = user_id);
+
+-- ──────────────────────────────────────────────
+-- USER-CREATED EVENTS
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS user_events (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id        UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  creator_email  TEXT,
+  title          TEXT NOT NULL,
+  description    TEXT,
+  date           TEXT NOT NULL,
+  time           TEXT,
+  location       TEXT,
+  lat            DECIMAL,
+  lng            DECIMAL,
+  category       TEXT DEFAULT 'Community',
+  emoji          TEXT DEFAULT '📅',
+  is_public      BOOLEAN DEFAULT true,
+  invite_emails  TEXT[],
+  created_at     TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE user_events ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public events visible to all" ON user_events;
+DROP POLICY IF EXISTS "Authenticated users can insert events" ON user_events;
+DROP POLICY IF EXISTS "Users can update/delete own events" ON user_events;
+CREATE POLICY "Public events visible to all"
+  ON user_events FOR SELECT USING (is_public = true OR (auth.uid())::uuid = user_id);
+CREATE POLICY "Authenticated users can insert events"
+  ON user_events FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+CREATE POLICY "Users can update/delete own events"
+  ON user_events FOR ALL USING ((auth.uid())::uuid = user_id);
+
+-- ──────────────────────────────────────────────
+-- COMMUNITY GROUPS
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS community_groups (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  creator_id   UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name         TEXT NOT NULL,
+  description  TEXT,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE community_groups ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Groups viewable by members" ON community_groups;
+DROP POLICY IF EXISTS "Authenticated users can create groups" ON community_groups;
+DROP POLICY IF EXISTS "Creators can update/delete own groups" ON community_groups;
+CREATE POLICY "Groups viewable by members"
+  ON community_groups FOR SELECT USING (
+    (auth.uid())::uuid = creator_id OR
+    EXISTS (
+      SELECT 1 FROM group_members gm
+      WHERE gm.group_id = community_groups.id
+        AND gm.user_id = (auth.uid())::uuid
+    )
+  );
+CREATE POLICY "Authenticated users can create groups"
+  ON community_groups FOR INSERT WITH CHECK ((auth.uid())::uuid = creator_id);
+CREATE POLICY "Creators can update/delete own groups"
+  ON community_groups FOR ALL USING ((auth.uid())::uuid = creator_id);
+
+CREATE TABLE IF NOT EXISTS group_members (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id   UUID REFERENCES community_groups(id) ON DELETE CASCADE,
+  user_id    UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  email      TEXT NOT NULL,
+  role       TEXT DEFAULT 'member',
+  added_at   TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(group_id, email)
+);
+ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Members can view their own group memberships" ON group_members;
+DROP POLICY IF EXISTS "Admins can manage members" ON group_members;
+CREATE POLICY "Members can view their own group memberships"
+  ON group_members FOR SELECT USING (
+    (auth.uid())::uuid = user_id OR
+    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id = (auth.uid())::uuid)
+  );
+CREATE POLICY "Admins can manage members"
+  ON group_members FOR ALL USING (
+    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id = (auth.uid())::uuid)
+    OR (auth.uid())::uuid = user_id
+  );
+
+-- ──────────────────────────────────────────────
+-- LOST & FOUND
+-- ──────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS lost_found (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  type            TEXT NOT NULL CHECK (type IN ('lost', 'found')),
+  title           TEXT NOT NULL,
+  description     TEXT,
+  location        TEXT,
+  contact_email   TEXT,
+  contact_phone   TEXT,
+  date_occurred   TEXT,
+  status          TEXT DEFAULT 'open' CHECK (status IN ('open', 'resolved')),
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE lost_found ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lost & Found items viewable by everyone" ON lost_found;
+DROP POLICY IF EXISTS "Authenticated users can post items" ON lost_found;
+DROP POLICY IF EXISTS "Users can update/resolve own items" ON lost_found;
+CREATE POLICY "Lost & Found items viewable by everyone"
+  ON lost_found FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can post items"
+  ON lost_found FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
+CREATE POLICY "Users can update/resolve own items"
+  ON lost_found FOR UPDATE USING ((auth.uid())::uuid = user_id);
+
+-- ──────────────────────────────────────────────
+-- OFFICIAL EVENTS (curated)
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS events (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -48,7 +178,7 @@ CREATE POLICY "Users can remove own RSVP"
   ON event_rsvps FOR DELETE USING ((auth.uid())::uuid = user_id);
 
 -- ──────────────────────────────────────────────
--- RESOURCES (community resource directory)
+-- RESOURCES
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS resources (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -80,7 +210,7 @@ CREATE POLICY "Admins can delete resources"
   ON resources FOR DELETE USING (auth.uid() IS NOT NULL);
 
 -- ──────────────────────────────────────────────
--- SUBMISSIONS (pending resource review)
+-- SUBMISSIONS
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS submissions (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -121,7 +251,6 @@ CREATE POLICY "Causes viewable by everyone"
 CREATE POLICY "Authenticated users can update causes"
   ON wishlist_causes FOR UPDATE USING (auth.uid() IS NOT NULL);
 
--- Seed the causes (safe to re-run)
 INSERT INTO wishlist_causes (cause_name, current_amount, supporter_count, goal_amount) VALUES
   ('Community Food Bank',        1240, 31, 5000),
   ('Youth Arts Program',          870, 22, 3000),
@@ -133,7 +262,7 @@ INSERT INTO wishlist_causes (cause_name, current_amount, supporter_count, goal_a
 ON CONFLICT (cause_name) DO NOTHING;
 
 -- ──────────────────────────────────────────────
--- DONATIONS (simulated, for demo)
+-- DONATIONS
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS donations (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -210,7 +339,6 @@ CREATE TABLE IF NOT EXISTS favor_helps (
 );
 ALTER TABLE favor_helps ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Helper can view own help records" ON favor_helps;
-DROP POLICY IF EXISTS "Favor owners can view help records" ON favor_helps;
 DROP POLICY IF EXISTS "Authenticated users can offer help" ON favor_helps;
 DROP POLICY IF EXISTS "Helpers can withdraw help" ON favor_helps;
 CREATE POLICY "Helper can view own help records"
