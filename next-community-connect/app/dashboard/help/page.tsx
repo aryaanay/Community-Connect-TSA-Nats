@@ -490,7 +490,7 @@ export default function HelpPage() {
         )}
 
         <p className="font-outfit text-xs text-center pb-2" style={{ color: 'rgba(198,235,255,0.2)' }}>
-          Community Connect · Bothell, WA · Built for TSA 2025
+          Community Connect · Built for TSA Nationals 2026
         </p>
       </div>
     </div>

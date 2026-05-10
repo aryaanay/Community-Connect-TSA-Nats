@@ -125,7 +125,7 @@ function SidebarInner({
                 <span className="font-syne text-sm font-black text-sky-400">Connect</span>
               </Link>
               <p className="font-outfit text-[10px] text-sky-300/45 uppercase tracking-widest mt-0.5">
-                Bothell, WA
+                TSA Nationals 2026
               </p>
             </motion.div>
           )}

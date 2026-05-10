@@ -13,12 +13,12 @@ const RARITY = {
 }
 
 function Card3D({ achievement }: { achievement: Achievement }) {
-  const cardRef   = useRef<HTMLDivElement>(null)
-  const animRef   = useRef<number>()
-  const angleY    = useRef(0)
-  const currentX  = useRef(0)
-  const targetX   = useRef(0)
-  const targetY   = useRef(0)
+  const cardRef     = useRef<HTMLDivElement>(null)
+  const animRef     = useRef<number>()
+  const swayOrigin  = useRef(Date.now())
+  const currentX    = useRef(0)
+  const targetX     = useRef(0)
+  const targetY     = useRef(0)
   const [rotX, setRotX] = useState(0)
   const [rotY, setRotY] = useState(0)
   const [glare, setGlare]           = useState({ x: 50, y: 50 })
@@ -51,11 +51,12 @@ function Card3D({ achievement }: { achievement: Achievement }) {
           setRotX(currentX.current)
           setRotY(interpY)
         } else {
-          // Continuous Y-axis rotation — 1.2°/frame ≈ 1 full spin every 5 sec
-          angleY.current = (angleY.current + 1.2) % 360
+          // Gentle sway — oscillates ±22° so back face is never visible
+          const elapsed = (Date.now() - swayOrigin.current) / 1000
+          const sway = 22 * Math.sin(elapsed * 0.7)
           currentX.current += (0 - currentX.current) * 0.05
           setRotX(currentX.current)
-          setRotY(angleY.current)
+          setRotY(sway)
         }
       }
       animRef.current = requestAnimationFrame(tick)
@@ -78,15 +79,17 @@ function Card3D({ achievement }: { achievement: Achievement }) {
         setHovered(false)
         setGlare({ x: 50, y: 50 })
         setFlashlight(f => ({ ...f, active: false }))
-        // Sync auto-angle to current Y so rotation continues smoothly
-        angleY.current = rotY
+        // Reset sway origin so it resumes smoothly from current angle
+        swayOrigin.current = Date.now() - (Math.asin(Math.max(-1, Math.min(1, rotY / 22))) / 0.7) * 1000
       }}
       onClick={() => setFlipped(f => !f)}
     >
       <div style={{
         width: '100%', height: '100%', position: 'relative',
         transformStyle: 'preserve-3d',
+        WebkitTransformStyle: 'preserve-3d',
         transform,
+        WebkitTransform: transform,
         transition: flipped ? 'transform 0.55s cubic-bezier(0.16,1,0.3,1)' : 'none',
       }}>
 
@@ -98,6 +101,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
           boxShadow: `0 24px 64px ${cfg.glow}, 0 0 0 1px ${cfg.border}22`,
           overflow: 'hidden',
           backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
         }}>
           {/* Holographic shimmer driven by rotation angle */}
           <div style={{
@@ -174,7 +178,9 @@ function Card3D({ achievement }: { achievement: Achievement }) {
           boxShadow: `0 24px 64px ${cfg.glow}`,
           overflow: 'hidden',
           backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
+          WebkitTransform: 'rotateY(180deg)',
         }}>
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',

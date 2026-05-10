@@ -23,13 +23,6 @@ const footerLinks = {
   ],
 }
 
-const socialIcons = [
-  { name: 'Facebook', icon: 'f' },
-  { name: 'Instagram', icon: 'ig' },
-  { name: 'Twitter', icon: 'X' },
-  { name: 'LinkedIn', icon: 'in' },
-]
-
 const partners: { icon: React.ElementType; label: string }[] = [
   { icon: Handshake, label: 'United Way' },
   { icon: GraduationCap, label: 'Local Schools' },
@@ -64,22 +57,9 @@ export function Footer() {
                 Community<strong className="font-bold">Connect</strong>
               </span>
             </Link>
-            <p className="font-dm-sans text-sm leading-relaxed mb-5 max-w-[280px]" style={{ color: 'rgba(198,235,255,0.85)' }}>
+            <p className="font-dm-sans text-sm leading-relaxed max-w-[280px]" style={{ color: 'rgba(198,235,255,0.85)' }}>
               Building stronger communities through collaboration, service, and shared resources.
             </p>
-            <div className="flex gap-2.5">
-              {socialIcons.map((social, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label={social.name}
-                  className="w-9 h-9 rounded-full border border-sky-400/30 flex items-center justify-center text-xs font-bold hover:bg-sky-500 hover:border-sky-400 hover:text-white transition-all hover:-translate-y-0.5 backdrop-blur-sm"
-                  style={{ backgroundColor: 'rgba(36,153,214,0.15)', color: 'rgba(198,235,255,0.8)' }}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Explore */}
@@ -175,7 +155,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="font-dm-sans text-sm" style={{ color: 'rgba(144,212,247,0.7)' }}>
-            © 2025 CommunityConnect | Bothell, WA
+            © 2026 CommunityConnect
           </p>
           <div className="flex items-center gap-4">
             <Link href="/references" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>

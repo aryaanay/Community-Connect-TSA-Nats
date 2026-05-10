@@ -10,7 +10,7 @@ import { Lock, Edit3, Save, X, Camera, Users2, AlertTriangle, RotateCcw } from '
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const JUDGE_EMAIL = 'dummy.test10@yahoo.com'
+const JUDGE_EMAIL = 'judges@tsa.com'
 
 const LEVELS = [
   { min: 0,    max: 99,   level: 1, title: 'Community Newcomer', color: '#56BBF0' },
@@ -480,7 +480,7 @@ export default function ProfilePage() {
         </motion.div>
 
         <p className="font-outfit text-xs text-center pb-2" style={{ color: 'rgba(198,235,255,0.2)' }}>
-          Community Connect · Bothell, WA · Built for TSA 2025
+          Community Connect · Built for TSA Nationals 2026
         </p>
       </div>
     </div>

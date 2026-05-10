@@ -58,7 +58,7 @@ const testimonialData = [
 export function Testimonials() {
   return (
     <section className="py-24 glass-bg backdrop-blur" id="stories">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

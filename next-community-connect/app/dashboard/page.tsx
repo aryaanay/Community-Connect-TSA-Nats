@@ -33,7 +33,7 @@ const QUICK_ACTIONS = [
     href: '/events',
     icon: CalendarDays,
     title: 'View Events',
-    desc: 'Upcoming cleanups, workshops, and drives in Bothell',
+    desc: 'Upcoming cleanups, workshops, and community drives',
     color: '#FF8C42',
     bg: 'rgba(255,140,66,0.12)',
     border: 'rgba(255,140,66,0.2)',
@@ -73,7 +73,7 @@ const UPCOMING_EVENTS = [
 
 const IMPACT_FACTS = [
   { icon: CheckCircle2, text: 'Every resource is reviewed before publishing' },
-  { icon: Star, text: 'Built by Bothell residents, for Bothell residents' },
+  { icon: Star, text: 'Built by community members, for community members' },
   { icon: TrendingUp, text: 'Directory grows every week with community submissions' },
   { icon: Zap, text: 'Real-time updates keep listings always current' },
 ]
@@ -422,7 +422,7 @@ export default function DashboardPage() {
         </motion.div>
 
         <p className="font-outfit text-xs text-center pb-2" style={{ color: 'rgba(198,235,255,0.2)' }}>
-          Community Connect · Bothell, WA · Built for TSA 2025
+          Community Connect · Built for TSA Nationals 2026
         </p>
       </div>
     </div>

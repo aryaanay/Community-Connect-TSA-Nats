@@ -3,13 +3,18 @@
 import React, { useEffect, useState } from 'react'
 import { useSettings } from '@/context/SettingsContext'
 import { useAchievements } from '@/context/AchievementsContext'
+import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabaseClient'
 import { getT } from '@/lib/translations'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   Type, Eye, Zap, Brain, Shield, Heart, ZoomIn,
   RotateCcw, CheckCircle2, Move, MousePointer, Moon, Sun,
+  Lock, AlertTriangle, CheckCircle, EyeOff,
 } from 'lucide-react'
+
+const JUDGE_EMAIL = 'judges@tsa.com'
 
 // ─── Toggle switch ─────────────────────────────────────────────────────────────
 function ToggleSwitch({ active, onToggle, dk }: { active: boolean; onToggle: () => void; dk: boolean }) {
@@ -123,10 +128,117 @@ const FONT_SIZE_STEPS: { display: string; value: 'small' | 'medium' | 'large' | 
   { display: 'XXL',value: 'xlarge', textSize: 'text-xl' },
 ]
 
+// ─── Password change form ──────────────────────────────────────────────────────
+function PasswordChangeSection({ dk, isJudge }: { dk: boolean; isJudge: boolean }) {
+  const [newPw,     setNewPw]     = useState('')
+  const [confirmPw, setConfirmPw] = useState('')
+  const [showPw,    setShowPw]    = useState(false)
+  const [status,    setStatus]    = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errMsg,    setErrMsg]    = useState('')
+
+  const handleChange = async () => {
+    if (!newPw.trim()) { setErrMsg('New password is required.'); setStatus('error'); return }
+    if (newPw.length < 6) { setErrMsg('Password must be at least 6 characters.'); setStatus('error'); return }
+    if (newPw !== confirmPw) { setErrMsg('Passwords do not match.'); setStatus('error'); return }
+    setStatus('loading')
+    setErrMsg('')
+    const { error } = await supabase.auth.updateUser({ password: newPw })
+    if (error) {
+      setErrMsg(error.message || 'Failed to update password.')
+      setStatus('error')
+    } else {
+      setStatus('success')
+      setNewPw('')
+      setConfirmPw('')
+    }
+  }
+
+  const inputStyle = {
+    background: dk ? 'rgba(255,255,255,0.06)' : 'rgba(36,153,214,0.05)',
+    border: `1px solid ${dk ? 'rgba(86,187,240,0.2)' : 'rgba(36,153,214,0.2)'}`,
+    color: dk ? '#EEF8FF' : '#022747',
+  }
+
+  return (
+    <div>
+      {isJudge && (
+        <div className="flex items-start gap-3 rounded-xl px-4 py-3 mb-4"
+          style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
+          <AlertTriangle size={15} className="flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
+          <p className="font-outfit text-xs leading-relaxed" style={{ color: '#FCD34D' }}>
+            <strong>Judge account:</strong> Please do not change the password — this account is shared with other judges.
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <div className="relative">
+          <label className={`font-outfit text-xs font-semibold mb-1 block ${dk ? 'text-sky-300/70' : 'text-sky-700'}`}>
+            New Password
+          </label>
+          <div className="relative">
+            <input
+              type={showPw ? 'text' : 'password'}
+              value={newPw}
+              onChange={e => { setNewPw(e.target.value); setStatus('idle') }}
+              placeholder="At least 6 characters"
+              className="w-full rounded-xl px-3 py-2.5 font-outfit text-sm outline-none pr-10"
+              style={inputStyle}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw(v => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: dk ? 'rgba(198,235,255,0.4)' : 'rgba(2,39,71,0.4)' }}
+            >
+              {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className={`font-outfit text-xs font-semibold mb-1 block ${dk ? 'text-sky-300/70' : 'text-sky-700'}`}>
+            Confirm New Password
+          </label>
+          <input
+            type={showPw ? 'text' : 'password'}
+            value={confirmPw}
+            onChange={e => { setConfirmPw(e.target.value); setStatus('idle') }}
+            placeholder="Repeat new password"
+            className="w-full rounded-xl px-3 py-2.5 font-outfit text-sm outline-none"
+            style={inputStyle}
+          />
+        </div>
+
+        {status === 'error' && (
+          <p className="font-outfit text-xs text-red-400 flex items-center gap-1.5">
+            <AlertTriangle size={12} /> {errMsg}
+          </p>
+        )}
+        {status === 'success' && (
+          <p className="font-outfit text-xs text-emerald-400 flex items-center gap-1.5">
+            <CheckCircle size={12} /> Password updated successfully.
+          </p>
+        )}
+
+        <button
+          onClick={handleChange}
+          disabled={status === 'loading' || isJudge}
+          className="w-full py-2.5 rounded-xl font-outfit text-sm font-semibold text-white transition-all disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)' }}
+        >
+          {status === 'loading' ? 'Updating…' : 'Update Password'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main component ────────────────────────────────────────────────────────────
 export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean }) {
   const { settings, dispatch } = useSettings()
   const { unlock, markPageVisited } = useAchievements()
+  const { user } = useAuth()
 
   const [rsvpPublic, setRsvpPublic] = useState(() => {
     try { return localStorage.getItem('cc-rsvp-public') !== 'false' } catch { return true }
@@ -140,6 +252,7 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
   }
   const t = getT(settings.language)
   const dk = settings.dark
+  const isJudge = user?.email === JUDGE_EMAIL
   const toggle = (key: keyof typeof settings) =>
     dispatch({ type: 'REPLACE_STATE', payload: { [key]: !settings[key] } as any })
 
@@ -420,6 +533,11 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
               active={rsvpPublic}
               onToggle={toggleRsvpPublic}
             />
+          </SectionCard>
+
+          {/* Security — Password Change */}
+          <SectionCard icon={Lock} iconColor="text-sky-500" iconBg="bg-sky-50" iconBgDk="bg-sky-900/40" title="Security" onLabel={onLabel} delay={0.32} dk={dk}>
+            <PasswordChangeSection dk={dk} isJudge={isJudge} />
           </SectionCard>
 
           {/* Reset */}

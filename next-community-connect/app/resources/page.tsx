@@ -109,7 +109,9 @@ function dbToCard(r: DbResource): ResourceCard {
   }
 }
 
-// ─── Merge helper (dedupes by lowercase title) ────────────────────────────────
+// ─── Merge helper (dedupes by lowercase title, excludes test/demo entries) ────
+
+const EXCLUDED_TITLES = new Set(['test', 'test 2', 'fsd'])
 
 function mergeAll(dbCards: ResourceCard[]): ResourceCard[] {
   const seen = new Set<string>()
@@ -119,8 +121,9 @@ function mergeAll(dbCards: ResourceCard[]): ResourceCard[] {
     result.push(r)
   }
   for (const r of dbCards) {
-    if (!seen.has(r.title.toLowerCase())) {
-      seen.add(r.title.toLowerCase())
+    const lower = r.title.toLowerCase()
+    if (!seen.has(lower) && !EXCLUDED_TITLES.has(lower)) {
+      seen.add(lower)
       result.push(r)
     }
   }

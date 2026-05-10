@@ -55,7 +55,7 @@ type SettingsAction =
 const SETTINGS_KEY = 'community-connect-settings'
 
 const initialState: SettingsState = {
-  dark: false,
+  dark: true,
   colorBlind: false,
   fontSize: 'medium',
   reducedMotion: false,
@@ -184,6 +184,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     toggle('data-increased-letter-spacing', settings.increasedLetterSpacing)
     toggle('data-underline-links', settings.alwaysUnderlineLinks)
     toggle('data-high-contrast', settings.highContrast)
+    toggle('data-large-cursor', settings.largeCursor)
     toggle('data-reduced-transparency', settings.reducedTransparency)
     toggle('data-focus-indicators', settings.focusIndicators)
     toggle('data-focus-spotlight', settings.focusSpotlight)
@@ -196,6 +197,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     toggle('data-autism-mode', settings.autismMode)
     toggle('data-low-vision-mode', settings.lowVisionMode)
     toggle('data-motor-mode', settings.motorImpairmentMode)
+    toggle('data-text-to-speech', settings.textToSpeech)
 
     // Epilepsy mode also forces reduced-motion
     if (settings.epilepsyMode) {
@@ -211,6 +213,25 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       ? html.setAttribute('data-color-blind-mode', settings.colorBlindMode)
       : html.removeAttribute('data-color-blind-mode')
   }, [settings])
+
+  // Text-to-speech: click any readable element to speak it
+  useEffect(() => {
+    if (!settings.textToSpeech) return
+    const speak = (e: MouseEvent) => {
+      const el = e.target as HTMLElement
+      const text = el.innerText?.trim()
+      if (!text || !window.speechSynthesis) return
+      window.speechSynthesis.cancel()
+      const utt = new SpeechSynthesisUtterance(text)
+      utt.rate = 0.95
+      window.speechSynthesis.speak(utt)
+    }
+    document.addEventListener('click', speak)
+    return () => {
+      document.removeEventListener('click', speak)
+      window.speechSynthesis?.cancel()
+    }
+  }, [settings.textToSpeech])
 
   return (
     <SettingsContext.Provider value={{ settings, dispatch }}>

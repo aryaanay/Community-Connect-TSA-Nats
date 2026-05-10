@@ -500,13 +500,18 @@
   font-size: 1.3rem !important;
 }
 
-[data-large-cursor] {
-  cursor: zoom-in !important;
+/* Large cursor — oversized arrow pointer (32px) */
+[data-large-cursor="true"],
+[data-large-cursor="true"] * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 4 L6 34 L14 26 L20 38 L25 35 L19 23 L31 23 Z' fill='black' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 4, auto !important;
 }
 
-[data-large-cursor] button,
-[data-large-cursor] [role="button"] {
-  cursor: pointer !important;
+[data-large-cursor="true"] button,
+[data-large-cursor="true"] a,
+[data-large-cursor="true"] [role="button"],
+[data-large-cursor="true"] [type="submit"],
+[data-large-cursor="true"] [type="button"] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 4 L6 34 L14 26 L20 38 L25 35 L19 23 L31 23 Z' fill='%230ea5e9' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 4, pointer !important;
 }
 
 * {
@@ -1018,6 +1023,18 @@ html {
 [data-focus-spotlight="true"] *:focus-visible {
   position: relative;
   z-index: 9999;
+}
+
+/* Text-to-speech — highlight readable elements on hover */
+[data-text-to-speech="true"] p:hover,
+[data-text-to-speech="true"] h1:hover,
+[data-text-to-speech="true"] h2:hover,
+[data-text-to-speech="true"] h3:hover,
+[data-text-to-speech="true"] li:hover {
+  background: rgba(14,165,233,0.12) !important;
+  border-radius: 4px;
+  cursor: help !important;
+  outline: 1px dashed rgba(14,165,233,0.5);
 }
 
 /* ── ZoomParallax background (theme-aware) ── */

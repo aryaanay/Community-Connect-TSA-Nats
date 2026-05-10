@@ -52,12 +52,12 @@ const TestimonialCarousel = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "min-h-[460px] w-full flex items-center justify-center py-8",
+          "min-h-[520px] w-full flex items-center justify-center py-8",
           className
         )}
         {...props}
       >
-        <div className="relative" style={{ width: 'min(90vw, 520px)', height: '320px' }}>
+        <div className="relative" style={{ width: 'min(92vw, 680px)', height: '380px' }}>
           {testimonials.map((testimonial, index) => {
             const offset = (index - currentIndex + testimonials.length) % testimonials.length
             const isCurrentCard = offset === 0
@@ -106,13 +106,13 @@ const TestimonialCarousel = React.forwardRef<
                   </div>
                 )}
 
-                <div className="p-8 flex flex-col items-center gap-4 h-full justify-center">
+                <div className="p-10 flex flex-col items-center gap-5 h-full justify-center">
                   {testimonial.avatarColor ? (
                     <div
-                      className="w-20 h-20 rounded-full flex items-center justify-center shadow-md flex-shrink-0"
+                      className="w-24 h-24 rounded-full flex items-center justify-center shadow-md flex-shrink-0"
                       style={{ background: testimonial.avatarColor }}
                     >
-                      <span className="font-syne text-2xl font-bold text-white">
+                      <span className="font-syne text-3xl font-bold text-white">
                         {testimonial.name.charAt(0)}
                       </span>
                     </div>
@@ -120,22 +120,22 @@ const TestimonialCarousel = React.forwardRef<
                     <img
                       src={testimonial.avatar}
                       alt={testimonial.name}
-                      className="w-20 h-20 rounded-full object-cover shadow-md border-2 border-sky-100"
+                      className="w-24 h-24 rounded-full object-cover shadow-md border-2 border-sky-100"
                     />
                   )}
                   <div className="text-center">
-                    <h3 className="testimonial-name font-syne text-base font-bold text-sky-950 mb-0.5">
+                    <h3 className="testimonial-name font-syne text-lg font-bold text-sky-950 mb-0.5">
                       {testimonial.name}
                     </h3>
                     {testimonial.role && (
-                      <p className="testimonial-role font-outfit text-xs text-sky-500 mb-3">{testimonial.role}</p>
+                      <p className="testimonial-role font-outfit text-sm text-sky-500 mb-3">{testimonial.role}</p>
                     )}
                     {!testimonial.role && <div className="mb-3" />}
                   </div>
-                  <p className="testimonial-desc text-center font-dm-sans text-sm leading-relaxed text-sky-700 max-w-[380px]">
+                  <p className="testimonial-desc text-center font-dm-sans text-base leading-relaxed text-sky-700 max-w-[520px]">
                     {testimonial.description}
                   </p>
-                  <span className="font-space text-xs font-bold text-amber-400 mt-1">★★★★★</span>
+                  <span className="font-space text-sm font-bold text-amber-400 mt-1">★★★★★</span>
                 </div>
               </motion.div>
             )
