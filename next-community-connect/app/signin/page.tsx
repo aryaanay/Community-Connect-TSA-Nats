@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { WelcomeAnimation } from '@/components/WelcomeAnimation'
+import { useT } from '@/lib/useT'
 
 const JUDGE_EMAIL = 'judges@tsa.com'
 const JUDGE_PASSWORD = 'judges!'
@@ -219,11 +220,7 @@ function Req({ met, text }: { met: boolean; text: string }) {
   )
 }
 
-const PILLS = [
-  { Icon: Clock, label: 'Real-time Updates' },
-  { Icon: Shield, label: 'Secure & Private' },
-  { Icon: Users, label: 'Community Driven' },
-]
+// Pills defined inside component (uses translation keys)
 
 const Logo = ({ size = 28 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
@@ -242,6 +239,12 @@ const Logo = ({ size = 28 }: { size?: number }) => (
 // Main form
 // ─────────────────────────────────────────────
 function SignInForm() {
+  const t = useT()
+  const PILLS = [
+    { Icon: Clock, label: t('pill.realtime') },
+    { Icon: Shield, label: t('pill.secure') },
+    { Icon: Users, label: t('pill.community') },
+  ]
   const [tab, setTab] = useState<Tab>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -315,7 +318,7 @@ function SignInForm() {
           border: '1px solid rgba(86,187,240,0.15)',
         }}
       >
-        ← Back to Home
+        {t('signin.back')}
       </Link>
 
       <div
@@ -345,7 +348,7 @@ function SignInForm() {
               <span className="text-sky-400">Connect</span>
             </h1>
             <p className="font-outfit text-sm leading-relaxed mb-8" style={{ color: 'rgba(198,235,255,0.55)' }}>
-              Sign in to submit local resources, connect with volunteers, and make a difference in the Bothell community.
+              {t('signin.desc')}
             </p>
 
             {/* Stats bar */}
@@ -353,7 +356,7 @@ function SignInForm() {
               className="inline-flex gap-6 px-5 py-3 rounded-2xl mb-8"
               style={{ background: 'rgba(86,187,240,0.06)', border: '1px solid rgba(86,187,240,0.1)' }}
             >
-              {[['150+', 'Volunteers'], ['30+', 'Resources'], ['6', 'Active causes']].map(([val, lbl]) => (
+              {[['150+', t('stat.volunteers')], ['30+', t('stat.resources')], ['6', t('stat.causes')]].map(([val, lbl]) => (
                 <div key={lbl}>
                   <p className="font-syne text-xl font-black text-sky-300">{val}</p>
                   <p className="font-outfit text-[10px] uppercase tracking-wider" style={{ color: 'rgba(198,235,255,0.38)' }}>{lbl}</p>
@@ -369,10 +372,10 @@ function SignInForm() {
               whileTap={{ scale: 0.98 }}
             >
               <p className="font-syne text-[10px] font-black uppercase tracking-[0.18em] mb-2.5" style={{ color: '#90D4F7' }}>
-                For TSA Judges
+                {t('signin.judges.title')}
               </p>
               <p className="font-outfit text-xs mb-3" style={{ color: 'rgba(198,235,255,0.55)' }}>
-                Click to auto-fill test credentials:
+                {t('signin.judges.click')}
               </p>
               <p className="font-outfit text-xs mb-0.5">
                 <span style={{ color: 'rgba(198,235,255,0.4)' }}>Email: </span>
@@ -383,7 +386,7 @@ function SignInForm() {
                 <span style={{ color: '#56BBF0' }}>{JUDGE_PASSWORD}</span>
               </p>
               <p className="font-outfit text-[10px]" style={{ color: 'rgba(198,235,255,0.28)' }}>
-                Or use Sign Up to create your own account.
+                {t('signin.judges.note')}
               </p>
             </motion.div>
 
@@ -429,7 +432,7 @@ function SignInForm() {
                 <Logo size={24} />
                 <span className="font-syne text-sm font-light text-white">Community<strong className="font-black">Connect</strong></span>
               </Link>
-              <h2 className="font-syne text-2xl font-bold text-white">Sign in to continue</h2>
+              <h2 className="font-syne text-2xl font-bold text-white">{t('signin.mobile.heading')}</h2>
             </div>
 
             {/* Form card */}
@@ -437,14 +440,14 @@ function SignInForm() {
 
               {/* Tabs */}
               <div className="flex rounded-xl p-1 gap-1" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                {(['signin', 'signup'] as Tab[]).map((t) => (
+                {(['signin', 'signup'] as Tab[]).map((tabKey) => (
                   <button
-                    key={t}
-                    onClick={() => switchTab(t)}
+                    key={tabKey}
+                    onClick={() => switchTab(tabKey)}
                     className="relative flex-1 py-2 rounded-lg font-outfit text-sm font-semibold transition-colors"
-                    style={{ color: tab === t ? 'white' : 'rgba(198,235,255,0.38)' }}
+                    style={{ color: tab === tabKey ? 'white' : 'rgba(198,235,255,0.38)' }}
                   >
-                    {tab === t && (
+                    {tab === tabKey && (
                       <motion.div
                         layoutId="tab-bg"
                         className="absolute inset-0 rounded-lg"
@@ -452,17 +455,17 @@ function SignInForm() {
                         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                       />
                     )}
-                    <span className="relative z-10">{t === 'signin' ? 'Sign In' : 'Sign Up'}</span>
+                    <span className="relative z-10">{tabKey === 'signin' ? t('signin.tab.in') : t('signin.tab.up')}</span>
                   </button>
                 ))}
               </div>
 
               {/* Email */}
               <div>
-                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>Email</label>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>{t('signin.lbl.email')}</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="you@example.com" disabled={isDisabled}
+                  placeholder={t('signin.ph.email')} disabled={isDisabled}
                   className="w-full px-4 py-3 rounded-xl font-outfit text-sm outline-none transition-all disabled:opacity-50 focus:ring-1 focus:ring-sky-400/35"
                   style={inputStyle}
                 />
@@ -470,12 +473,12 @@ function SignInForm() {
 
               {/* Password */}
               <div>
-                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>Password</label>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>{t('signin.lbl.pw')}</label>
                 <div className="relative">
                   <input
                     type={showPw ? 'text' : 'password'} value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder={tab === 'signup' ? 'Create a strong password' : 'Your password'}
+                    placeholder={tab === 'signup' ? t('signin.ph.pw_new') : t('signin.ph.pw_cur')}
                     disabled={isDisabled}
                     className="w-full px-4 py-3 pr-11 rounded-xl font-outfit text-sm outline-none transition-all disabled:opacity-50 focus:ring-1 focus:ring-sky-400/35"
                     style={inputStyle}
@@ -499,10 +502,10 @@ function SignInForm() {
                       className="overflow-hidden"
                     >
                       <div className="mt-3 space-y-1.5 px-0.5">
-                        <Req met={pwReqs.length} text="At least 8 characters" />
-                        <Req met={pwReqs.upper} text="One uppercase letter" />
-                        <Req met={pwReqs.number} text="One number" />
-                        <Req met={pwReqs.special} text="One special character" />
+                        <Req met={pwReqs.length} text={t('signin.req.length')} />
+                        <Req met={pwReqs.upper} text={t('signin.req.upper')} />
+                        <Req met={pwReqs.number} text={t('signin.req.number')} />
+                        <Req met={pwReqs.special} text={t('signin.req.special')} />
                       </div>
                     </motion.div>
                   )}
@@ -516,15 +519,15 @@ function SignInForm() {
                 className="w-full py-3 rounded-xl font-outfit font-bold text-sm text-white transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 style={{ background: 'linear-gradient(135deg, #0857A0 0%, #2499D6 100%)' }}
               >
-                {isPending || loading ? 'Please wait…' : authLoading ? 'Loading…' : tab === 'signup' ? 'Create Account' : 'Sign In'}
+                {isPending || loading ? t('signin.btn.wait') : authLoading ? t('signin.btn.wait') : tab === 'signup' ? t('signin.btn.create') : t('signin.tab.in')}
               </button>
 
               {/* Toggle hint */}
               <p className="text-center font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.35)' }}>
                 {tab === 'signin' ? (
-                  <>No account?{' '}<button onClick={() => switchTab('signup')} className="text-sky-400 hover:text-sky-300 transition-colors font-semibold">Sign up free</button></>
+                  <>{t('signin.hint.no_acc')}{' '}<button onClick={() => switchTab('signup')} className="text-sky-400 hover:text-sky-300 transition-colors font-semibold">{t('signin.hint.signup')}</button></>
                 ) : (
-                  <>Have an account?{' '}<button onClick={() => switchTab('signin')} className="text-sky-400 hover:text-sky-300 transition-colors font-semibold">Sign in</button></>
+                  <>{t('signin.hint.has_acc')}{' '}<button onClick={() => switchTab('signin')} className="text-sky-400 hover:text-sky-300 transition-colors font-semibold">{t('signin.hint.signin')}</button></>
                 )}
               </p>
             </div>

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements, ACHIEVEMENTS, TOTAL_POSSIBLE_XP, Achievement } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
-import { Lock, Edit3, Save, X, Camera, Users2, AlertTriangle, RotateCcw } from 'lucide-react'
+import { Lock, Edit3, Save, X, Camera, Users2, AlertTriangle, RotateCcw, CheckCircle, EyeOff, Eye } from 'lucide-react'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -89,6 +89,91 @@ function AchievementCard({ achievement, unlocked }: { achievement: Achievement; 
         </span>
       </div>
     </motion.div>
+  )
+}
+
+// ─── Password change ──────────────────────────────────────────────────────────
+
+function PasswordChangeSection({ isJudge }: { isJudge: boolean }) {
+  const [newPw,     setNewPw]     = useState('')
+  const [confirmPw, setConfirmPw] = useState('')
+  const [showPw,    setShowPw]    = useState(false)
+  const [status,    setStatus]    = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errMsg,    setErrMsg]    = useState('')
+
+  const handleChange = async () => {
+    if (!newPw.trim()) { setErrMsg('New password is required.'); setStatus('error'); return }
+    if (newPw.length < 6) { setErrMsg('Password must be at least 6 characters.'); setStatus('error'); return }
+    if (newPw !== confirmPw) { setErrMsg('Passwords do not match.'); setStatus('error'); return }
+    setStatus('loading')
+    setErrMsg('')
+    const { error } = await supabase.auth.updateUser({ password: newPw })
+    if (error) {
+      setErrMsg(error.message || 'Failed to update password.')
+      setStatus('error')
+    } else {
+      setStatus('success')
+      setNewPw('')
+      setConfirmPw('')
+    }
+  }
+
+  const inputStyle = {
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(86,187,240,0.2)',
+    color: '#EEF8FF',
+  }
+
+  return (
+    <div className="space-y-3">
+      {isJudge && (
+        <div className="flex items-start gap-3 rounded-xl px-4 py-3"
+          style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
+          <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
+          <p className="font-outfit text-xs leading-relaxed" style={{ color: '#FCD34D' }}>
+            <strong>Judge account:</strong> Please do not change the password — this account is shared.
+          </p>
+        </div>
+      )}
+      <div>
+        <label className="font-outfit text-xs font-semibold mb-1 block" style={{ color: 'rgba(198,235,255,0.5)' }}>New Password</label>
+        <div className="relative">
+          <input type={showPw ? 'text' : 'password'} value={newPw}
+            onChange={e => { setNewPw(e.target.value); setStatus('idle') }}
+            placeholder="At least 6 characters"
+            className="w-full rounded-xl px-3 py-2.5 font-outfit text-sm outline-none pr-10"
+            style={inputStyle} />
+          <button type="button" onClick={() => setShowPw(v => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            style={{ color: 'rgba(198,235,255,0.4)' }}>
+            {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+          </button>
+        </div>
+      </div>
+      <div>
+        <label className="font-outfit text-xs font-semibold mb-1 block" style={{ color: 'rgba(198,235,255,0.5)' }}>Confirm New Password</label>
+        <input type={showPw ? 'text' : 'password'} value={confirmPw}
+          onChange={e => { setConfirmPw(e.target.value); setStatus('idle') }}
+          placeholder="Repeat new password"
+          className="w-full rounded-xl px-3 py-2.5 font-outfit text-sm outline-none"
+          style={inputStyle} />
+      </div>
+      {status === 'error' && (
+        <p className="font-outfit text-xs text-red-400 flex items-center gap-1.5">
+          <AlertTriangle size={12} /> {errMsg}
+        </p>
+      )}
+      {status === 'success' && (
+        <p className="font-outfit text-xs text-emerald-400 flex items-center gap-1.5">
+          <CheckCircle size={12} /> Password updated successfully.
+        </p>
+      )}
+      <button onClick={handleChange} disabled={status === 'loading' || isJudge}
+        className="w-full py-2.5 rounded-xl font-outfit text-sm font-semibold text-white transition-all disabled:opacity-50"
+        style={{ background: 'linear-gradient(135deg,#085D8A,#2499D6)' }}>
+        {status === 'loading' ? 'Updating…' : 'Update Password'}
+      </button>
+    </div>
   )
 }
 
@@ -451,6 +536,20 @@ export default function ProfilePage() {
               Open →
             </span>
           </Link>
+        </motion.div>
+
+        {/* Password Change */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.18 }}>
+          <div className="rounded-3xl p-6 relative overflow-hidden"
+            style={{ background: 'linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)),rgba(2,39,71,0.55)', border: '1px solid rgba(86,187,240,0.14)', backdropFilter: 'blur(20px)' }}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(86,187,240,0.12)', border: '1px solid rgba(86,187,240,0.22)' }}>
+                <Lock size={14} style={{ color: '#56BBF0' }} />
+              </div>
+              <h2 className="font-syne text-base font-bold text-white">Change Password</h2>
+            </div>
+            <PasswordChangeSection isJudge={isJudge} />
+          </div>
         </motion.div>
 
         {/* Achievements */}

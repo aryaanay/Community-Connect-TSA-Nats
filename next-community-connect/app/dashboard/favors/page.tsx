@@ -6,6 +6,7 @@ import { HandHeart, Plus, MapPin, Phone, Mail, DollarSign, Check, X, Search, Sta
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
+import { useT } from '@/lib/useT'
 
 type Favor = {
   id: string
@@ -26,6 +27,7 @@ const EMPTY_FORM = {
 }
 
 export default function FavorsPage() {
+  const t = useT()
   const { user, isSignedIn } = useAuth()
   const { markPageVisited, unlock } = useAchievements()
 
@@ -147,9 +149,9 @@ export default function FavorsPage() {
               <HandHeart size={18} style={{ color: '#10B981' }} />
             </div>
             <div>
-              <h1 className="font-syne text-2xl font-black text-white">Community Favors</h1>
+              <h1 className="font-syne text-2xl font-black text-white">{t('fav.title')}</h1>
               <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>
-                {openCount} open · help out, earn XP
+                {openCount} {t('fav.open_help')}
               </p>
             </div>
           </div>
@@ -157,7 +159,7 @@ export default function FavorsPage() {
             <button onClick={() => setPosting(p => !p)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ background: 'linear-gradient(135deg,#059669,#10B981)', boxShadow: '0 4px 16px rgba(16,185,129,0.25)' }}>
-              <Plus size={15} /> Ask a Favor
+              <Plus size={15} /> {t('fav.ask_btn')}
             </button>
           )}
         </motion.div>
@@ -169,19 +171,19 @@ export default function FavorsPage() {
               <form onSubmit={handlePost} className="rounded-2xl p-5 space-y-3"
                 style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.25)' }}>
                 <div className="flex justify-between items-center">
-                  <p className="font-syne text-sm font-bold text-white">Post a Favor Request</p>
+                  <p className="font-syne text-sm font-bold text-white">{t('fav.form.heading')}</p>
                   <button type="button" onClick={() => { setPosting(false); setError('') }}>
                     <X size={15} style={{ color: 'rgba(198,235,255,0.4)' }} />
                   </button>
                 </div>
 
                 <input required value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                  placeholder="What do you need help with? *"
+                  placeholder={t('fav.form.title_ph')}
                   className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-emerald-400/35"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(16,185,129,0.2)' }} />
 
                 <textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                  placeholder="More details — when, how long, what's involved…"
+                  placeholder={t('fav.form.desc_ph')}
                   className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-emerald-400/35 resize-none"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(16,185,129,0.2)' }} />
 
@@ -196,7 +198,7 @@ export default function FavorsPage() {
                   <div className="relative">
                     <DollarSign size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
                     <input value={form.pay_amount} onChange={e => setForm(p => ({ ...p, pay_amount: e.target.value }))}
-                      placeholder="Pay / compensation (e.g. $20)"
+                      placeholder={t('fav.form.pay_ph')}
                       className="w-full pl-8 pr-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-emerald-400/35"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(16,185,129,0.2)' }} />
                   </div>
@@ -221,7 +223,7 @@ export default function FavorsPage() {
                 <button type="submit" disabled={saving}
                   className="w-full py-2.5 rounded-xl font-outfit text-sm font-bold text-white transition-all disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg,#059669,#10B981)' }}>
-                  {saving ? 'Posting…' : 'Post Favor'}
+                  {saving ? t('fav.status.posting') : t('fav.form.post')}
                 </button>
               </form>
             </motion.div>
@@ -231,7 +233,7 @@ export default function FavorsPage() {
         {/* Search */}
         <div className="relative">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search favors…"
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('fav.search_ph')}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-emerald-400/35"
             style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(16,185,129,0.18)' }} />
         </div>
@@ -244,9 +246,9 @@ export default function FavorsPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <HandHeart size={36} className="mx-auto mb-3 opacity-20" style={{ color: '#10B981' }} />
-            <p className="font-syne text-base font-bold text-white mb-1">No favors yet</p>
+            <p className="font-syne text-base font-bold text-white mb-1">{t('fav.empty.title')}</p>
             <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>
-              {favors.length === 0 ? 'Be the first to ask!' : 'Try a different search.'}
+              {favors.length === 0 ? t('fav.empty.first') : t('fav.empty.filter')}
             </p>
           </div>
         ) : (
@@ -275,6 +277,7 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
   favor: Favor; isOwner: boolean; hasHelped: boolean; expanded: boolean
   onToggle: () => void; onHelp: () => void; onDone: () => void; isSignedIn: boolean
 }) {
+  const t = useT()
   const done = favor.status === 'done'
   const hasContact = favor.contact_email || favor.contact_phone
 
@@ -295,7 +298,7 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
             {done && (
               <span className="font-outfit text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0"
                 style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#6EE7B7' }}>
-                Done
+                {t('fav.status.done')}
               </span>
             )}
             {favor.pay_amount && !done && (
@@ -343,18 +346,18 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
                 <div className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)' }}>
                   <div className="flex items-center justify-between">
                     <p className="font-outfit text-[10px] font-bold uppercase tracking-wider" style={{ color: 'rgba(16,185,129,0.7)' }}>
-                      Contact to Help
+                      {t('fav.card.contact')}
                     </p>
                     {isSignedIn && !hasHelped && (
                       <button onClick={onHelp}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg font-outfit text-[11px] font-bold transition-all hover:-translate-y-0.5"
                         style={{ background: 'linear-gradient(135deg,#059669,#10B981)', color: '#fff' }}>
-                        <Star size={10} /> I'll Help (+XP)
+                        <Star size={10} /> {t('fav.card.help')}
                       </button>
                     )}
                     {hasHelped && (
                       <span className="flex items-center gap-1 font-outfit text-[11px] font-bold" style={{ color: '#6EE7B7' }}>
-                        <Check size={11} /> Helping!
+                        <Check size={11} /> {t('fav.card.helping')}
                       </span>
                     )}
                   </div>
@@ -399,7 +402,7 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
                 <button onClick={onDone}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-xs font-semibold transition-all hover:-translate-y-0.5"
                   style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#6EE7B7' }}>
-                  <Check size={13} /> Mark as Done
+                  <Check size={13} /> {t('fav.card.done_btn')}
                 </button>
               )}
             </div>

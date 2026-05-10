@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, CalendarDays, PlusCircle,
   Heart, Settings, LogOut, ChevronLeft, ChevronRight, Menu, Map,
-  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X, FileText, HandHeart,
+  HelpCircle, UserCircle, LifeBuoy, Users2, Layers, PackageSearch, X, FileText, HandHeart, ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
@@ -101,6 +101,7 @@ function SidebarInner({
   t: (key: string) => string
   isMobile?: boolean
 }) {
+  const [accountOpen, setAccountOpen] = useState(false)
   return (
     <div className="flex flex-col h-full relative">
       {/* Logo */}
@@ -209,106 +210,67 @@ function SidebarInner({
         ))}
       </nav>
 
-      {/* Account section — visually separated from main nav tools */}
+      {/* Account section — collapsible dropdown */}
       <div className="flex-shrink-0 border-t border-sky-400/10 px-2 pt-2 pb-2">
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{
-            background: 'rgba(86,187,240,0.045)',
-            border: '1px solid rgba(86,187,240,0.1)',
-          }}
-        >
-          <AnimatePresence initial={false}>
-            {!collapsed && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="font-outfit text-[9px] font-bold uppercase tracking-widest px-3 pt-2.5 pb-1"
-                style={{ color: 'rgba(86,187,240,0.3)' }}
-              >
+        <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(86,187,240,0.045)', border: '1px solid rgba(86,187,240,0.1)' }}>
+
+          {/* Toggle header — only visible when sidebar is expanded */}
+          {!collapsed && (
+            <button
+              onClick={() => setAccountOpen(v => !v)}
+              className="w-full flex items-center justify-between px-3 pt-2.5 pb-2 transition-colors hover:bg-white/4"
+            >
+              <span className="font-outfit text-[9px] font-bold uppercase tracking-widest" style={{ color: 'rgba(86,187,240,0.4)' }}>
                 Account
-              </motion.p>
+              </span>
+              <ChevronDown
+                size={11}
+                style={{
+                  color: 'rgba(86,187,240,0.35)',
+                  transform: accountOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s',
+                }}
+              />
+            </button>
+          )}
+
+          {/* Items — always visible in collapsed mode, dropdown-gated otherwise */}
+          <AnimatePresence initial={false}>
+            {(collapsed || accountOpen) && (
+              <motion.div
+                key="account-items"
+                initial={collapsed ? false : { height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className={`overflow-hidden p-1 space-y-0.5 ${collapsed ? 'pt-2' : ''}`}
+              >
+                {BOTTOM_NAV.map(({ href, icon: Icon, key }) => {
+                  const label = t(key)
+                  const isActive = pathname === href || pathname.startsWith(href)
+                  return (
+                    <Link key={href} href={href} onClick={onNavClick} title={collapsed ? label : undefined}
+                      className={`flex items-center rounded-lg transition-all duration-150 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'} ${isActive ? 'bg-sky-500/15 text-sky-300 border border-sky-400/20' : 'text-sky-200/65 hover:text-sky-100 hover:bg-white/8'}`}>
+                      <Icon size={15} className={`flex-shrink-0 ${isActive ? 'text-sky-400' : ''}`} />
+                      {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">{label}</span>}
+                    </Link>
+                  )
+                })}
+
+                <button onClick={() => { onNavClick(); onTutorial() }} title={collapsed ? 'Site Tutorial' : undefined}
+                  className={`flex items-center w-full rounded-lg transition-all duration-150 text-sky-200/65 hover:text-sky-100 hover:bg-white/8 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
+                  <HelpCircle size={15} className="flex-shrink-0" />
+                  {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">Site Tutorial</span>}
+                </button>
+
+                <button onClick={onSignOut} title={collapsed ? t('nav.signout') : undefined}
+                  className={`flex items-center w-full rounded-lg transition-all duration-150 text-sky-200/65 hover:text-red-300 hover:bg-red-500/10 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
+                  <LogOut size={15} className="flex-shrink-0" />
+                  {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">{t('nav.signout')}</span>}
+                </button>
+              </motion.div>
             )}
           </AnimatePresence>
-          <div className={`p-1 space-y-0.5 ${collapsed ? 'pt-2' : ''}`}>
-            {BOTTOM_NAV.map(({ href, icon: Icon, key }) => {
-              const label = t(key)
-              const isActive = pathname === href || pathname.startsWith(href)
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={onNavClick}
-                  title={collapsed ? label : undefined}
-                  className={`
-                    flex items-center rounded-lg transition-all duration-150
-                    ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
-                    ${isActive
-                      ? 'bg-sky-500/15 text-sky-300 border border-sky-400/20'
-                      : 'text-sky-200/65 hover:text-sky-100 hover:bg-white/8'
-                    }
-                  `}
-                >
-                  <Icon size={15} className={`flex-shrink-0 ${isActive ? 'text-sky-400' : ''}`} />
-                  <AnimatePresence initial={false}>
-                    {!collapsed && (
-                      <motion.span
-                        initial={{ opacity: 0, x: -4 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -4 }}
-                        transition={{ duration: 0.15 }}
-                        className="font-outfit text-xs whitespace-nowrap"
-                      >
-                        {label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              )
-            })}
-
-            <button
-              onClick={() => { onNavClick(); onTutorial() }}
-              title={collapsed ? 'Site Tutorial' : undefined}
-              className={`
-                flex items-center w-full rounded-lg transition-all duration-150
-                text-sky-200/65 hover:text-sky-100 hover:bg-white/8
-                ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
-              `}
-            >
-              <HelpCircle size={15} className="flex-shrink-0" />
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="font-outfit text-xs whitespace-nowrap">
-                    Site Tutorial
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-
-            <button
-              onClick={onSignOut}
-              title={collapsed ? t('nav.signout') : undefined}
-              className={`
-                flex items-center w-full rounded-lg transition-all duration-150
-                text-sky-200/65 hover:text-red-300 hover:bg-red-500/10
-                ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
-              `}
-            >
-              <LogOut size={15} className="flex-shrink-0" />
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="font-outfit text-xs whitespace-nowrap">
-                    {t('nav.signout')}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-          </div>
         </div>
       </div>
 

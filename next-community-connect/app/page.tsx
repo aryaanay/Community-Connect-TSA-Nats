@@ -23,6 +23,7 @@ const communityImages = [
 import { useScroll, useTransform } from 'framer-motion'
 import { MapPin, CalendarDays, Clock, Search, Gift, PlusCircle, Bot, LayoutDashboard, Map, Users2, Layers, PackageSearch, Trophy } from 'lucide-react'
 import Link from 'next/link'
+import { useT } from '@/lib/useT'
 
 // ─── Location data ────────────────────────────────────────────────────────────
 
@@ -148,6 +149,7 @@ const FEATURES = [
 ]
 
 function FeaturesSection() {
+  const t = useT()
   const sectionRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
   const bgY = useTransform(scrollYProgress, [0, 1], [60, -60])
@@ -166,11 +168,9 @@ function FeaturesSection() {
           viewport={{ once: true }} transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <span className="section-eyebrow">Everything You Need</span>
-          <h2 className="section-heading mt-2 mb-3">Built for Community</h2>
-          <p className="section-subtext max-w-md mx-auto">
-            One platform to find help, give back, and stay connected with what&apos;s happening around you.
-          </p>
+          <span className="section-eyebrow">{t('home.features.eyebrow')}</span>
+          <h2 className="section-heading mt-2 mb-3">{t('home.features.heading')}</h2>
+          <p className="section-subtext max-w-md mx-auto">{t('home.features.subtext')}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -201,6 +201,7 @@ function FeaturesSection() {
 // ─── Events section ───────────────────────────────────────────────────────────
 
 function LocationEvents() {
+  const t = useT()
   const [loc, setLoc] = useState('bothell')
   const events = EVENTS[loc] ?? []
 
@@ -214,12 +215,12 @@ function LocationEvents() {
           transition={{ duration: 0.55 }}
           className="text-center mb-10"
         >
-          <span className="section-eyebrow">Near You</span>
+          <span className="section-eyebrow">{t('home.events.eyebrow')}</span>
           <h2 className="lev-heading font-syne text-3xl sm:text-4xl font-bold mt-2 mb-3">
-            Upcoming Community Events
+            {t('home.events.heading')}
           </h2>
           <p className="lev-subtext font-outfit text-sm max-w-md mx-auto">
-            Select your area to see what&apos;s happening locally. Sign in to RSVP and get reminders.
+            {t('home.events.subtext')}
           </p>
         </motion.div>
 
@@ -298,6 +299,7 @@ function LocationEvents() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const t = useT()
   const { isSignedIn, loading } = useAuth()
   const router = useRouter()
 
@@ -314,9 +316,9 @@ export default function HomePage() {
     <>
       <HeroDemo
         primaryHref="/signin"
-        primaryText="Get Started"
+        primaryText={t('home.hero.primary')}
         secondaryHref="#events"
-        secondaryText="View Events"
+        secondaryText={t('home.hero.secondary')}
         subtitle="Find nonprofits, support services, events, and volunteers.<br />All in one place, built for every resident."
       />
       <div className="relative z-10">
@@ -351,9 +353,9 @@ export default function HomePage() {
               transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
             />
             <div className="relative z-10">
-              <h2 className="font-space text-3xl font-bold text-white mb-4">Ready to Get Involved?</h2>
+              <h2 className="font-space text-3xl font-bold text-white mb-4">{t('home.cta.heading')}</h2>
               <p className="font-outfit text-base text-white/80 max-w-md mx-auto mb-8">
-                Browse our full directory of community resources, submit a resource you know about, or come to an upcoming event.
+                {t('home.cta.desc')}
               </p>
               <div className="flex justify-center">
                 <Link
@@ -361,7 +363,7 @@ export default function HomePage() {
                   className="px-8 py-3.5 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5"
                   style={{ background: 'linear-gradient(135deg, #085D8A 0%, #2499D6 100%)' }}
                 >
-                  Get Started
+                  {t('home.cta.btn')}
                 </Link>
               </div>
             </div>

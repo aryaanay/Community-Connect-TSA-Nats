@@ -6,6 +6,7 @@ import { PackageSearch, Plus, MapPin, Phone, Mail, Calendar, Check, X, Search, C
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
+import { useT } from '@/lib/useT'
 
 type LostFoundItem = {
   id: string
@@ -31,6 +32,7 @@ const EMPTY_FORM = {
 }
 
 export default function LostFoundPage() {
+  const t = useT()
   const { user, isSignedIn } = useAuth()
   const { markPageVisited } = useAchievements()
 
@@ -205,7 +207,7 @@ export default function LostFoundPage() {
               <PackageSearch size={18} style={{ color: '#F59E0B' }} />
             </div>
             <div>
-              <h1 className="font-syne text-2xl font-black text-white">Lost &amp; Found</h1>
+              <h1 className="font-syne text-2xl font-black text-white">{t('lf.title')}</h1>
               <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>
                 {lostCount} lost · {foundCount} found · in the Bothell community
               </p>
@@ -215,7 +217,7 @@ export default function LostFoundPage() {
             <button onClick={() => setPosting(p => !p)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ background: 'linear-gradient(135deg,#B45309,#F59E0B)', boxShadow: '0 4px 16px rgba(245,158,11,0.25)' }}>
-              <Plus size={15} /> Post Item
+              <Plus size={15} /> {t('lf.post_btn')}
             </button>
           )}
         </motion.div>
@@ -226,7 +228,7 @@ export default function LostFoundPage() {
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
               <form onSubmit={handlePost} className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.25)' }}>
                 <div className="flex justify-between items-center">
-                  <p className="font-syne text-sm font-bold text-white">Post an Item</p>
+                  <p className="font-syne text-sm font-bold text-white">{t('lf.form.heading')}</p>
                   <button type="button" onClick={() => { setPosting(false); setError(''); clearImage() }}><X size={15} style={{ color: 'rgba(198,235,255,0.4)' }} /></button>
                 </div>
 
@@ -260,9 +262,9 @@ export default function LostFoundPage() {
                     disabled={!form.title.trim() || generatingDesc}
                     className="absolute top-2 right-2 flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-outfit text-[10px] font-bold transition-all disabled:opacity-40 hover:brightness-110"
                     style={{ background: 'rgba(245,158,11,0.2)', border: '1px solid rgba(245,158,11,0.35)', color: '#F59E0B' }}
-                    title="Generate description with AI">
+                    title={generatingDesc ? t('lf.ai.writing') : t('lf.ai.write')}>
                     <Sparkles size={11} />
-                    {generatingDesc ? 'Writing…' : 'AI Write'}
+                    {generatingDesc ? t('lf.ai.writing') : t('lf.ai.write')}
                   </button>
                 </div>
 
@@ -363,7 +365,7 @@ export default function LostFoundPage() {
                 <button type="submit" disabled={isPending || aiApproval === 'pending' || aiApproval === 'rejected'}
                   className="w-full py-2.5 rounded-xl font-outfit text-sm font-bold text-white transition-all disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg,#B45309,#F59E0B)' }}>
-                  {isPending ? 'Posting…' : aiApproval === 'pending' ? 'Reviewing photo…' : 'Post Item'}
+                  {isPending ? t('lf.posting') : aiApproval === 'pending' ? t('lf.reviewing_photo') : t('lf.post_btn')}
                 </button>
               </form>
             </motion.div>
@@ -374,7 +376,7 @@ export default function LostFoundPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search items…"
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('lf.search_ph')}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-amber-400/35"
               style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(245,158,11,0.18)' }} />
           </div>
@@ -399,9 +401,9 @@ export default function LostFoundPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <PackageSearch size={36} className="mx-auto mb-3 opacity-20" style={{ color: '#F59E0B' }} />
-            <p className="font-syne text-base font-bold text-white mb-1">No items found</p>
+            <p className="font-syne text-base font-bold text-white mb-1">{t('lf.empty.title')}</p>
             <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>
-              {items.length === 0 ? 'Be the first to post!' : 'Try a different search or filter.'}
+              {items.length === 0 ? t('lf.empty.first') : t('lf.empty.filter')}
             </p>
           </div>
         ) : (
@@ -427,6 +429,7 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
   item: LostFoundItem; isOwner: boolean; expanded: boolean
   onToggle: () => void; onResolve: () => void
 }) {
+  const t = useT()
   const isLost   = item.type === 'lost'
   const resolved = item.status === 'resolved'
   const accent   = isLost ? { text: '#FCA5A5', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.35)' }
@@ -500,7 +503,7 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
               {/* Contact Poster section */}
               {!isOwner && hasContact && !resolved && (
                 <div className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(86,187,240,0.05)', border: '1px solid rgba(86,187,240,0.15)' }}>
-                  <p className="font-outfit text-[10px] font-bold uppercase tracking-wider" style={{ color: 'rgba(86,187,240,0.6)' }}>Contact Poster</p>
+                  <p className="font-outfit text-[10px] font-bold uppercase tracking-wider" style={{ color: 'rgba(86,187,240,0.6)' }}>{t('lf.card.contact')}</p>
                   <div className="flex flex-wrap gap-2">
                     {item.contact_email && (
                       <a href={`mailto:${item.contact_email}`}
@@ -540,7 +543,7 @@ function ItemCard({ item, isOwner, expanded, onToggle, onResolve }: {
 
               {isOwner && !resolved && (
                 <button onClick={onResolve} className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-xs font-semibold transition-all hover:-translate-y-0.5" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#6EE7B7' }}>
-                  <Check size={13} /> Mark as Resolved
+                  <Check size={13} /> {t('lf.card.resolve')}
                 </button>
               )}
             </div>
