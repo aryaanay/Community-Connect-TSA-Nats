@@ -124,9 +124,6 @@ function SidebarInner({
                 <span className="font-syne text-sm font-light text-white">Community</span>
                 <span className="font-syne text-sm font-black text-sky-400">Connect</span>
               </Link>
-              <p className="font-outfit text-[10px] text-sky-300/45 uppercase tracking-widest mt-0.5">
-                TSA Nationals 2026
-              </p>
             </motion.div>
           )}
         </AnimatePresence>

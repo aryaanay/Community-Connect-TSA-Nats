@@ -1,6 +1,8 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabaseClient'
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'legendary'
 
@@ -32,8 +34,9 @@ export const ACHIEVEMENTS: Achievement[] = [
 export const TOTAL_POSSIBLE_XP = ACHIEVEMENTS.reduce((s, a) => s + a.xp, 0)
 
 const EXPLORER_PAGES = ['resources', 'events', 'map', 'submit', 'wishlist', 'settings']
-const STORAGE_KEY   = 'cc-achievements'
-const VISITED_KEY   = 'cc-visited-pages'
+
+function visitedKey(userId: string) { return `cc-visited-pages-${userId}` }
+function localKey(userId: string)   { return `cc-achievements-${userId}` }
 
 interface AchievementsContextValue {
   unlocked: string[]
@@ -47,45 +50,94 @@ interface AchievementsContextValue {
 const AchievementsContext = createContext<AchievementsContextValue | null>(null)
 
 export function AchievementsProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
   const [unlocked, setUnlocked] = useState<string[]>([])
-  const [queue, setQueue] = useState<Achievement[]>([])
+  const [queue, setQueue]       = useState<Achievement[]>([])
+  const loadedFor               = useRef<string | null>(null)
 
+  // Load achievements whenever the signed-in user changes
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) setUnlocked(JSON.parse(stored))
-    } catch { /* SSR / private */ }
-  }, [])
+    if (!user) {
+      setUnlocked([])
+      setQueue([])
+      loadedFor.current = null
+      return
+    }
+
+    if (loadedFor.current === user.id) return
+    loadedFor.current = user.id
+
+    const load = async () => {
+      // Demo judge or no real Supabase session → use localStorage
+      if (user.id === 'demo-judge-001') {
+        try {
+          const stored = localStorage.getItem(localKey(user.id))
+          setUnlocked(stored ? JSON.parse(stored) : [])
+        } catch { setUnlocked([]) }
+        return
+      }
+
+      await supabase.auth.getSession()
+      const { data } = await supabase
+        .from('user_achievements')
+        .select('achievement_id')
+        .eq('user_id', user.id)
+
+      if (data) {
+        setUnlocked(data.map((r: { achievement_id: string }) => r.achievement_id))
+      }
+    }
+
+    load()
+  }, [user])
 
   const unlock = useCallback((id: string) => {
     const achievement = ACHIEVEMENTS.find(a => a.id === id)
     if (!achievement) return
+
     setUnlocked(prev => {
       if (prev.includes(id)) return prev
       const next = [...prev, id]
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch { /* ignore */ }
       setQueue(q => [...q, achievement])
+
+      if (!user) return next
+
+      if (user.id === 'demo-judge-001') {
+        try { localStorage.setItem(localKey(user.id), JSON.stringify(next)) } catch { /* ignore */ }
+        return next
+      }
+
+      // Persist to Supabase (fire-and-forget)
+      supabase.auth.getSession().then(() => {
+        supabase.from('user_achievements').insert({
+          user_id: user.id,
+          achievement_id: id,
+        }).then(() => { /* ignore duplicate errors */ })
+      })
+
       return next
     })
-  }, [])
+  }, [user])
 
   const dismissCurrent = useCallback(() => {
     setQueue(q => q.slice(1))
   }, [])
 
   const markPageVisited = useCallback((page: string) => {
+    if (!user) return
     try {
-      const stored = localStorage.getItem(VISITED_KEY)
+      const key = visitedKey(user.id)
+      const stored = localStorage.getItem(key)
       const visited: string[] = stored ? JSON.parse(stored) : []
       if (!visited.includes(page)) {
         const next = [...visited, page]
-        localStorage.setItem(VISITED_KEY, JSON.stringify(next))
+        localStorage.setItem(key, JSON.stringify(next))
         if (EXPLORER_PAGES.every(p => next.includes(p))) {
           unlock('full_explorer')
         }
       }
     } catch { /* ignore */ }
-  }, [unlock])
+  }, [user, unlock])
 
   const totalXp = ACHIEVEMENTS.filter(a => unlocked.includes(a.id)).reduce((s, a) => s + a.xp, 0)
 
