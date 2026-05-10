@@ -141,7 +141,6 @@ export default function LostFoundPage() {
     if (!isSignedIn) { setError('Sign in to post an item.'); return }
     if (!form.title.trim()) { setError('Title is required.'); return }
     if (aiApproval === 'rejected') { setError('Please remove the rejected photo before posting.'); return }
-    if (user!.id === 'demo-judge-001') { setError('The judge demo account cannot create posts.'); return }
     setError('')
     startTransition(async () => {
       let image_url: string | undefined
