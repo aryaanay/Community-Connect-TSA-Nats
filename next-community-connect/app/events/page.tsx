@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon, PlusCircle } from 'lucide-react'
+import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon, PlusCircle, Pencil, Save, X as XIcon } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettings } from '@/context/SettingsContext'
@@ -458,12 +458,34 @@ function useEventRsvp(eventId: string, userId: string | undefined) {
   return { isGoing, toggle, count, friendsGoing }
 }
 
-function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }: {
+type EventUpdates = { title: string; description: string; location: string; time: string }
+
+function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, onEdit }: {
   event: EventType; onClose: () => void;
   isOwned?: boolean; onDelete?: () => void; deleting?: boolean
+  onEdit?: (updates: EventUpdates) => Promise<void>
 }) {
   const { user } = useAuth()
   const { isGoing, toggle, count, friendsGoing } = useEventRsvp(event.id, user?.id)
+  const [editing, setEditing] = useState(false)
+  const [editSaving, setEditSaving] = useState(false)
+  const [editForm, setEditForm] = useState<EventUpdates>({
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    time: event.time,
+  })
+
+  const saveEdit = async () => {
+    if (!onEdit) return
+    setEditSaving(true)
+    await onEdit(editForm)
+    setEditSaving(false)
+    setEditing(false)
+  }
+
+  const inp = "w-full px-3 py-2 rounded-xl font-outfit text-sm outline-none focus:ring-1 focus:ring-sky-400/30 transition-all"
+  const inpStyle = { background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b' }
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -509,10 +531,38 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
         </div>
 
         <div className="p-8 event-modal-body">
+          {editing ? (
+            <div className="space-y-3 mb-6">
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Title</label>
+                <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className={inp} style={inpStyle} />
+              </div>
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Description</label>
+                <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={3} className={`${inp} resize-none`} style={inpStyle} />
+              </div>
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Location</label>
+                <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className={inp} style={inpStyle} />
+              </div>
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Time</label>
+                <input value={editForm.time} onChange={e => setEditForm(f => ({ ...f, time: e.target.value }))} className={inp} style={inpStyle} placeholder="e.g. 10:00 AM - 1:00 PM" />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setEditing(false)} className="flex-1 px-4 py-2.5 rounded-xl font-outfit text-sm font-semibold" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b' }}>Cancel</button>
+                <button onClick={saveEdit} disabled={editSaving} className="flex-1 px-4 py-2.5 rounded-xl font-outfit text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
+                  {editSaving ? '…' : <><Save size={13} /> Save</>}
+                </button>
+              </div>
+            </div>
+          ) : (
           <p className="event-modal-desc" style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '24px' }}>
             {event.description}
           </p>
+          )}
 
+          {!editing && (
           <div className="grid grid-cols-2 gap-2 mb-6">
             {[
               { label: 'Date', value: event.date },
@@ -530,8 +580,10 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
               </div>
             ))}
           </div>
+          )}
 
           {/* RSVP */}
+          {!editing && (
           <div className="flex items-center justify-between mb-5 px-1">
             <div>
               <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
@@ -565,8 +617,10 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
               {isGoing ? '✓ Going' : 'RSVP'}
             </button>
           </div>
+          )}
 
           <div className="flex gap-2">
+            {!editing && (
             <a
               href={getMapsUrl(event.location)}
               target="_blank"
@@ -576,6 +630,8 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
             >
               📍 Get Directions
             </a>
+            )}
+            {!editing && (
             <a
               href={getGCalUrl(event)}
               target="_blank"
@@ -585,7 +641,17 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
             >
               📅 Add to Calendar
             </a>
-            {isOwned && (
+            )}
+            {isOwned && onEdit && !editing && (
+              <button
+                onClick={() => setEditing(true)}
+                className="px-4 py-3 rounded-xl border transition-all hover:bg-sky-50"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#0369a1', borderColor: 'rgba(86,187,240,0.35)' }}
+              >
+                <Pencil size={13} />
+              </button>
+            )}
+            {isOwned && !editing && (
               <button
                 onClick={onDelete}
                 disabled={isDeleting}
@@ -595,6 +661,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
                 {isDeleting ? '…' : '🗑'}
               </button>
             )}
+            {!editing && (
             <button
               onClick={onClose}
               className="px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
@@ -602,6 +669,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting }:
             >
               ✕
             </button>
+            )}
           </div>
         </div>
       </motion.div>
@@ -645,6 +713,23 @@ export default function EventsPage() {
       }
     } catch { /* ignore */ }
     setDeleting(false)
+  }
+
+  const handleEditEvent = async (eventId: string, updates: EventUpdates) => {
+    if (!user) return
+    const rawId = eventId.replace('user-', '')
+    try {
+      const { error } = await supabase.from('user_events').update({
+        title: updates.title,
+        description: updates.description,
+        location: updates.location,
+        time: updates.time,
+      }).eq('id', rawId).eq('user_id', user.id)
+      if (!error) {
+        setAllEvents(prev => prev.map(e => e.id === eventId ? { ...e, ...updates } : e))
+        setSelected(prev => prev?.id === eventId ? { ...prev, ...updates } : prev)
+      }
+    } catch { /* ignore */ }
   }
 
   // Fetch future events
@@ -1118,6 +1203,7 @@ export default function EventsPage() {
             isOwned={myEventIds.has(selected.id)}
             onDelete={() => handleDeleteEvent(selected.id)}
             deleting={deleting}
+            onEdit={myEventIds.has(selected.id) ? (updates) => handleEditEvent(selected.id, updates) : undefined}
           />
         )}
       </AnimatePresence>

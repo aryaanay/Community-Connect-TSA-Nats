@@ -134,7 +134,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
               }}>
                 {cfg.label}
               </span>
-              <span style={{ fontSize: 10, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.3)' }}>
+              <span style={{ fontSize: 10, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.55)' }}>
                 +{achievement.xp} XP
               </span>
             </div>
@@ -145,7 +145,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
             </div>
 
             <div>
-              <p style={{ fontSize: 9, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.35)',
+              <p style={{ fontSize: 9, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.55)',
                 letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 5 }}>
                 Achievement Unlocked
               </p>
@@ -154,13 +154,13 @@ function Card3D({ achievement }: { achievement: Achievement }) {
                 {achievement.title}
               </h3>
               <p style={{ fontSize: 11.5, fontFamily: 'outfit,sans-serif',
-                color: 'rgba(255,255,255,0.52)', lineHeight: 1.55 }}>
+                color: 'rgba(255,255,255,0.82)', lineHeight: 1.55 }}>
                 {achievement.description}
               </p>
             </div>
 
             <p style={{ fontSize: 8.5, fontFamily: 'outfit,sans-serif',
-              color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginTop: 14 }}>
+              color: 'rgba(255,255,255,0.40)', textAlign: 'center', marginTop: 14 }}>
               Click to flip · Hover to control
             </p>
           </div>
@@ -205,7 +205,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
             <h4 style={{ fontSize: 19, fontFamily: 'syne,sans-serif', fontWeight: 800, color: 'white', marginBottom: 12 }}>
               {achievement.title}
             </h4>
-            <p style={{ fontSize: 13, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 22 }}>
+            <p style={{ fontSize: 13, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.82)', lineHeight: 1.6, marginBottom: 22 }}>
               {achievement.description}
             </p>
             <div style={{ padding: '9px 20px', borderRadius: 14, background: cfg.badge, border: `1px solid ${cfg.border}` }}>

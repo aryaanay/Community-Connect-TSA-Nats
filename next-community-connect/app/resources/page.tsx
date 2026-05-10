@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSettings } from '@/context/SettingsContext'
+import { useAuth } from '@/context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, GraduationCap, Users, Briefcase, Heart, Building2,
   Search, Leaf, Flame, ChevronDown, ArrowUp, MapPin, Phone,
   Clock, Mail, ExternalLink, HeartHandshake, Home, Stethoscope,
   Dumbbell, PhoneCall, TreePine, Award, HelpCircle, Bus, Shield,
-  AlertCircle, RefreshCw, Loader2,
+  AlertCircle, RefreshCw, Loader2, Trash2, Pencil, X, Save,
 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import TiltCard from '@/components/TiltCard'
@@ -28,6 +29,8 @@ type ResourceCard = {
   location?: string
   website?: string
   resourceIcon: React.ElementType
+  dbId?: string
+  contactEmail?: string
 }
 
 type DbResource = {
@@ -101,6 +104,8 @@ function dbToCard(r: DbResource): ResourceCard {
     location:     r.address     ?? undefined,
     website:      r.website_url ?? undefined,
     resourceIcon: getIcon(r.category ?? ''),
+    dbId:         r.id,
+    contactEmail: r.email       ?? undefined,
   }
 }
 
@@ -134,11 +139,96 @@ const categoryFilters = [
   { id: 'Events',           label: 'Events' },
 ]
 
+// ─── Edit Resource Modal ──────────────────────────────────────────────────────
+
+function EditResourceModal({ resource, onClose, onSaved }: {
+  resource: ResourceCard & { dbId: string }
+  onClose: () => void
+  onSaved: (updates: Partial<ResourceCard>) => void
+}) {
+  const [name,    setName]    = useState(resource.title)
+  const [desc,    setDesc]    = useState(resource.description)
+  const [phone,   setPhone]   = useState(resource.phone    || '')
+  const [email,   setEmail]   = useState(resource.email    || '')
+  const [address, setAddress] = useState(resource.location || '')
+  const [hours,   setHours]   = useState(resource.hours    || '')
+  const [website, setWebsite] = useState(resource.website  || '')
+  const [saving,  setSaving]  = useState(false)
+  const [err,     setErr]     = useState('')
+
+  const inp = "w-full px-3 py-2 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/40"
+  const inpStyle = { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.2)' }
+
+  const save = async () => {
+    if (!name.trim()) { setErr('Name is required'); return }
+    setSaving(true); setErr('')
+    const { error } = await supabase.from('resources').update({
+      name, description: desc,
+      phone:       phone   || null,
+      email:       email   || null,
+      address:     address || null,
+      hours:       hours   || null,
+      website_url: website || null,
+    }).eq('id', resource.dbId)
+    if (error) { setErr('Save failed. Try again.'); setSaving(false); return }
+    onSaved({ title: name, description: desc, phone: phone || undefined, email: email || undefined, location: address || undefined, hours: hours || undefined, website: website || undefined })
+    onClose()
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(1,22,41,0.85)', backdropFilter: 'blur(20px)' }}
+      onClick={onClose}
+    >
+      <motion.div initial={{ opacity: 0, y: 24, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md rounded-3xl overflow-hidden"
+        style={{ background: 'linear-gradient(180deg, #022747 0%, #033460 100%)', border: '1px solid rgba(86,187,240,0.22)', boxShadow: '0 40px 100px rgba(1,22,41,0.6)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-sky-400/10">
+          <h3 className="font-syne text-lg font-bold text-white">Edit Resource</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: 'rgba(198,235,255,0.5)', background: 'rgba(255,255,255,0.05)' }}><X size={14} /></button>
+        </div>
+        <div className="px-6 py-5 space-y-3 max-h-[65vh] overflow-y-auto">
+          {err && <p className="text-xs font-outfit text-red-400 px-1">{err}</p>}
+          {[
+            { label: 'Name *', val: name, set: setName },
+            { label: 'Email', val: email, set: setEmail },
+            { label: 'Phone', val: phone, set: setPhone },
+            { label: 'Address', val: address, set: setAddress },
+            { label: 'Hours', val: hours, set: setHours },
+            { label: 'Website', val: website, set: setWebsite },
+          ].map(f => (
+            <div key={f.label}>
+              <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: 'rgba(198,235,255,0.45)' }}>{f.label}</label>
+              <input value={f.val} onChange={e => f.set(e.target.value)} className={inp} style={inpStyle} />
+            </div>
+          ))}
+          <div>
+            <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: 'rgba(198,235,255,0.45)' }}>Description</label>
+            <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3} className={`${inp} resize-none`} style={inpStyle} />
+          </div>
+        </div>
+        <div className="px-6 pb-6 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-2xl font-outfit text-sm font-semibold" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(198,235,255,0.6)' }}>Cancel</button>
+          <button onClick={save} disabled={saving} className="flex-1 py-3 rounded-2xl font-outfit text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ResourcesPage() {
   const { settings } = useSettings()
   const dk = settings.dark
+  const { user } = useAuth()
 
   // Dark-mode colour tokens (used in inline styles below)
   const d = {
@@ -178,6 +268,38 @@ export default function ResourcesPage() {
   const [allResources, setAllResources]     = useState<ResourceCard[]>(hardcodedResources)
   const [loading, setLoading]               = useState(true)
   const [error, setError]                   = useState<string | null>(null)
+  const [ownedIds, setOwnedIds]             = useState<Set<string>>(new Set())
+  const [deletingId, setDeletingId]         = useState<string | null>(null)
+  const [editingResource, setEditingResource] = useState<(ResourceCard & { dbId: string }) | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+    try {
+      const key = `cc-my-resources-${user.id}`
+      const ids: string[] = JSON.parse(localStorage.getItem(key) || '[]')
+      setOwnedIds(new Set(ids))
+    } catch { /* ignore */ }
+  }, [user])
+
+  const isOwned = (r: ResourceCard) =>
+    !!(r.dbId && (ownedIds.has(r.dbId) || (user && r.contactEmail && r.contactEmail === user.email)))
+
+  const handleDeleteResource = async (dbId: string) => {
+    setDeletingId(dbId)
+    const { error: delErr } = await supabase.from('resources').delete().eq('id', dbId)
+    if (!delErr) {
+      setAllResources(prev => prev.filter(r => r.dbId !== dbId))
+      if (user) {
+        try {
+          const key = `cc-my-resources-${user.id}`
+          const ids: string[] = JSON.parse(localStorage.getItem(key) || '[]')
+          localStorage.setItem(key, JSON.stringify(ids.filter(id => id !== dbId)))
+          setOwnedIds(prev => { const s = new Set(prev); s.delete(dbId); return s })
+        } catch { /* ignore */ }
+      }
+    }
+    setDeletingId(null)
+  }
 
   // scroll watcher
   useEffect(() => {
@@ -248,6 +370,18 @@ export default function ResourcesPage() {
 
   return (
     <>
+      <AnimatePresence>
+        {editingResource && (
+          <EditResourceModal
+            resource={editingResource}
+            onClose={() => setEditingResource(null)}
+            onSaved={updates => {
+              setAllResources(prev => prev.map(r => r.dbId === editingResource.dbId ? { ...r, ...updates } : r))
+              setEditingResource(null)
+            }}
+          />
+        )}
+      </AnimatePresence>
       <HeroDemo
         badge="30+ Resources Listed"
         staticTitle="Community Resource Hub"
@@ -474,6 +608,28 @@ export default function ResourcesPage() {
 
                         </div>
                       </div>
+
+                      {/* Owner actions */}
+                      {isOwned(resource) && resource.dbId && expandedCard === i && (
+                        <div className="flex gap-2 mb-4">
+                          <button
+                            onClick={e => { e.stopPropagation(); setEditingResource(resource as ResourceCard & { dbId: string }) }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all"
+                            style={{ background: 'rgba(86,187,240,0.1)', border: '1px solid rgba(86,187,240,0.25)', color: '#56BBF0' }}
+                          >
+                            <Pencil size={11} /> Edit
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); if (resource.dbId) handleDeleteResource(resource.dbId) }}
+                            disabled={deletingId === resource.dbId}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all disabled:opacity-50"
+                            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+                          >
+                            {deletingId === resource.dbId ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                            {deletingId === resource.dbId ? 'Deleting…' : 'Delete'}
+                          </button>
+                        </div>
+                      )}
 
                       {/* Toggle */}
                       <button

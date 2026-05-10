@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CalendarDays, MapPin, Clock, Lock, Globe, Mail, X, CheckCircle, AlertCircle, Plus } from 'lucide-react'
+import { CalendarDays, MapPin, Clock, Lock, Globe, Mail, X, CheckCircle, AlertCircle, Plus, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
@@ -133,6 +133,13 @@ export default function CreateEventPage() {
 
               {/* Header */}
               <div className="mb-6">
+                <button
+                  onClick={() => router.back()}
+                  className="flex items-center gap-1.5 mb-4 font-outfit text-sm transition-colors hover:text-sky-300"
+                  style={{ color: 'rgba(198,235,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  <ArrowLeft size={14} /> Go Back
+                </button>
                 <h1 className="font-syne text-2xl font-black text-white mb-1">Create an Event</h1>
                 <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.5)' }}>
                   Public events appear on the Events page and Community Map. Private events send email invites.

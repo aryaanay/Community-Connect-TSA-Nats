@@ -65,8 +65,8 @@ async function saveToSubmissions(data: FormData) {
   if (error) throw error
 }
 
-async function addToResources(data: FormData) {
-  const { error } = await supabase
+async function addToResources(data: FormData): Promise<string | null> {
+  const { data: inserted, error } = await supabase
     .from('resources')
     .insert({
       name:        data.name,
@@ -81,7 +81,10 @@ async function addToResources(data: FormData) {
       is_verified: true,
       is_featured: false,
     })
+    .select('id')
+    .single()
   if (error) console.warn('Resources insert failed:', error)
+  return (inserted as { id: string } | null)?.id ?? null
 }
 
 // ─── AI Review Modal ──────────────────────────────────────────────────────────
@@ -533,7 +536,14 @@ export default function SubmitPage() {
         unlock('submit_resource')
         markPageVisited('submit')
         if (review.approved) {
-          await addToResources(formData)
+          const resourceId = await addToResources(formData)
+          if (resourceId && user?.id) {
+            try {
+              const key = `cc-my-resources-${user.id}`
+              const existing: string[] = JSON.parse(localStorage.getItem(key) || '[]')
+              localStorage.setItem(key, JSON.stringify([...existing, resourceId]))
+            } catch { /* ignore */ }
+          }
           setReviewState('approved')
           setReviewReason(review.reason)
           unlock('ai_approved')
