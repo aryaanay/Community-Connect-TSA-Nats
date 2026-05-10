@@ -41,11 +41,11 @@ DROP POLICY IF EXISTS "RSVPs viewable by owner" ON event_rsvps;
 DROP POLICY IF EXISTS "Authenticated users can RSVP" ON event_rsvps;
 DROP POLICY IF EXISTS "Users can remove own RSVP" ON event_rsvps;
 CREATE POLICY "RSVPs viewable by owner"
-  ON event_rsvps FOR SELECT USING (auth.uid() = user_id);
+  ON event_rsvps FOR SELECT USING ((auth.uid())::uuid = user_id);
 CREATE POLICY "Authenticated users can RSVP"
-  ON event_rsvps FOR INSERT WITH CHECK (auth.uid() = user_id);
+  ON event_rsvps FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
 CREATE POLICY "Users can remove own RSVP"
-  ON event_rsvps FOR DELETE USING (auth.uid() = user_id);
+  ON event_rsvps FOR DELETE USING ((auth.uid())::uuid = user_id);
 
 -- ──────────────────────────────────────────────
 -- RESOURCES (community resource directory)
@@ -146,9 +146,9 @@ ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view own donations" ON donations;
 DROP POLICY IF EXISTS "Authenticated users can donate" ON donations;
 CREATE POLICY "Users can view own donations"
-  ON donations FOR SELECT USING (auth.uid() = user_id);
+  ON donations FOR SELECT USING ((auth.uid())::uuid = user_id);
 CREATE POLICY "Authenticated users can donate"
-  ON donations FOR INSERT WITH CHECK (auth.uid() = user_id);
+  ON donations FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
 
 -- ──────────────────────────────────────────────
 -- USER ACHIEVEMENTS
@@ -165,11 +165,11 @@ DROP POLICY IF EXISTS "Users can view own achievements" ON user_achievements;
 DROP POLICY IF EXISTS "Users can insert own achievements" ON user_achievements;
 DROP POLICY IF EXISTS "Users can delete own achievements" ON user_achievements;
 CREATE POLICY "Users can view own achievements"
-  ON user_achievements FOR SELECT USING (auth.uid() = user_id);
+  ON user_achievements FOR SELECT USING ((auth.uid())::uuid = user_id);
 CREATE POLICY "Users can insert own achievements"
-  ON user_achievements FOR INSERT WITH CHECK (auth.uid() = user_id);
+  ON user_achievements FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
 CREATE POLICY "Users can delete own achievements"
-  ON user_achievements FOR DELETE USING (auth.uid() = user_id);
+  ON user_achievements FOR DELETE USING ((auth.uid())::uuid = user_id);
 
 -- ──────────────────────────────────────────────
 -- COMMUNITY FAVORS
@@ -193,9 +193,9 @@ DROP POLICY IF EXISTS "Owners can update favors" ON favors;
 CREATE POLICY "Favors viewable by everyone"
   ON favors FOR SELECT USING (true);
 CREATE POLICY "Authenticated users can post favors"
-  ON favors FOR INSERT WITH CHECK (auth.uid() = user_id);
+  ON favors FOR INSERT WITH CHECK ((auth.uid())::uuid = user_id);
 CREATE POLICY "Owners can update favors"
-  ON favors FOR UPDATE USING (auth.uid() = user_id);
+  ON favors FOR UPDATE USING ((auth.uid())::uuid = user_id);
 
 -- ──────────────────────────────────────────────
 -- FAVOR HELPS
@@ -214,13 +214,8 @@ DROP POLICY IF EXISTS "Favor owners can view help records" ON favor_helps;
 DROP POLICY IF EXISTS "Authenticated users can offer help" ON favor_helps;
 DROP POLICY IF EXISTS "Helpers can withdraw help" ON favor_helps;
 CREATE POLICY "Helper can view own help records"
-  ON favor_helps FOR SELECT USING (auth.uid() = helper_id);
+  ON favor_helps FOR SELECT USING ((auth.uid())::uuid = helper_id);
 CREATE POLICY "Authenticated users can offer help"
-  ON favor_helps FOR INSERT WITH CHECK (auth.uid() = helper_id);
+  ON favor_helps FOR INSERT WITH CHECK ((auth.uid())::uuid = helper_id);
 CREATE POLICY "Helpers can withdraw help"
-  ON favor_helps FOR DELETE USING (auth.uid() = helper_id);
-
--- ──────────────────────────────────────────────
--- Also enable realtime for live resource updates
--- ──────────────────────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE resources;
+  ON favor_helps FOR DELETE USING ((auth.uid())::uuid = helper_id);
