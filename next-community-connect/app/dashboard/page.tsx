@@ -215,51 +215,96 @@ export default function DashboardPage() {
             {/* ── Sun rays (dawn / morning / afternoon / dusk) ─────────────── */}
             {showRays && (
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                {[0, 1, 2, 3, 4].map(i => (
-                  <motion.div
-                    key={i}
-                    className="absolute"
-                    style={{
-                      top: '-70%',
-                      left: `${-20 + i * 22}%`,
-                      width: '13%',
-                      height: '240%',
-                      background: `linear-gradient(180deg, transparent 0%, ${theme.rayColor} 35%, ${theme.rayColor} 65%, transparent 100%)`,
-                      transform: 'rotate(-18deg)',
-                      transformOrigin: 'top center',
-                    }}
-                    animate={{ opacity: [0.45, 1, 0.45] }}
-                    transition={{ duration: 5 + i * 1.3, repeat: Infinity, ease: 'easeInOut', delay: i * 0.85 }}
-                  />
-                ))}
+                {/* Source glow — the "sun" off-screen top */}
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{
+                    top: '-80px', left: '38%',
+                    width: '320px', height: '320px',
+                    background: `radial-gradient(circle, ${theme.rayColor?.replace(/[\d.]+\)$/, '0.22)')} 0%, transparent 70%)`,
+                  }}
+                  animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                {/* Ray bundle — whole group slowly drifts left→right like sun arc */}
+                <motion.div
+                  className="absolute inset-0"
+                  animate={{ x: [0, 28, 0] }}
+                  transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  {[0, 1, 2, 3, 4, 5].map(i => (
+                    <motion.div
+                      key={i}
+                      className="absolute"
+                      style={{
+                        top: '-75%',
+                        left: `${-22 + i * 19}%`,
+                        width: `${9 + (i % 3) * 5}%`,
+                        height: '250%',
+                        background: `linear-gradient(180deg, transparent 0%, ${theme.rayColor} 28%, ${theme.rayColor} 72%, transparent 100%)`,
+                        transform: 'rotate(-16deg)',
+                        transformOrigin: 'top center',
+                        filter: 'blur(3px)',
+                      }}
+                      animate={{
+                        opacity: [0.3, 0.75 + (i % 3) * 0.18, 0.3],
+                        scaleX: [1, 1.07 + (i % 2) * 0.05, 1],
+                      }}
+                      transition={{ duration: 3.5 + i * 1.1, repeat: Infinity, ease: 'easeInOut', delay: i * 0.7 }}
+                    />
+                  ))}
+                </motion.div>
               </div>
             )}
 
             {/* ── Starfield + moon glow (night / evening) ──────────────────── */}
             {showStars && (
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div
+                {/* Moon glow — slow breathe */}
+                <motion.div
                   className="absolute rounded-full"
                   style={{
-                    top: '-15%', right: '12%',
-                    width: '200px', height: '200px',
-                    background: 'radial-gradient(circle, rgba(200,225,255,0.07) 0%, transparent 70%)',
+                    top: '-18%', right: '10%',
+                    width: '220px', height: '220px',
+                    background: 'radial-gradient(circle, rgba(200,225,255,0.09) 0%, transparent 70%)',
                   }}
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                {Array.from({ length: 36 }, (_, i) => (
+                {/* Stars — twinkle with subtle drift */}
+                {Array.from({ length: 40 }, (_, i) => (
                   <motion.div
                     key={i}
                     className="absolute rounded-full bg-white"
                     style={{
                       left: `${(i * 37 + 13) % 95}%`,
-                      top:  `${(i * 53 + 7)  % 72}%`,
-                      width:  i % 3 === 0 ? 2 : 1,
-                      height: i % 3 === 0 ? 2 : 1,
+                      top:  `${(i * 53 + 7)  % 75}%`,
+                      width:  i % 4 === 0 ? 2.5 : i % 3 === 0 ? 2 : 1,
+                      height: i % 4 === 0 ? 2.5 : i % 3 === 0 ? 2 : 1,
                     }}
-                    animate={{ opacity: [0.12 + (i % 5) * 0.06, 0.32 + (i % 5) * 0.08, 0.12 + (i % 5) * 0.06] }}
-                    transition={{ duration: 2 + (i % 4), repeat: Infinity, ease: 'easeInOut', delay: (i % 7) * 0.35 }}
+                    animate={{
+                      opacity: [0.1 + (i % 5) * 0.06, 0.5 + (i % 4) * 0.12, 0.1 + (i % 5) * 0.06],
+                      scale:   [1, i % 4 === 0 ? 1.8 : 1.35, 1],
+                      x: [0, (i % 2 === 0 ? 1 : -1) * (1 + i % 3), 0],
+                      y: [0, (i % 3 === 0 ? -1 : 1) * (1 + i % 2), 0],
+                    }}
+                    transition={{ duration: 1.8 + (i % 5) * 0.6, repeat: Infinity, ease: 'easeInOut', delay: (i % 9) * 0.28 }}
                   />
                 ))}
+                {/* Shooting star — streaks every ~10s */}
+                <motion.div
+                  className="absolute"
+                  style={{
+                    top: '18%', right: '22%',
+                    width: '90px', height: '1.5px',
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent)',
+                    borderRadius: '2px',
+                    transformOrigin: 'right center',
+                    rotate: -28,
+                  }}
+                  animate={{ x: [0, -260], y: [0, 95], opacity: [0, 1, 1, 0], scaleX: [0.2, 1, 0.4, 0] }}
+                  transition={{ duration: 0.65, repeat: Infinity, repeatDelay: 10, ease: [0.2, 0, 0.6, 1], delay: 4 }}
+                />
               </div>
             )}
             <div className="relative">
