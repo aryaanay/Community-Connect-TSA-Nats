@@ -19,6 +19,9 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+const DEMO_JUDGE_USER: User = { id: 'demo-judge-001', email: 'judges@tsa.com' }
+const DEMO_JUDGE_STORAGE_KEY = 'community-connect-demo-judge'
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -27,9 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession()
       const sessionUser = data.session?.user
+
       if (sessionUser) {
+        localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
         setUser({ id: sessionUser.id, email: sessionUser.email })
+      } else if (localStorage.getItem(DEMO_JUDGE_STORAGE_KEY) === 'true') {
+        setUser(DEMO_JUDGE_USER)
       }
+
       setLoading(false)
     }
 
@@ -37,15 +45,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       const sessionUser = session?.user
-      setUser(sessionUser ? { id: sessionUser.id, email: sessionUser.email } : null)
+      if (sessionUser) {
+        localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
+        setUser({ id: sessionUser.id, email: sessionUser.email })
+      } else if (localStorage.getItem(DEMO_JUDGE_STORAGE_KEY) === 'true') {
+        setUser(DEMO_JUDGE_USER)
+      } else {
+        setUser(null)
+      }
     })
 
     return () => { listener.subscription.unsubscribe() }
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    // Try real Supabase auth first
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
+    if (!error && data.user) {
+      localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
+      setUser({ id: data.user.id, email: data.user.email })
+      return
+    }
+
+    // Judge fallback: if Supabase auth fails for any reason, use demo session
+    if (email === 'judges@tsa.com' && password === 'judges!') {
+      localStorage.setItem(DEMO_JUDGE_STORAGE_KEY, 'true')
+      setUser(DEMO_JUDGE_USER)
+      return
+    }
+
+    // Surface real errors for all other accounts
     if (error) {
       if (error.message.toLowerCase().includes('email not confirmed')) {
         throw new Error('Account exists but email is not confirmed. For this demo, please create a new account.')
@@ -55,12 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       throw new Error(error.message)
     }
-
-    await supabase.auth.refreshSession()
-    const sessionUser = data.user
-    if (sessionUser) {
-      setUser({ id: sessionUser.id, email: sessionUser.email })
-    }
   }
 
   const signUp = async (email: string, password: string) => {
@@ -68,11 +92,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw new Error(error.message)
     const sessionUser = data.user
     if (sessionUser) {
+      localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
       setUser({ id: sessionUser.id, email: sessionUser.email })
     }
   }
 
   const signOut = async () => {
+    if (user?.id === 'demo-judge-001') {
+      localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
+      setUser(null)
+      return
+    }
+    localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
     await supabase.auth.signOut()
     setUser(null)
   }
