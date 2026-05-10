@@ -249,7 +249,7 @@ function SidebarInner({
                     ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
                     ${isActive
                       ? 'bg-sky-500/15 text-sky-300 border border-sky-400/20'
-                      : 'text-sky-100/70 hover:text-sky-200 hover:bg-white/8'
+                      : 'text-sky-200/65 hover:text-sky-100 hover:bg-white/8'
                     }
                   `}
                 >
@@ -276,7 +276,7 @@ function SidebarInner({
               title={collapsed ? 'Site Tutorial' : undefined}
               className={`
                 flex items-center w-full rounded-lg transition-all duration-150
-                text-sky-300/65 hover:text-sky-200 hover:bg-sky-400/10
+                text-sky-200/65 hover:text-sky-100 hover:bg-white/8
                 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
               `}
             >
@@ -296,7 +296,7 @@ function SidebarInner({
               title={collapsed ? t('nav.signout') : undefined}
               className={`
                 flex items-center w-full rounded-lg transition-all duration-150
-                text-sky-100/60 hover:text-red-300 hover:bg-red-500/10
+                text-sky-200/65 hover:text-red-300 hover:bg-red-500/10
                 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}
               `}
             >

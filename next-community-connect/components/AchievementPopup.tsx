@@ -3,25 +3,28 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAchievements, Achievement } from '@/context/AchievementsContext'
+import { Sparkles } from 'lucide-react'
 
 const RARITY = {
-  common:    { label: 'Common',    shimmer: '#56BBF0', border: 'rgba(86,187,240,0.55)',   badge: 'rgba(86,187,240,0.15)',   text: '#56BBF0',  glow: 'rgba(86,187,240,0.35)',   grad: 'linear-gradient(145deg,#071e2e 0%,#0d3654 100%)' },
-  uncommon:  { label: 'Uncommon',  shimmer: '#10B981', border: 'rgba(16,185,129,0.55)',   badge: 'rgba(16,185,129,0.15)',   text: '#10B981',  glow: 'rgba(16,185,129,0.35)',   grad: 'linear-gradient(145deg,#051d12 0%,#0b3823 100%)' },
-  rare:      { label: 'Rare',      shimmer: '#8B5CF6', border: 'rgba(139,92,246,0.55)',   badge: 'rgba(139,92,246,0.15)',   text: '#A78BFA',  glow: 'rgba(139,92,246,0.35)',   grad: 'linear-gradient(145deg,#110720 0%,#221040 100%)' },
-  legendary: { label: 'Legendary', shimmer: '#F59E0B', border: 'rgba(245,158,11,0.65)',   badge: 'rgba(245,158,11,0.15)',   text: '#FCD34D',  glow: 'rgba(245,158,11,0.45)',   grad: 'linear-gradient(145deg,#1c0f00 0%,#3a2000 100%)' },
+  common:    { label: 'Common',    shimmer: '#56BBF0', border: 'rgba(86,187,240,0.55)',  badge: 'rgba(86,187,240,0.15)',  text: '#56BBF0',  glow: 'rgba(86,187,240,0.35)',  grad: 'linear-gradient(145deg,#071e2e 0%,#0d3654 100%)' },
+  uncommon:  { label: 'Uncommon',  shimmer: '#10B981', border: 'rgba(16,185,129,0.55)',  badge: 'rgba(16,185,129,0.15)',  text: '#10B981',  glow: 'rgba(16,185,129,0.35)',  grad: 'linear-gradient(145deg,#051d12 0%,#0b3823 100%)' },
+  rare:      { label: 'Rare',      shimmer: '#8B5CF6', border: 'rgba(139,92,246,0.55)',  badge: 'rgba(139,92,246,0.15)',  text: '#A78BFA',  glow: 'rgba(139,92,246,0.35)',  grad: 'linear-gradient(145deg,#110720 0%,#221040 100%)' },
+  legendary: { label: 'Legendary', shimmer: '#F59E0B', border: 'rgba(245,158,11,0.65)',  badge: 'rgba(245,158,11,0.15)',  text: '#FCD34D',  glow: 'rgba(245,158,11,0.45)',  grad: 'linear-gradient(145deg,#1c0f00 0%,#3a2000 100%)' },
 }
 
 function Card3D({ achievement }: { achievement: Achievement }) {
-  const cardRef    = useRef<HTMLDivElement>(null)
-  const animRef    = useRef<number>()
-  const current    = useRef({ x: 0, y: 0 })
-  const target     = useRef({ x: 0, y: 0 })
-  const autoAngle  = useRef(0)         // auto-rotation accumulator (degrees)
-  const [rot, setRot]         = useState({ x: 0, y: 0 })
-  const [glare, setGlare]     = useState({ x: 50, y: 50 })
+  const cardRef   = useRef<HTMLDivElement>(null)
+  const animRef   = useRef<number>()
+  const angleY    = useRef(0)
+  const currentX  = useRef(0)
+  const targetX   = useRef(0)
+  const targetY   = useRef(0)
+  const [rotX, setRotX] = useState(0)
+  const [rotY, setRotY] = useState(0)
+  const [glare, setGlare]           = useState({ x: 50, y: 50 })
   const [flashlight, setFlashlight] = useState({ x: 50, y: 50, active: false })
-  const [hovered, setHovered] = useState(false)
-  const [flipped, setFlipped] = useState(false)
+  const [hovered, setHovered]       = useState(false)
+  const [flipped, setFlipped]       = useState(false)
 
   const cfg = RARITY[achievement.rarity]
 
@@ -29,11 +32,9 @@ function Card3D({ achievement }: { achievement: Achievement }) {
     const rect = cardRef.current?.getBoundingClientRect()
     if (!rect) return
     const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    target.current = {
-      x: -((e.clientY - cy) / (rect.height / 2)) * 22,
-      y:  ((e.clientX - cx) / (rect.width  / 2)) * 22,
-    }
+    const cy = rect.top  + rect.height / 2
+    targetX.current = -((e.clientY - cy) / (rect.height / 2)) * 20
+    targetY.current =  ((e.clientX - cx) / (rect.width  / 2)) * 20
     const gx = ((e.clientX - rect.left) / rect.width)  * 100
     const gy = ((e.clientY - rect.top)  / rect.height) * 100
     setGlare({ x: gx, y: gy })
@@ -42,33 +43,30 @@ function Card3D({ achievement }: { achievement: Achievement }) {
 
   useEffect(() => {
     const tick = () => {
-      if (!hovered && !flipped) {
-        // Auto-rotate around Y at ~18°/sec (0.3° per frame at 60fps)
-        autoAngle.current = (autoAngle.current + 0.3) % 360
-        const autoY = autoAngle.current
-        const autoX = Math.sin(autoAngle.current * Math.PI / 180) * 6
-        target.current = { x: autoX, y: autoY % 360 > 180 ? -(360 - autoY % 360) * 0.5 : (autoY % 360) * 0.5 }
+      if (!flipped) {
+        if (hovered) {
+          // Smooth mouse-follow
+          currentX.current += (targetX.current - currentX.current) * 0.1
+          const interpY = rotY + (targetY.current - rotY) * 0.1
+          setRotX(currentX.current)
+          setRotY(interpY)
+        } else {
+          // Continuous Y-axis rotation — 1.2°/frame ≈ 1 full spin every 5 sec
+          angleY.current = (angleY.current + 1.2) % 360
+          currentX.current += (0 - currentX.current) * 0.05
+          setRotX(currentX.current)
+          setRotY(angleY.current)
+        }
       }
-      current.current.x += (target.current.x - current.current.x) * 0.08
-      current.current.y += (target.current.y - current.current.y) * 0.08
-      setRot({ x: current.current.x, y: current.current.y })
       animRef.current = requestAnimationFrame(tick)
     }
     animRef.current = requestAnimationFrame(tick)
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current) }
-  }, [hovered, flipped])
-
-  useEffect(() => {
-    if (hovered) {
-      // Smoothly transition target back to mouse-following (already handled in onMouseMove)
-    } else {
-      setFlashlight(f => ({ ...f, active: false }))
-    }
-  }, [hovered])
+  }, [hovered, flipped]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const transform = flipped
     ? 'rotateY(180deg)'
-    : `rotateX(${rot.x}deg) rotateY(${rot.y}deg)`
+    : `rotateX(${rotX}deg) rotateY(${rotY}deg)`
 
   return (
     <div
@@ -76,7 +74,13 @@ function Card3D({ achievement }: { achievement: Achievement }) {
       style={{ perspective: '1100px', width: 290, height: 400, cursor: 'pointer' }}
       onMouseMove={onMouseMove}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setGlare({ x: 50, y: 50 }) }}
+      onMouseLeave={() => {
+        setHovered(false)
+        setGlare({ x: 50, y: 50 })
+        setFlashlight(f => ({ ...f, active: false }))
+        // Sync auto-angle to current Y so rotation continues smoothly
+        angleY.current = rotY
+      }}
       onClick={() => setFlipped(f => !f)}
     >
       <div style={{
@@ -86,7 +90,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
         transition: flipped ? 'transform 0.55s cubic-bezier(0.16,1,0.3,1)' : 'none',
       }}>
 
-        {/* ── FRONT ── */}
+        {/* FRONT */}
         <div style={{
           position: 'absolute', inset: 0, borderRadius: 20,
           background: cfg.grad,
@@ -95,18 +99,17 @@ function Card3D({ achievement }: { achievement: Achievement }) {
           overflow: 'hidden',
           backfaceVisibility: 'hidden',
         }}>
-          {/* holographic shimmer */}
+          {/* Holographic shimmer driven by rotation angle */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'overlay',
-            backgroundImage: `conic-gradient(from ${rot.y * 4}deg at 50% 45%,
+            backgroundImage: `conic-gradient(from ${rotY * 4}deg at 50% 45%,
               transparent 0deg, ${cfg.shimmer}22 40deg, transparent 80deg,
               ${cfg.shimmer}12 160deg, transparent 220deg,
               ${cfg.shimmer}20 280deg, transparent 340deg, ${cfg.shimmer}12 360deg)`,
-            opacity: hovered ? 1 : 0.6,
+            opacity: hovered ? 1 : 0.7,
             transition: 'opacity 0.3s',
           }} />
 
-          {/* glare */}
           {hovered && (
             <div style={{
               position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -114,16 +117,13 @@ function Card3D({ achievement }: { achievement: Achievement }) {
             }} />
           )}
 
-          {/* flashlight beam */}
           {flashlight.active && (
             <div style={{
               position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'screen',
               background: `radial-gradient(ellipse 45% 55% at ${flashlight.x}% ${flashlight.y}%, rgba(255,255,255,0.18) 0%, ${cfg.shimmer}18 35%, transparent 70%)`,
-              transition: 'background 0.05s',
             }} />
           )}
 
-          {/* content */}
           <div style={{ padding: 24, display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', zIndex: 1, boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <span style={{
@@ -160,13 +160,13 @@ function Card3D({ achievement }: { achievement: Achievement }) {
             </div>
 
             <p style={{ fontSize: 8.5, fontFamily: 'outfit,sans-serif',
-              color: 'rgba(255,255,255,0.18)', textAlign: 'center', marginTop: 14 }}>
-              Click to flip · Hover to control rotation
+              color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginTop: 14 }}>
+              Click to flip · Hover to control
             </p>
           </div>
         </div>
 
-        {/* ── BACK ── */}
+        {/* BACK */}
         <div style={{
           position: 'absolute', inset: 0, borderRadius: 20,
           background: cfg.grad,
@@ -176,31 +176,21 @@ function Card3D({ achievement }: { achievement: Achievement }) {
           backfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
         }}>
-          {/* dot grid */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',
             backgroundImage: `radial-gradient(${cfg.shimmer}28 1px, transparent 1px)`,
             backgroundSize: '22px 22px',
           }} />
-
-          {/* diagonal stripe */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: `repeating-linear-gradient(
-              -45deg,
-              transparent, transparent 18px,
-              ${cfg.shimmer}06 18px, ${cfg.shimmer}06 19px
-            )`,
+            background: `repeating-linear-gradient(-45deg, transparent, transparent 18px, ${cfg.shimmer}06 18px, ${cfg.shimmer}06 19px)`,
           }} />
-
-          {/* flashlight on back too */}
           {flashlight.active && (
             <div style={{
               position: 'absolute', inset: 0, pointerEvents: 'none', mixBlendMode: 'screen',
               background: `radial-gradient(ellipse 45% 55% at ${flashlight.x}% ${flashlight.y}%, rgba(255,255,255,0.15) 0%, ${cfg.shimmer}14 35%, transparent 70%)`,
             }} />
           )}
-
           <div style={{
             padding: 30, display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
@@ -210,20 +200,15 @@ function Card3D({ achievement }: { achievement: Achievement }) {
             <div style={{ fontSize: 52, marginBottom: 18, filter: `drop-shadow(0 0 20px ${cfg.shimmer}60)` }}>
               {achievement.emoji}
             </div>
-            <div style={{
-              width: 52, height: 3, borderRadius: 4, marginBottom: 18,
-              background: `linear-gradient(90deg, transparent, ${cfg.shimmer}, transparent)`,
-            }} />
+            <div style={{ width: 52, height: 3, borderRadius: 4, marginBottom: 18,
+              background: `linear-gradient(90deg, transparent, ${cfg.shimmer}, transparent)` }} />
             <h4 style={{ fontSize: 19, fontFamily: 'syne,sans-serif', fontWeight: 800, color: 'white', marginBottom: 12 }}>
               {achievement.title}
             </h4>
             <p style={{ fontSize: 13, fontFamily: 'outfit,sans-serif', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 22 }}>
               {achievement.description}
             </p>
-            <div style={{
-              padding: '9px 20px', borderRadius: 14,
-              background: cfg.badge, border: `1px solid ${cfg.border}`,
-            }}>
+            <div style={{ padding: '9px 20px', borderRadius: 14, background: cfg.badge, border: `1px solid ${cfg.border}` }}>
               <span style={{ fontSize: 14, fontFamily: 'syne,sans-serif', fontWeight: 700, color: cfg.text }}>
                 +{achievement.xp} XP earned
               </span>
@@ -241,7 +226,7 @@ export function AchievementPopup() {
 
   useEffect(() => {
     if (!current) return
-    const t = setTimeout(dismissCurrent, 9000)
+    const t = setTimeout(dismissCurrent, 12000)
     return () => clearTimeout(t)
   }, [current, dismissCurrent])
 
@@ -255,9 +240,29 @@ export function AchievementPopup() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(1,14,28,0.82)', backdropFilter: 'blur(18px)' }}
+          style={{ backgroundColor: 'rgba(1,14,28,0.85)', backdropFilter: 'blur(18px)' }}
           onClick={dismissCurrent}
         >
+          {/* Header explanation */}
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col items-center gap-2 mb-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{ background: 'rgba(86,187,240,0.12)', border: '1px solid rgba(86,187,240,0.25)' }}>
+              <Sparkles size={13} style={{ color: '#56BBF0' }} />
+              <span className="font-outfit text-xs font-semibold uppercase tracking-widest" style={{ color: '#90D4F7' }}>
+                Achievement Unlocked
+              </span>
+            </div>
+            <p className="font-outfit text-sm text-center max-w-xs" style={{ color: 'rgba(198,235,255,0.55)' }}>
+              Earn XP by exploring Community Connect. Level up to unlock new titles on your profile.
+            </p>
+          </motion.div>
+
           <motion.div
             initial={{ scale: 0.75, y: 50, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -271,7 +276,7 @@ export function AchievementPopup() {
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.6 }}
             className="mt-5 font-outfit text-xs"
             style={{ color: 'rgba(198,235,255,0.3)' }}
           >

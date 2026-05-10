@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements, ACHIEVEMENTS, TOTAL_POSSIBLE_XP, Achievement } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
-import { Lock, Edit3, Save, X, Camera, Users2, AlertTriangle } from 'lucide-react'
+import { Lock, Edit3, Save, X, Camera, Users2, AlertTriangle, RotateCcw } from 'lucide-react'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -211,6 +211,19 @@ export default function ProfilePage() {
               <p className="font-outfit text-xs mt-0.5 leading-relaxed" style={{ color: 'rgba(252,211,77,0.75)' }}>
                 Feel free to explore the profile editor, but please don't change the password, delete the account, or submit anything permanent. We appreciate it!
               </p>
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('cc-achievements')
+                    localStorage.removeItem('cc-visited-pages')
+                    window.location.reload()
+                  } catch {}
+                }}
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all hover:opacity-80"
+                style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#FCD34D' }}
+              >
+                <RotateCcw size={11} /> Reset achievements for demo
+              </button>
             </div>
           </motion.div>
         )}

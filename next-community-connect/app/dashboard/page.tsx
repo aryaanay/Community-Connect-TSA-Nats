@@ -205,10 +205,9 @@ export default function DashboardPage() {
                 >
                   {t('dash.browse')} <ArrowUpRight size={14} />
                 </Link>
-                <span className="text-sky-400/30">·</span>
                 <Link
                   href="/submit"
-                  className="inline-flex items-center gap-1.5 font-outfit text-sm font-semibold text-sky-300/70 hover:text-sky-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 font-outfit text-sm font-semibold text-sky-300 hover:text-sky-200 transition-colors"
                 >
                   {t('dash.submit_res')} <ArrowUpRight size={14} />
                 </Link>
