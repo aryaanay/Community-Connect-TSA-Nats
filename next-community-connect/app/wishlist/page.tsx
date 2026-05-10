@@ -680,7 +680,7 @@ export default function DonatePage() {
     setUserDonations(prev => {
       const next = { ...prev, [selected.id]: (prev[selected.id] || 0) + amount }
       unlock('first_donation')
-      if (STATIC_CAUSES.every(c => next[c.id])) unlock('donate_all')
+      if (STATIC_CAUSES.filter(c => next[c.id]).length >= 5) unlock('donate_all')
       return next
     })
     try {

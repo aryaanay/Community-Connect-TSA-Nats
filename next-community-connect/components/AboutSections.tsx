@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useMotionTemplate } from 'framer-motio
 import Link from 'next/link'
 import { Users, Heart, Shield, Zap } from 'lucide-react'
 import { useSettings } from '@/context/SettingsContext'
+import { useT } from '@/lib/useT'
 import { supabase } from '@/lib/supabaseClient'
 
 const timeline = [
@@ -73,6 +74,7 @@ function AnimatedCounter({ target }: { target: number }) {
 export function AboutSections() {
   const { settings } = useSettings()
   const dk = settings.dark
+  const t = useT()
 
   const statsRef = useRef<HTMLElement>(null)
   const [statsVisible, setStatsVisible] = useState(false)
@@ -183,31 +185,31 @@ export function AboutSections() {
               initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
-              <span className="section-eyebrow">Our Mission</span>
-              <h2 className="section-heading mb-4">One place. Every resource. Zero confusion.</h2>
+              <span className="section-eyebrow">{t('about.mission_eyebrow')}</span>
+              <h2 className="section-heading mb-4">{t('about.mission_heading')}</h2>
               <p className="font-outfit text-base text-[var(--text-body)] leading-relaxed mb-4">
-                Our community was drowning in noise. Facebook groups, flyers, scattered websites, email chains — residents needed five different apps just to figure out what was happening two blocks away. Critical resources went unnoticed. Neighbors who needed help couldn&apos;t find it. The information existed, but no one could reach it.
+                {t('about.mission_p1')}
               </p>
               <p className="font-outfit text-base text-[var(--text-body)] leading-relaxed mb-6">
-                So we built the fix. Community Connect is a single, unified hub where everything lives — local resources, lost &amp; found, community favors, events, and more. No more hunting through ten platforms. No more falling through the cracks. Just one place, built for the people who call this community home.
+                {t('about.mission_p2')}
               </p>
               <div className="border-l-4 border-sky-400 bg-sky-50 rounded-r-xl p-5 mb-6">
                 <p
                   className="font-dm-sans text-base leading-relaxed italic m-0 mb-2"
                   style={{ color: dk ? '#BAE6FD' : '#1e3a5f' }}
                 >
-                  &ldquo;Alone we can do so little; together we can do so much.&rdquo;
+                  {t('about.quote')}
                 </p>
                 <p className="font-outfit text-sm font-semibold m-0" style={{ color: dk ? '#90D4F7' : '#2499D6' }}>
-                  — Helen Keller
+                  {t('about.quote_attr')}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: Heart, title: 'Inclusive', desc: 'Resources for every age, background, and need.' },
-                  { icon: Shield, title: 'Trusted', desc: 'Every resource is reviewed before listing.' },
-                  { icon: Users, title: 'Community-Led', desc: 'Built by volunteers, sustained by neighbors.' },
-                  { icon: Zap, title: 'Impactful', desc: 'Thousands connected to support every month.' },
+                  { icon: Heart, title: t('about.val_inclusive'), desc: t('about.val_inclusive_desc') },
+                  { icon: Shield, title: t('about.val_trusted'), desc: t('about.val_trusted_desc') },
+                  { icon: Users, title: t('about.val_community'), desc: t('about.val_community_desc') },
+                  { icon: Zap, title: t('about.val_impactful'), desc: t('about.val_impactful_desc') },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -260,15 +262,15 @@ export function AboutSections() {
             viewport={{ once: true }} transition={{ duration: 0.5 }}
             className="text-center mb-10"
           >
-            <span className="font-outfit text-xs font-semibold uppercase tracking-widest text-sky-300/70">By the Numbers</span>
-            <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2">Our Impact in Bothell, WA</h2>
+            <span className="font-outfit text-xs font-semibold uppercase tracking-widest text-sky-300/70">{t('about.numbers_eyebrow')}</span>
+            <h2 className="font-syne text-3xl sm:text-4xl font-bold text-white mt-2">{t('about.numbers_heading')}</h2>
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
             {[
-              { value: 30, label: 'Resources Listed' },
-              { value: liveSupporters, label: 'Active Supporters' },
-              { value: liveEventCount, label: 'Events Organized' },
-              { value: 10, label: 'Partner Organizations' },
+              { value: 30, label: t('about.stat_resources') },
+              { value: liveSupporters, label: t('about.stat_supporters') },
+              { value: liveEventCount, label: t('about.stat_events_org') },
+              { value: 10, label: t('about.stat_partners_org') },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -293,9 +295,9 @@ export function AboutSections() {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} className="text-center mb-14"
           >
-            <span className="section-eyebrow">Our Journey</span>
-            <h2 className="section-heading">How We Got Here</h2>
-            <p className="section-subtext mx-auto">From a weekend project to a Bothell institution, here is the story of Community Connect.</p>
+            <span className="section-eyebrow">{t('about.journey_eyebrow')}</span>
+            <h2 className="section-heading">{t('about.journey_heading')}</h2>
+            <p className="section-subtext mx-auto">{t('about.journey_sub')}</p>
           </motion.div>
           <div className="space-y-6">
             {timeline.map((item, i) => (
@@ -312,9 +314,9 @@ export function AboutSections() {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} className="text-center mb-12"
           >
-            <span className="section-eyebrow">Our Partners</span>
-            <h2 className="section-heading">Organizations We Work With</h2>
-            <p className="section-subtext mx-auto">Community Connect is proud to partner with these local organizations who share our commitment to accessible, equitable community support.</p>
+            <span className="section-eyebrow">{t('about.partners_eyebrow')}</span>
+            <h2 className="section-heading">{t('about.partners_heading')}</h2>
+            <p className="section-subtext mx-auto">{t('about.partners_sub')}</p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}

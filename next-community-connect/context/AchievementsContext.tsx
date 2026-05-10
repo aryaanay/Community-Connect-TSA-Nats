@@ -24,9 +24,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'submit_resource',        emoji: '✉️', title: 'Contributor',            description: 'Submitted a community resource for review.',                     rarity: 'uncommon',  xp: 150 },
   { id: 'ai_approved',            emoji: '🤖', title: 'AI Approved',             description: 'Had a resource approved by the AI moderator.',                   rarity: 'rare',      xp: 200 },
   { id: 'first_donation',         emoji: '❤️', title: 'Generous Soul',          description: 'Made your first donation to a local cause.',                     rarity: 'uncommon',  xp: 100 },
-  { id: 'donate_all',             emoji: '🏆', title: 'Philanthropy Champion',   description: 'Donated to all 6 community causes.',                             rarity: 'legendary', xp: 500 },
-  { id: 'night_owl',              emoji: '🌙', title: 'Night Owl',               description: 'Enabled dark mode for a better night experience.',               rarity: 'common',    xp: 25  },
-  { id: 'polyglot',               emoji: '🌐', title: 'Polyglot',                description: 'Changed the app language to explore new cultures.',              rarity: 'common',    xp: 50  },
+  { id: 'donate_all',             emoji: '🏆', title: 'Philanthropy Champion',   description: 'Donated to any 5 community causes.',                             rarity: 'legendary', xp: 500 },
   { id: 'accessibility_advocate', emoji: '♿', title: 'Accessibility Advocate',  description: 'Enabled an accessibility feature for more inclusive use.',       rarity: 'uncommon',  xp: 75  },
   { id: 'full_explorer',          emoji: '🏘️', title: 'Full Explorer',          description: 'Visited every section of the CommunityConnect dashboard.',       rarity: 'rare',      xp: 300 },
   { id: 'favor_posted',           emoji: '📋', title: 'Help Wanted',             description: 'Posted your first favor request to the community.',                rarity: 'common',    xp: 50  },
@@ -49,6 +47,7 @@ interface AchievementsContextValue {
   dismissCurrent: () => void
   unlock: (id: string) => void
   markPageVisited: (page: string) => void
+  resetAchievements: () => Promise<void>
   totalXp: number
 }
 
@@ -144,10 +143,27 @@ export function AchievementsProvider({ children }: { children: React.ReactNode }
     } catch { /* ignore */ }
   }, [user, unlock])
 
+  const resetAchievements = useCallback(async () => {
+    if (!user) return
+    try {
+      localStorage.removeItem(localKey(user.id))
+      localStorage.removeItem(visitedKey(user.id))
+    } catch { /* ignore */ }
+
+    if (user.id !== 'demo-judge-001') {
+      await supabase.auth.getSession()
+      await supabase.from('user_achievements').delete().eq('user_id', user.id)
+    }
+
+    setUnlocked([])
+    setQueue([])
+    loadedFor.current = null
+  }, [user])
+
   const totalXp = ACHIEVEMENTS.filter(a => unlocked.includes(a.id)).reduce((s, a) => s + a.xp, 0)
 
   return (
-    <AchievementsContext.Provider value={{ unlocked, queue, dismissCurrent, unlock, markPageVisited, totalXp }}>
+    <AchievementsContext.Provider value={{ unlocked, queue, dismissCurrent, unlock, markPageVisited, resetAchievements, totalXp }}>
       {children}
     </AchievementsContext.Provider>
   )

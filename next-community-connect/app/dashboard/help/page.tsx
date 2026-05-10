@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useT } from '@/lib/useT'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown, Search, BookOpen, CalendarDays, Map, PlusCircle,
@@ -341,6 +342,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function HelpPage() {
+  const t = useT()
   const [search, setSearch]         = useState('')
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [aiAnswer, setAiAnswer]     = useState<string | null>(null)
@@ -390,9 +392,9 @@ export default function HelpPage() {
                 <HelpCircle size={20} style={{ color: '#56BBF0' }} />
               </div>
               <div>
-                <h1 className="font-syne text-2xl font-black text-white">Help & Documentation</h1>
+                <h1 className="font-syne text-2xl font-black text-white">{t('help.title')}</h1>
                 <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>
-                  Answers to common questions about CommunityConnect
+                  {t('help.subtitle')}
                 </p>
               </div>
             </div>
@@ -401,7 +403,7 @@ export default function HelpPage() {
             <div className="relative mt-5">
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
               <input type="text" value={search} onChange={e => handleSearchChange(e.target.value)}
-                placeholder="Ask anything about CommunityConnect…"
+                placeholder={t('help.search_ph')}
                 className="w-full pl-10 pr-4 py-3 rounded-xl font-outfit text-sm outline-none focus:ring-1 focus:ring-sky-400/35 text-white placeholder:text-sky-300/30"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)' }} />
               {aiLoading && <Loader2 size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin" style={{ color: 'rgba(198,235,255,0.4)' }} />}
@@ -418,9 +420,9 @@ export default function HelpPage() {
                     <Sparkles size={13} style={{ color: '#56BBF0' }} />
                   </div>
                   <div className="flex-1">
-                    <p className="font-outfit text-[10px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#56BBF0' }}>AI Answer</p>
+                    <p className="font-outfit text-[10px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: '#56BBF0' }}>{t('help.ai_answer')}</p>
                     {aiLoading
-                      ? <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>Thinking…</p>
+                      ? <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>{t('help.thinking')}</p>
                       : <p className="font-outfit text-sm leading-relaxed" style={{ color: 'rgba(198,235,255,0.75)' }}>{aiAnswer}</p>
                     }
                   </div>
@@ -456,9 +458,9 @@ export default function HelpPage() {
         {/* Sections */}
         {filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="font-syne text-lg font-bold text-white mb-2">No results found</p>
+            <p className="font-syne text-lg font-bold text-white mb-2">{t('help.no_results')}</p>
             <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.45)' }}>
-              Try a different search term or browse the sections above.
+              {t('help.no_results_sub')}
             </p>
           </div>
         ) : (
@@ -478,7 +480,7 @@ export default function HelpPage() {
                   <h2 className="font-syne text-sm font-bold text-white">{section.title}</h2>
                   <span className="ml-auto font-outfit text-[10px] px-2 py-0.5 rounded-full"
                     style={{ background: `${section.color}15`, color: section.color, border: `1px solid ${section.color}25` }}>
-                    {section.items.length} article{section.items.length !== 1 ? 's' : ''}
+                    {section.items.length} {section.items.length !== 1 ? t('help.articles') : t('help.article')}
                   </span>
                 </div>
                 <div className="px-5">
@@ -489,9 +491,6 @@ export default function HelpPage() {
           })
         )}
 
-        <p className="font-outfit text-xs text-center pb-2" style={{ color: 'rgba(198,235,255,0.2)' }}>
-          Community Connect · Built for TSA Nationals 2026
-        </p>
       </div>
     </div>
   )

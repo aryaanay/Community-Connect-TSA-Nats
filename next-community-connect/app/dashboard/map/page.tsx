@@ -8,6 +8,7 @@ import { useSettings } from '@/context/SettingsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Clock, Filter, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
+import { useT } from '@/lib/useT'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -301,8 +302,9 @@ export default function DashboardMapPage() {
   const { unlock, markPageVisited } = useAchievements()
   const { settings } = useSettings()
   const dark = settings.dark
+  const tr = useT()
 
-  const t = {
+  const colors = {
     pageBg:        dark ? '#011629'                      : '#f0f7ff',
     headerBg:      dark ? '#022747'                      : '#ffffff',
     headerBorder:  dark ? 'rgba(86,187,240,0.15)'        : '#e0f2fe',
@@ -396,32 +398,32 @@ export default function DashboardMapPage() {
   const filteredList = filter === 'All' ? allEvents : allEvents.filter((e) => e.category === filter)
 
   return (
-    <div className="flex flex-col h-full" style={{ background: t.pageBg }}>
+    <div className="flex flex-col h-full" style={{ background: colors.pageBg }}>
       {/* Header */}
       <div
         className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0"
-        style={{ background: t.headerBg, borderColor: t.headerBorder }}
+        style={{ background: colors.headerBg, borderColor: colors.headerBorder }}
       >
         <div>
-          <h1 className="font-syne text-xl font-bold" style={{ color: t.heading }}>Community Map</h1>
-          <p className="font-outfit text-xs mt-0.5" style={{ color: t.subtext }}>
-            {allEvents.length} upcoming events in the Bothell area
+          <h1 className="font-syne text-xl font-bold" style={{ color: colors.heading }}>{tr('map.title')}</h1>
+          <p className="font-outfit text-xs mt-0.5" style={{ color: colors.subtext }}>
+            {allEvents.length} {tr('map.subtitle')}
           </p>
         </div>
         <button
           onClick={() => setPanelOpen((v) => !v)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-sm border transition-all"
-          style={{ background: t.btnBg, borderColor: t.btnBorder, color: t.btnText }}
+          style={{ background: colors.btnBg, borderColor: colors.btnBorder, color: colors.btnText }}
         >
           <Filter size={14} />
-          {panelOpen ? 'Hide list' : 'Show list'}
+          {panelOpen ? tr('map.hide_list') : tr('map.show_list')}
         </button>
       </div>
 
       {/* Category filter strip */}
       <div
         className="flex items-center gap-2 px-5 py-3 border-b flex-shrink-0 overflow-x-auto"
-        style={{ background: t.filterBg, borderColor: t.filterBorder }}
+        style={{ background: colors.filterBg, borderColor: colors.filterBorder }}
       >
         {CATEGORIES.map((cat) => {
           const active = filter === cat
@@ -433,7 +435,7 @@ export default function DashboardMapPage() {
               style={
                 active
                   ? { background: cat === 'All' ? '#0ea5e9' : CATEGORY_COLORS[cat], color: 'white', border: '1px solid transparent' }
-                  : { background: t.catInactiveBg, color: t.catInactiveClr, border: `1px solid ${t.catInactiveBdr}` }
+                  : { background: colors.catInactiveBg, color: colors.catInactiveClr, border: `1px solid ${colors.catInactiveBdr}` }
               }
             >
               {cat !== 'All' && (
@@ -468,17 +470,17 @@ export default function DashboardMapPage() {
               exit={{ x: 320, opacity: 0 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               className="w-[300px] flex-shrink-0 flex flex-col border-l overflow-y-auto z-10"
-              style={{ background: t.panelBg, borderColor: t.panelBorder }}
+              style={{ background: colors.panelBg, borderColor: colors.panelBorder }}
             >
               {/* Panel header */}
-              <div className="px-4 py-3 border-b flex-shrink-0" style={{ borderColor: t.itemDivide }}>
-                <p className="font-outfit text-xs font-semibold uppercase tracking-wider" style={{ color: t.panelHdr }}>
-                  {filteredList.length} event{filteredList.length !== 1 ? 's' : ''} shown
+              <div className="px-4 py-3 border-b flex-shrink-0" style={{ borderColor: colors.itemDivide }}>
+                <p className="font-outfit text-xs font-semibold uppercase tracking-wider" style={{ color: colors.panelHdr }}>
+                  {filteredList.length} {filteredList.length !== 1 ? tr('map.events_shown') : tr('map.event_shown')}
                 </p>
               </div>
 
               {/* Event list */}
-              <div className="flex-1 overflow-y-auto" style={{ borderColor: t.itemDivide }}>
+              <div className="flex-1 overflow-y-auto" style={{ borderColor: colors.itemDivide }}>
                 {filteredList.map((ev) => {
                   const isActive = activeId === ev.id
                   return (
@@ -487,25 +489,25 @@ export default function DashboardMapPage() {
                       onClick={() => setActiveId(isActive ? null : ev.id)}
                       className="w-full text-left px-4 py-3.5 transition-all group border-b"
                       style={{
-                        borderColor: t.itemDivide,
-                        background: isActive ? t.itemActiveBg : undefined,
+                        borderColor: colors.itemDivide,
+                        background: isActive ? colors.itemActiveBg : undefined,
                         borderLeft: isActive ? `3px solid ${ev.color}` : undefined,
                       }}
-                      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = t.itemHoverBg }}
+                      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = colors.itemHoverBg }}
                       onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = '' }}
                     >
                       <div className="flex items-start gap-3">
                         <span className="text-xl flex-shrink-0 mt-0.5">{ev.emoji}</span>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
-                            <p className="font-space font-bold text-sm leading-tight truncate" style={{ color: t.itemTitle }}>
+                            <p className="font-space font-bold text-sm leading-tight truncate" style={{ color: colors.itemTitle }}>
                               {ev.title}
                             </p>
                             <ChevronRight
                               size={14}
                               className="flex-shrink-0 transition-colors"
                               style={{
-                                color: t.chevron,
+                                color: colors.chevron,
                                 transform: isActive ? 'rotate(90deg)' : undefined,
                                 transition: 'transform 0.2s',
                               }}
@@ -520,13 +522,13 @@ export default function DashboardMapPage() {
                           </span>
 
                           <div className="mt-1.5 space-y-0.5">
-                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: t.itemMeta }}>
+                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: colors.itemMeta }}>
                               <Calendar size={10} className="flex-shrink-0" />{ev.date}
                             </div>
-                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: t.itemMuted }}>
+                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: colors.itemMuted }}>
                               <Clock size={10} className="flex-shrink-0" />{ev.time}
                             </div>
-                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: t.itemMuted }}>
+                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: colors.itemMuted }}>
                               <MapPin size={10} className="flex-shrink-0" />{ev.location}
                             </div>
                           </div>
@@ -540,7 +542,7 @@ export default function DashboardMapPage() {
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
                                 className="overflow-hidden font-outfit text-xs mt-2 leading-relaxed"
-                                style={{ color: t.itemDesc }}
+                                style={{ color: colors.itemDesc }}
                               >
                                 {ev.description}
                               </motion.p>

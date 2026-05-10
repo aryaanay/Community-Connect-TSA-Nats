@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements, ACHIEVEMENTS, TOTAL_POSSIBLE_XP, Achievement } from '@/context/AchievementsContext'
+import { useT } from '@/lib/useT'
 import { supabase } from '@/lib/supabaseClient'
 import { Lock, Edit3, Save, X, Camera, Users2, AlertTriangle, RotateCcw, CheckCircle, EyeOff, Eye } from 'lucide-react'
 
@@ -94,7 +95,7 @@ function AchievementCard({ achievement, unlocked }: { achievement: Achievement; 
 
 // ─── Password change ──────────────────────────────────────────────────────────
 
-function PasswordChangeSection({ isJudge }: { isJudge: boolean }) {
+function PasswordChangeSection({ isJudge, t }: { isJudge: boolean; t: (key: string) => string }) {
   const [newPw,     setNewPw]     = useState('')
   const [confirmPw, setConfirmPw] = useState('')
   const [showPw,    setShowPw]    = useState(false)
@@ -131,16 +132,16 @@ function PasswordChangeSection({ isJudge }: { isJudge: boolean }) {
           style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
           <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
           <p className="font-outfit text-xs leading-relaxed" style={{ color: '#FCD34D' }}>
-            <strong>Judge account:</strong> Please do not change the password — this account is shared.
+            {t('profile.judge_pw_warn')}
           </p>
         </div>
       )}
       <div>
-        <label className="font-outfit text-xs font-semibold mb-1 block" style={{ color: 'rgba(198,235,255,0.5)' }}>New Password</label>
+        <label className="font-outfit text-xs font-semibold mb-1 block" style={{ color: 'rgba(198,235,255,0.5)' }}>{t('profile.new_pw')}</label>
         <div className="relative">
           <input type={showPw ? 'text' : 'password'} value={newPw}
             onChange={e => { setNewPw(e.target.value); setStatus('idle') }}
-            placeholder="At least 6 characters"
+            placeholder={t('profile.new_pw_ph')}
             className="w-full rounded-xl px-3 py-2.5 font-outfit text-sm outline-none pr-10"
             style={inputStyle} />
           <button type="button" onClick={() => setShowPw(v => !v)}
@@ -151,10 +152,10 @@ function PasswordChangeSection({ isJudge }: { isJudge: boolean }) {
         </div>
       </div>
       <div>
-        <label className="font-outfit text-xs font-semibold mb-1 block" style={{ color: 'rgba(198,235,255,0.5)' }}>Confirm New Password</label>
+        <label className="font-outfit text-xs font-semibold mb-1 block" style={{ color: 'rgba(198,235,255,0.5)' }}>{t('profile.confirm_pw')}</label>
         <input type={showPw ? 'text' : 'password'} value={confirmPw}
           onChange={e => { setConfirmPw(e.target.value); setStatus('idle') }}
-          placeholder="Repeat new password"
+          placeholder={t('profile.confirm_pw_ph')}
           className="w-full rounded-xl px-3 py-2.5 font-outfit text-sm outline-none"
           style={inputStyle} />
       </div>
@@ -165,13 +166,13 @@ function PasswordChangeSection({ isJudge }: { isJudge: boolean }) {
       )}
       {status === 'success' && (
         <p className="font-outfit text-xs text-emerald-400 flex items-center gap-1.5">
-          <CheckCircle size={12} /> Password updated successfully.
+          <CheckCircle size={12} /> {t('profile.pw_success')}
         </p>
       )}
       <button onClick={handleChange} disabled={status === 'loading' || isJudge}
         className="w-full py-2.5 rounded-xl font-outfit text-sm font-semibold text-white transition-all disabled:opacity-50"
         style={{ background: 'linear-gradient(135deg,#085D8A,#2499D6)' }}>
-        {status === 'loading' ? 'Updating…' : 'Update Password'}
+        {status === 'loading' ? t('profile.updating') : t('profile.update_pw')}
       </button>
     </div>
   )
@@ -181,7 +182,8 @@ function PasswordChangeSection({ isJudge }: { isJudge: boolean }) {
 
 export default function ProfilePage() {
   const { user } = useAuth()
-  const { unlocked, totalXp, markPageVisited } = useAchievements()
+  const { unlocked, totalXp, markPageVisited, resetAchievements } = useAchievements()
+  const t = useT()
 
   // Profile fields
   const [displayName, setDisplayName] = useState('')
@@ -291,25 +293,40 @@ export default function ProfilePage() {
             <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" style={{ color: '#FCD34D' }} />
             <div>
               <p className="font-syne text-sm font-bold" style={{ color: '#FCD34D' }}>
-                Hey, Judge! — This is the shared demo account.
+                {t('profile.judge_title')}
               </p>
               <p className="font-outfit text-xs mt-0.5 leading-relaxed" style={{ color: 'rgba(252,211,77,0.75)' }}>
-                Feel free to explore the profile editor, but please don't change the password, delete the account, or submit anything permanent. We appreciate it!
+                {t('profile.judge_desc')}
               </p>
               <button
-                onClick={() => {
-                  try {
-                    localStorage.removeItem('cc-achievements')
-                    localStorage.removeItem('cc-visited-pages')
-                    window.location.reload()
-                  } catch {}
-                }}
+                onClick={async () => { await resetAchievements(); window.location.reload() }}
                 className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all hover:opacity-80"
                 style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)', color: '#FCD34D' }}
               >
-                <RotateCcw size={11} /> Reset achievements for demo
+                <RotateCcw size={11} /> {t('profile.reset_demo')}
               </button>
             </div>
+          </motion.div>
+        )}
+
+        {/* Reset achievements (all users) */}
+        {!isJudge && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between rounded-2xl px-5 py-3.5"
+            style={{ background: 'rgba(86,187,240,0.06)', border: '1px solid rgba(86,187,240,0.12)' }}
+          >
+            <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.55)' }}>
+              Reset your achievements and XP to start fresh.
+            </p>
+            <button
+              onClick={async () => { await resetAchievements(); window.location.reload() }}
+              className="ml-4 flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all hover:opacity-80"
+              style={{ background: 'rgba(86,187,240,0.12)', border: '1px solid rgba(86,187,240,0.25)', color: '#56BBF0' }}
+            >
+              <RotateCcw size={11} /> Reset Achievements
+            </button>
           </motion.div>
         )}
 
@@ -369,7 +386,7 @@ export default function ProfilePage() {
               {editing ? (
                 <div className="space-y-3">
                   <div>
-                    <label className="font-outfit text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'rgba(198,235,255,0.4)' }}>Display Name</label>
+                    <label className="font-outfit text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'rgba(198,235,255,0.4)' }}>{t('profile.display_name')}</label>
                     <input
                       value={displayName}
                       onChange={e => setDisplayName(e.target.value)}
@@ -380,7 +397,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="font-outfit text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'rgba(198,235,255,0.4)' }}>Bio</label>
+                    <label className="font-outfit text-[10px] uppercase tracking-wider mb-1 block" style={{ color: 'rgba(198,235,255,0.4)' }}>{t('profile.bio')}</label>
                     <textarea
                       value={bio}
                       onChange={e => setBio(e.target.value)}
@@ -388,7 +405,7 @@ export default function ProfilePage() {
                       rows={2}
                       className="w-full rounded-xl px-3 py-2 font-outfit text-sm text-white outline-none resize-none"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.25)' }}
-                      placeholder="A short bio (160 chars)"
+                      placeholder={t('profile.bio_ph')}
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -401,7 +418,7 @@ export default function ProfilePage() {
                         color: isPublic ? '#10B981' : 'rgba(198,235,255,0.4)',
                       }}
                     >
-                      {isPublic ? 'Public profile' : 'Private profile'}
+                      {isPublic ? t('profile.public') : t('profile.private')}
                     </button>
                     {saveError && <span className="font-outfit text-xs text-red-400">{saveError}</span>}
                   </div>
@@ -413,7 +430,7 @@ export default function ProfilePage() {
                       style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.4)' }}
                     >
                       <Save size={13} />
-                      {saving ? 'Saving…' : 'Save'}
+                      {saving ? t('profile.saving') : t('btn.save')}
                     </button>
                     <button
                       onClick={() => { setEditing(false); setSaveError('') }}
@@ -421,7 +438,7 @@ export default function ProfilePage() {
                       style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(198,235,255,0.6)' }}
                     >
                       <X size={13} />
-                      Cancel
+                      {t('profile.cancel')}
                     </button>
                   </div>
                 </div>
@@ -462,7 +479,7 @@ export default function ProfilePage() {
                         {totalXp} XP{nextLevel && <> · {nextLevel.min - totalXp} XP to Lv.{nextLevel.level}</>}
                       </span>
                       <span className="font-outfit text-xs font-semibold" style={{ color: levelInfo.color }}>
-                        {nextLevel ? `${Math.round(levelPct)}%` : 'MAX LEVEL'}
+                        {nextLevel ? `${Math.round(levelPct)}%` : t('profile.max_level')}
                       </span>
                     </div>
                     <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
@@ -489,10 +506,10 @@ export default function ProfilePage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
-            { label: 'Total XP',     value: totalXp.toLocaleString(),                              color: levelInfo.color },
-            { label: 'Achievements', value: `${unlocked.length} / ${ACHIEVEMENTS.length}`,          color: '#10B981' },
-            { label: 'Completion',   value: `${Math.round((totalXp / TOTAL_POSSIBLE_XP) * 100)}%`, color: '#8B5CF6' },
-            { label: 'Connections',  value: String(connections.length),                             color: '#56BBF0', href: '/dashboard/social' },
+            { label: t('profile.total_xp'),     value: totalXp.toLocaleString(),                              color: levelInfo.color },
+            { label: t('profile.achievements'), value: `${unlocked.length} / ${ACHIEVEMENTS.length}`,          color: '#10B981' },
+            { label: t('profile.completion'),   value: `${Math.round((totalXp / TOTAL_POSSIBLE_XP) * 100)}%`, color: '#8B5CF6' },
+            { label: t('profile.connections'),  value: String(connections.length),                             color: '#56BBF0', href: '/dashboard/social' },
           ].map(({ label, value, color, href }) => {
             const inner = (
               <div className="rounded-2xl p-4 text-center h-full transition-all"
@@ -523,7 +540,7 @@ export default function ProfilePage() {
                 <Users2 size={16} style={{ color: '#56BBF0' }} />
               </div>
               <div>
-                <p className="font-syne text-sm font-bold text-white">Friends &amp; Connections</p>
+                <p className="font-syne text-sm font-bold text-white">{t('profile.friends')}</p>
                 <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>
                   {connections.length > 0
                     ? `${connections.length} connection${connections.length !== 1 ? 's' : ''} · Manage in Community Directory`
@@ -533,7 +550,7 @@ export default function ProfilePage() {
             </div>
             <span className="font-outfit text-xs px-3 py-1.5 rounded-lg transition-all group-hover:border-sky-400/40"
               style={{ background: 'rgba(86,187,240,0.10)', border: '1px solid rgba(86,187,240,0.2)', color: '#90D4F7' }}>
-              Open →
+              {t('profile.open')}
             </span>
           </Link>
         </motion.div>
@@ -546,9 +563,9 @@ export default function ProfilePage() {
               <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(86,187,240,0.12)', border: '1px solid rgba(86,187,240,0.22)' }}>
                 <Lock size={14} style={{ color: '#56BBF0' }} />
               </div>
-              <h2 className="font-syne text-base font-bold text-white">Change Password</h2>
+              <h2 className="font-syne text-base font-bold text-white">{t('profile.change_pw')}</h2>
             </div>
-            <PasswordChangeSection isJudge={isJudge} />
+            <PasswordChangeSection isJudge={isJudge} t={t} />
           </div>
         </motion.div>
 
@@ -559,9 +576,9 @@ export default function ProfilePage() {
           transition={{ duration: 0.45, delay: 0.2 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-syne text-base font-bold text-white">Achievements</h2>
+            <h2 className="font-syne text-base font-bold text-white">{t('profile.achievements')}</h2>
             <span className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.4)' }}>
-              {unlocked.length} unlocked
+              {unlocked.length} {t('profile.unlocked')}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -578,9 +595,6 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
-        <p className="font-outfit text-xs text-center pb-2" style={{ color: 'rgba(198,235,255,0.2)' }}>
-          Community Connect · Built for TSA Nationals 2026
-        </p>
       </div>
     </div>
   )

@@ -19,7 +19,7 @@ import { useAchievements } from '@/context/AchievementsContext'
 const TUTORIAL_SEEN_KEY = 'cc-tutorial-seen'
 
 type NavGroup = {
-  label?: string
+  labelKey?: string
   items: { href: string; icon: React.ElementType; key: string }[]
 }
 
@@ -30,7 +30,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Discover',
+    labelKey: 'sidebar.discover',
     items: [
       { href: '/dashboard/resources', icon: BookOpen,     key: 'nav.resources' },
       { href: '/dashboard/events',    icon: CalendarDays, key: 'nav.events'    },
@@ -38,7 +38,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Community',
+    labelKey: 'sidebar.community',
     items: [
       { href: '/dashboard/social',      icon: Users2,        key: 'nav.social'    },
       { href: '/dashboard/groups',      icon: Layers,        key: 'nav.groups'    },
@@ -47,7 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Give Back',
+    labelKey: 'sidebar.give_back',
     items: [
       { href: '/submit',   icon: PlusCircle, key: 'nav.submit' },
       { href: '/wishlist', icon: Heart,      key: 'nav.donate' },
@@ -146,7 +146,7 @@ function SidebarInner({
           <div key={gi} className={gi > 0 ? 'mt-1' : ''}>
             {/* Group label */}
             <AnimatePresence initial={false}>
-              {!collapsed && group.label && (
+              {!collapsed && group.labelKey && (
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -155,11 +155,11 @@ function SidebarInner({
                   className="font-outfit text-[9px] font-bold uppercase tracking-widest px-3 pt-3 pb-1"
                   style={{ color: 'rgba(86,187,240,0.28)' }}
                 >
-                  {group.label}
+                  {t(group.labelKey)}
                 </motion.p>
               )}
             </AnimatePresence>
-            {collapsed && group.label && gi > 0 && (
+            {collapsed && group.labelKey && gi > 0 && (
               <div className="mx-auto w-5 h-px my-2" style={{ background: 'rgba(86,187,240,0.12)' }} />
             )}
 
@@ -212,7 +212,7 @@ function SidebarInner({
 
       {/* Account section — collapsible dropdown */}
       <div className="flex-shrink-0 border-t border-sky-400/10 px-2 pt-2 pb-2">
-        <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(86,187,240,0.045)', border: '1px solid rgba(86,187,240,0.1)' }}>
+        <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(86,187,240,0.09)', border: '1px solid rgba(86,187,240,0.22)' }}>
 
           {/* Toggle header — only visible when sidebar is expanded */}
           {!collapsed && (
@@ -220,8 +220,8 @@ function SidebarInner({
               onClick={() => setAccountOpen(v => !v)}
               className="w-full flex items-center justify-between px-3 pt-2.5 pb-2 transition-colors hover:bg-white/4"
             >
-              <span className="font-outfit text-[9px] font-bold uppercase tracking-widest" style={{ color: 'rgba(86,187,240,0.4)' }}>
-                Account
+              <span className="font-outfit text-[9px] font-bold uppercase tracking-widest" style={{ color: 'rgba(86,187,240,0.75)' }}>
+                {t('sidebar.account')}
               </span>
               <ChevronDown
                 size={11}
@@ -250,22 +250,22 @@ function SidebarInner({
                   const isActive = pathname === href || pathname.startsWith(href)
                   return (
                     <Link key={href} href={href} onClick={onNavClick} title={collapsed ? label : undefined}
-                      className={`flex items-center rounded-lg transition-all duration-150 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'} ${isActive ? 'bg-sky-500/15 text-sky-300 border border-sky-400/20' : 'text-sky-200/65 hover:text-sky-100 hover:bg-white/8'}`}>
-                      <Icon size={15} className={`flex-shrink-0 ${isActive ? 'text-sky-400' : ''}`} />
+                      className={`flex items-center rounded-lg transition-all duration-150 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'} ${isActive ? 'bg-sky-500/18 text-sky-300 border border-sky-400/25' : 'text-sky-100/90 hover:text-white hover:bg-white/10'}`}>
+                      <Icon size={15} className={`flex-shrink-0 ${isActive ? 'text-sky-400' : 'text-sky-300/80'}`} />
                       {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">{label}</span>}
                     </Link>
                   )
                 })}
 
-                <button onClick={() => { onNavClick(); onTutorial() }} title={collapsed ? 'Site Tutorial' : undefined}
-                  className={`flex items-center w-full rounded-lg transition-all duration-150 text-sky-200/65 hover:text-sky-100 hover:bg-white/8 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
-                  <HelpCircle size={15} className="flex-shrink-0" />
-                  {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">Site Tutorial</span>}
+                <button onClick={() => { onNavClick(); onTutorial() }} title={collapsed ? t('sidebar.tutorial') : undefined}
+                  className={`flex items-center w-full rounded-lg transition-all duration-150 text-sky-100/90 hover:text-white hover:bg-white/10 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
+                  <HelpCircle size={15} className="flex-shrink-0 text-sky-300/80" />
+                  {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">{t('sidebar.tutorial')}</span>}
                 </button>
 
                 <button onClick={onSignOut} title={collapsed ? t('nav.signout') : undefined}
-                  className={`flex items-center w-full rounded-lg transition-all duration-150 text-sky-200/65 hover:text-red-300 hover:bg-red-500/10 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
-                  <LogOut size={15} className="flex-shrink-0" />
+                  className={`flex items-center w-full rounded-lg transition-all duration-150 text-sky-100/90 hover:text-red-300 hover:bg-red-500/10 ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'}`}>
+                  <LogOut size={15} className="flex-shrink-0 text-sky-300/80" />
                   {!collapsed && <span className="font-outfit text-xs whitespace-nowrap">{t('nav.signout')}</span>}
                 </button>
               </motion.div>

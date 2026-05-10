@@ -21,24 +21,6 @@ const STATS = [
 
 const QUICK_ACTIONS = [
   {
-    href: '/resources',
-    icon: BookOpen,
-    title: 'Browse Resources',
-    desc: 'Find support services, nonprofits, and local programs',
-    color: '#2499D6',
-    bg: 'rgba(36,153,214,0.12)',
-    border: 'rgba(36,153,214,0.2)',
-  },
-  {
-    href: '/events',
-    icon: CalendarDays,
-    title: 'View Events',
-    desc: 'Upcoming cleanups, workshops, and community drives',
-    color: '#FF8C42',
-    bg: 'rgba(255,140,66,0.12)',
-    border: 'rgba(255,140,66,0.2)',
-  },
-  {
     href: '/submit',
     icon: PlusCircle,
     title: 'Submit a Resource',
@@ -66,9 +48,11 @@ const FEATURED_RESOURCES = [
 ]
 
 const UPCOMING_EVENTS = [
-  { emoji: '🌿', name: 'Community Cleanup Drive', date: 'Apr 25', time: '10am–1pm', location: 'Bothell Landing Park' },
-  { emoji: '📚', name: 'STEM Mentorship Workshop', date: 'May 2', time: '4pm', location: 'Northshore Library' },
-  { emoji: '🥫', name: 'Northshore Food Drive', date: 'May 16', time: '9am–4pm', location: 'Kenmore' },
+  { emoji: '🥫', name: 'Northshore Food Drive',        date: 'May 16',  time: '9am–4pm',  location: 'Kenmore Community Center'    },
+  { emoji: '🌿', name: 'Community Garden Volunteer Day', date: 'May 24', time: '10am–2pm', location: 'Bothell Landing Park'         },
+  { emoji: '📚', name: 'Youth STEM Mentorship Fair',    date: 'Jun 7',   time: '1–4pm',    location: 'Northshore Library'           },
+  { emoji: '🏘️', name: 'Neighborhood Resource Fair',   date: 'Jun 21',  time: '11am–3pm', location: 'Bothell City Hall Plaza'      },
+  { emoji: '🤝', name: 'Hopelink Fundraiser Walk',      date: 'Jul 12',  time: '8am',      location: 'Kirkland Marina Park'         },
 ]
 
 // ── Time-of-day theming ──────────────────────────────────────────────────────
@@ -408,18 +392,19 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Card className="p-5">
+            <Link href="/dashboard/resources" className="block">
+            <Card className="p-5 hover:border-sky-400/25 transition-all cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-syne text-sm font-bold text-white">Featured Resources</h2>
-                <Link href="/resources" className="font-outfit text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-0.5">
+                <span className="font-outfit text-xs text-sky-400 flex items-center gap-0.5">
                   View all <ArrowUpRight size={11} />
-                </Link>
+                </span>
               </div>
               <div className="space-y-2.5">
                 {FEATURED_RESOURCES.map((r) => (
                   <div
                     key={r.name}
-                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors cursor-pointer"
+                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors"
                     style={{ border: '1px solid rgba(86,187,240,0.08)' }}
                   >
                     <span className="text-xl flex-shrink-0 w-8 text-center">{r.icon}</span>
@@ -441,6 +426,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             </Card>
+          </Link>
           </motion.div>
 
           {/* Upcoming Events */}
@@ -449,18 +435,19 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.44 }}
           >
-            <Card className="p-5">
+            <Link href="/dashboard/events" className="block">
+            <Card className="p-5 hover:border-sky-400/25 transition-all cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-syne text-sm font-bold text-white">Upcoming Events</h2>
-                <Link href="/events" className="font-outfit text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-0.5">
+                <span className="font-outfit text-xs text-sky-400 flex items-center gap-0.5">
                   View all <ArrowUpRight size={11} />
-                </Link>
+                </span>
               </div>
               <div className="space-y-2.5">
                 {UPCOMING_EVENTS.map((ev) => (
                   <div
                     key={ev.name}
-                    className="flex gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors cursor-pointer"
+                    className="flex gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors"
                     style={{ border: '1px solid rgba(86,187,240,0.08)' }}
                   >
                     <div
@@ -487,6 +474,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             </Card>
+            </Link>
           </motion.div>
         </div>
 
@@ -538,9 +526,6 @@ export default function DashboardPage() {
           </Card>
         </motion.div>
 
-        <p className="font-outfit text-xs text-center pb-2" style={{ color: 'rgba(198,235,255,0.2)' }}>
-          Community Connect · Built for TSA Nationals 2026
-        </p>
       </div>
     </div>
   )
