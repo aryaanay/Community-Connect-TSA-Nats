@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
+import { useSettings } from '@/context/SettingsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Calendar, Clock, Filter, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
@@ -298,6 +299,36 @@ export default function DashboardMapPage() {
   const { isSignedIn, loading } = useAuth()
   const router = useRouter()
   const { unlock, markPageVisited } = useAchievements()
+  const { settings } = useSettings()
+  const dark = settings.dark
+
+  const t = {
+    pageBg:        dark ? '#011629'                      : '#f0f7ff',
+    headerBg:      dark ? '#022747'                      : '#ffffff',
+    headerBorder:  dark ? 'rgba(86,187,240,0.15)'        : '#e0f2fe',
+    heading:       dark ? '#C6EBFF'                      : '#0c4a6e',
+    subtext:       dark ? 'rgba(86,187,240,0.65)'        : '#38bdf8',
+    btnBg:         dark ? 'rgba(2,39,71,0.80)'           : '#ffffff',
+    btnBorder:     dark ? 'rgba(86,187,240,0.25)'        : '#bae6fd',
+    btnText:       dark ? '#90D4F7'                      : '#0369a1',
+    btnHoverBg:    dark ? 'rgba(4,64,105,0.70)'          : '#f0f9ff',
+    filterBg:      dark ? '#011e38'                      : '#ffffff',
+    filterBorder:  dark ? 'rgba(86,187,240,0.15)'        : '#e0f2fe',
+    catInactiveBg: dark ? 'rgba(2,39,71,0.60)'           : '#ffffff',
+    catInactiveClr:dark ? '#90D4F7'                      : '#0369a1',
+    catInactiveBdr:dark ? 'rgba(86,187,240,0.22)'        : '#bae6fd',
+    panelBg:       dark ? '#022747'                      : '#ffffff',
+    panelBorder:   dark ? 'rgba(86,187,240,0.15)'        : '#e0f2fe',
+    panelHdr:      dark ? 'rgba(86,187,240,0.50)'        : '#7dd3fc',
+    itemDivide:    dark ? 'rgba(86,187,240,0.10)'        : '#f0f9ff',
+    itemHoverBg:   dark ? 'rgba(4,64,105,0.45)'          : '#f0f9ff',
+    itemActiveBg:  dark ? 'rgba(4,64,105,0.65)'          : '#f0f9ff',
+    itemTitle:     dark ? '#C6EBFF'                      : '#0c4a6e',
+    itemMeta:      dark ? '#90D4F7'                      : '#0284c7',
+    itemMuted:     dark ? 'rgba(86,187,240,0.60)'        : '#38bdf8',
+    itemDesc:      dark ? '#90D4F7'                      : '#0369a1',
+    chevron:       dark ? 'rgba(86,187,240,0.35)'        : '#bae6fd',
+  }
 
   const [mounted, setMounted] = useState(false)
   const [filter, setFilter] = useState('All')
@@ -365,30 +396,33 @@ export default function DashboardMapPage() {
   const filteredList = filter === 'All' ? allEvents : allEvents.filter((e) => e.category === filter)
 
   return (
-    <div className="flex flex-col h-full bg-[#f0f7ff]">
-      {/* ------------------------------------------------------------------ */}
-      {/* Header                                                              */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-sky-100 bg-white flex-shrink-0">
+    <div className="flex flex-col h-full" style={{ background: t.pageBg }}>
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0"
+        style={{ background: t.headerBg, borderColor: t.headerBorder }}
+      >
         <div>
-          <h1 className="font-syne text-xl font-bold text-sky-900">Community Map</h1>
-          <p className="font-outfit text-xs text-sky-500 mt-0.5">
+          <h1 className="font-syne text-xl font-bold" style={{ color: t.heading }}>Community Map</h1>
+          <p className="font-outfit text-xs mt-0.5" style={{ color: t.subtext }}>
             {allEvents.length} upcoming events in the Bothell area
           </p>
         </div>
         <button
           onClick={() => setPanelOpen((v) => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-sm text-sky-700 border border-sky-200 hover:bg-sky-50 transition-all"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-sm border transition-all"
+          style={{ background: t.btnBg, borderColor: t.btnBorder, color: t.btnText }}
         >
           <Filter size={14} />
           {panelOpen ? 'Hide list' : 'Show list'}
         </button>
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Category filter strip                                               */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="flex items-center gap-2 px-5 py-3 bg-white border-b border-sky-100 flex-shrink-0 overflow-x-auto">
+      {/* Category filter strip */}
+      <div
+        className="flex items-center gap-2 px-5 py-3 border-b flex-shrink-0 overflow-x-auto"
+        style={{ background: t.filterBg, borderColor: t.filterBorder }}
+      >
         {CATEGORIES.map((cat) => {
           const active = filter === cat
           return (
@@ -398,23 +432,12 @@ export default function DashboardMapPage() {
               className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-outfit text-xs font-semibold transition-all border"
               style={
                 active
-                  ? {
-                      background: cat === 'All' ? '#0ea5e9' : CATEGORY_COLORS[cat],
-                      color: 'white',
-                      border: '1px solid transparent',
-                    }
-                  : {
-                      background: 'white',
-                      color: '#0369a1',
-                      border: '1px solid #bae6fd',
-                    }
+                  ? { background: cat === 'All' ? '#0ea5e9' : CATEGORY_COLORS[cat], color: 'white', border: '1px solid transparent' }
+                  : { background: t.catInactiveBg, color: t.catInactiveClr, border: `1px solid ${t.catInactiveBdr}` }
               }
             >
               {cat !== 'All' && (
-                <span
-                  className="w-2 h-2 rounded-full inline-block"
-                  style={{ background: CATEGORY_COLORS[cat] }}
-                />
+                <span className="w-2 h-2 rounded-full inline-block" style={{ background: CATEGORY_COLORS[cat] }} />
               )}
               {cat}
               <span className="ml-0.5 opacity-60 text-[10px]">
@@ -425,10 +448,7 @@ export default function DashboardMapPage() {
         })}
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Map + side panel                                                    */}
-      {/* The `isolate` class keeps Leaflet z-indices from escaping upward    */}
-      {/* ------------------------------------------------------------------ */}
+      {/* Map + side panel */}
       <div className="flex flex-1 overflow-hidden relative">
         <div className="flex-1 relative isolate">
           <MapView
@@ -447,49 +467,51 @@ export default function DashboardMapPage() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 320, opacity: 0 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="w-[300px] flex-shrink-0 flex flex-col bg-white border-l border-sky-100 overflow-y-auto z-10"
+              className="w-[300px] flex-shrink-0 flex flex-col border-l overflow-y-auto z-10"
+              style={{ background: t.panelBg, borderColor: t.panelBorder }}
             >
               {/* Panel header */}
-              <div className="px-4 py-3 border-b border-sky-50 flex-shrink-0">
-                <p className="font-outfit text-xs text-sky-400 font-semibold uppercase tracking-wider">
+              <div className="px-4 py-3 border-b flex-shrink-0" style={{ borderColor: t.itemDivide }}>
+                <p className="font-outfit text-xs font-semibold uppercase tracking-wider" style={{ color: t.panelHdr }}>
                   {filteredList.length} event{filteredList.length !== 1 ? 's' : ''} shown
                 </p>
               </div>
 
               {/* Event list */}
-              <div className="flex-1 overflow-y-auto divide-y divide-sky-50">
+              <div className="flex-1 overflow-y-auto" style={{ borderColor: t.itemDivide }}>
                 {filteredList.map((ev) => {
                   const isActive = activeId === ev.id
                   return (
                     <button
                       key={ev.id}
                       onClick={() => setActiveId(isActive ? null : ev.id)}
-                      className="w-full text-left px-4 py-3.5 hover:bg-sky-50 transition-all group"
-                      style={
-                        isActive
-                          ? { background: '#f0f9ff', borderLeft: `3px solid ${ev.color}` }
-                          : {}
-                      }
+                      className="w-full text-left px-4 py-3.5 transition-all group border-b"
+                      style={{
+                        borderColor: t.itemDivide,
+                        background: isActive ? t.itemActiveBg : undefined,
+                        borderLeft: isActive ? `3px solid ${ev.color}` : undefined,
+                      }}
+                      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = t.itemHoverBg }}
+                      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = '' }}
                     >
                       <div className="flex items-start gap-3">
                         <span className="text-xl flex-shrink-0 mt-0.5">{ev.emoji}</span>
                         <div className="min-w-0 flex-1">
-                          {/* Title row */}
                           <div className="flex items-center justify-between gap-1">
-                            <p className="font-space font-bold text-sm text-sky-900 leading-tight truncate">
+                            <p className="font-space font-bold text-sm leading-tight truncate" style={{ color: t.itemTitle }}>
                               {ev.title}
                             </p>
                             <ChevronRight
                               size={14}
-                              className="flex-shrink-0 text-sky-300 group-hover:text-sky-500 transition-colors"
+                              className="flex-shrink-0 transition-colors"
                               style={{
+                                color: t.chevron,
                                 transform: isActive ? 'rotate(90deg)' : undefined,
                                 transition: 'transform 0.2s',
                               }}
                             />
                           </div>
 
-                          {/* Category badge */}
                           <span
                             className="inline-block mt-1 px-2 py-0.5 rounded-full font-outfit text-[10px] font-semibold text-white"
                             style={{ background: ev.color }}
@@ -497,23 +519,18 @@ export default function DashboardMapPage() {
                             {ev.category}
                           </span>
 
-                          {/* Date / time / location */}
                           <div className="mt-1.5 space-y-0.5">
-                            <div className="flex items-center gap-1.5 font-outfit text-xs text-sky-600">
-                              <Calendar size={10} className="flex-shrink-0" />
-                              {ev.date}
+                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: t.itemMeta }}>
+                              <Calendar size={10} className="flex-shrink-0" />{ev.date}
                             </div>
-                            <div className="flex items-center gap-1.5 font-outfit text-xs text-sky-500">
-                              <Clock size={10} className="flex-shrink-0" />
-                              {ev.time}
+                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: t.itemMuted }}>
+                              <Clock size={10} className="flex-shrink-0" />{ev.time}
                             </div>
-                            <div className="flex items-center gap-1.5 font-outfit text-xs text-sky-500">
-                              <MapPin size={10} className="flex-shrink-0" />
-                              {ev.location}
+                            <div className="flex items-center gap-1.5 font-outfit text-xs" style={{ color: t.itemMuted }}>
+                              <MapPin size={10} className="flex-shrink-0" />{ev.location}
                             </div>
                           </div>
 
-                          {/* Expandable description */}
                           <AnimatePresence>
                             {isActive && (
                               <motion.p
@@ -522,7 +539,8 @@ export default function DashboardMapPage() {
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="overflow-hidden font-outfit text-xs text-sky-700 mt-2 leading-relaxed"
+                                className="overflow-hidden font-outfit text-xs mt-2 leading-relaxed"
+                                style={{ color: t.itemDesc }}
                               >
                                 {ev.description}
                               </motion.p>
