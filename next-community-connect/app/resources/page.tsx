@@ -14,6 +14,7 @@ import {
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import TiltCard from '@/components/TiltCard'
 import { supabase } from '@/lib/supabaseClient'
+import { useT } from '@/lib/useT'
 
 // ─── Images ───────────────────────────────────────────────────────────────────
 
@@ -149,6 +150,7 @@ function EditResourceModal({ resource, onClose, onSaved }: {
   onClose: () => void
   onSaved: (updates: Partial<ResourceCard>) => void
 }) {
+  const t = useT()
   const [name,    setName]    = useState(resource.title)
   const [desc,    setDesc]    = useState(resource.description)
   const [phone,   setPhone]   = useState(resource.phone    || '')

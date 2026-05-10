@@ -7,15 +7,16 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { Menu, X, Settings, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
+import { useT } from '@/lib/useT'
 
 
-const SCROLL_LINKS = [
-  { label: 'Mission',      id: 'mission' },
-  { label: 'Our Story',    id: 'story' },
-  { label: 'Testimonials', id: 'testimonials' },
-  { label: 'How It Works', id: 'how-it-works' },
-  { label: 'Features',     id: 'features' },
-  { label: 'Events',       id: 'events' },
+const SCROLL_IDS = [
+  { key: 'nav.mission',      id: 'mission' },
+  { key: 'nav.story',        id: 'story' },
+  { key: 'nav.testimonials', id: 'testimonials' },
+  { key: 'nav.how',          id: 'how-it-works' },
+  { key: 'nav.features',     id: 'features' },
+  { key: 'nav.events',       id: 'events' },
 ]
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -29,6 +30,9 @@ export function Navbar() {
   const { settings, dispatch } = useSettings()
   const isDark = settings.dark
   const isHome = pathname === '/'
+  const t = useT()
+
+  const SCROLL_LINKS = SCROLL_IDS.map(({ key, id }) => ({ label: t(key), id }))
 
   useEffect(() => {
     const handle = () => {
@@ -159,7 +163,7 @@ export function Navbar() {
               href="/references"
               className="liquid-glass hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white transition-all whitespace-nowrap"
             >
-              References
+              {t('nav.references')}
             </Link>
 
             {isSignedIn ? (
@@ -167,7 +171,7 @@ export function Navbar() {
                 href="/dashboard"
                 className="liquid-glass hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
               >
-                Dashboard
+                {t('nav.dashboard')}
               </Link>
             ) : (
               <Link
@@ -175,7 +179,7 @@ export function Navbar() {
                 className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
                 style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(14,165,233,0.35)' }}
               >
-                Sign In / Sign Up
+                {t('nav.signin')}
               </Link>
             )}
           </div>
@@ -211,23 +215,23 @@ export function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="flex-1 min-w-[100px] text-center py-2.5 rounded-xl font-outfit text-sm text-white/60 hover:text-white hover:bg-white/8 transition-all"
                   >
-                    References
+                    {t('nav.references')}
                   </Link>
                   {isSignedIn ? (
                     <>
                       <Link href="/dashboard" onClick={() => setMobileOpen(false)}
                         className="flex-1 min-w-[100px] text-center py-2.5 rounded-xl font-outfit text-sm font-semibold text-sky-300 hover:bg-sky-500/15 transition-all">
-                        Dashboard
+                        {t('nav.dashboard')}
                       </Link>
                       <button onClick={() => { signOut(); setMobileOpen(false) }}
                         className="flex-1 min-w-[100px] py-2.5 rounded-xl font-outfit text-sm text-white/50 hover:text-white hover:bg-white/8 transition-all">
-                        Sign Out
+                        {t('nav.signout')}
                       </button>
                     </>
                   ) : (
                     <Link href="/signin" onClick={() => setMobileOpen(false)}
                       className="flex-1 min-w-[100px] text-center py-2.5 rounded-xl font-outfit text-sm font-semibold text-white bg-sky-500/80 hover:bg-sky-500 transition-all">
-                      Sign In / Sign Up
+                      {t('nav.signin')}
                     </Link>
                   )}
                 </div>

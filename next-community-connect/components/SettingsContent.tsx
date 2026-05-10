@@ -150,8 +150,6 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
     dispatch({ type: 'REPLACE_STATE', payload: { [key]: !settings[key] } as any })
 
   useEffect(() => { markPageVisited('settings') }, [markPageVisited])
-  useEffect(() => { if (settings.dark) unlock('night_owl') }, [settings.dark, unlock])
-  useEffect(() => { if (settings.language !== 'en') unlock('polyglot') }, [settings.language, unlock])
   useEffect(() => {
     const accessibilityKeys: (keyof typeof settings)[] = [
       'dyslexiaFont','increasedLineHeight','increasedWordSpacing','increasedLetterSpacing',
@@ -210,7 +208,7 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
               : 'bg-white text-sky-900 border border-sky-200 shadow-md hover:bg-sky-50'
           }`}
         >
-          ← Back to Home
+          {t('set.back')}
         </Link>
       )}
 
@@ -286,8 +284,8 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
                   {dk ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-400" />}
                 </div>
                 <div>
-                  <h2 className={`font-syne text-lg font-bold ${dk ? 'text-sky-100' : 'text-sky-900'}`}>Dark Mode</h2>
-                  <p className={`font-outfit text-xs mt-0.5 ${dk ? 'text-sky-300/70' : 'text-sky-600'}`}>Switch to a dark color scheme across the entire app</p>
+                  <h2 className={`font-syne text-lg font-bold ${dk ? 'text-sky-100' : 'text-sky-900'}`}>{t('set.dark_mode')}</h2>
+                  <p className={`font-outfit text-xs mt-0.5 ${dk ? 'text-sky-300/70' : 'text-sky-600'}`}>{t('set.dark_desc')}</p>
                 </div>
               </div>
               <ToggleSwitch active={settings.dark} onToggle={() => dispatch({ type: 'TOGGLE_DARK' })} dk={dk} />
@@ -418,11 +416,11 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
           </motion.div>
 
           {/* Privacy */}
-          <SectionCard icon={Shield} iconColor="text-sky-500" iconBg="bg-sky-50" iconBgDk="bg-sky-900/40" title="Privacy" onLabel={onLabel} delay={0.3} dk={dk}>
+          <SectionCard icon={Shield} iconColor="text-sky-500" iconBg="bg-sky-50" iconBgDk="bg-sky-900/40" title={t('set.privacy')} onLabel={onLabel} delay={0.3} dk={dk}>
             <SettingRow
               dk={dk}
-              label="Show connections when I RSVP"
-              description="Friends can see when you mark yourself as going to an event"
+              label={t('set.rsvp_label')}
+              description={t('set.rsvp_desc')}
               active={rsvpPublic}
               onToggle={toggleRsvpPublic}
             />

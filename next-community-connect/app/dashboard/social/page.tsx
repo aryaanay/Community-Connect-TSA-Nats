@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Users2, Search, Mail, UserPlus, Check, Globe, Lock, Edit3, Save, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
+import { useT } from '@/lib/useT'
 import { supabase } from '@/lib/supabaseClient'
 
 type Profile = {
@@ -28,6 +29,7 @@ function saveConnections(c: string[]) {
 export default function SocialPage() {
   const { user, isSignedIn } = useAuth()
   const { unlock, markPageVisited } = useAchievements()
+  const t = useT()
 
   const [profiles, setProfiles]     = useState<Profile[]>([])
   const [loading, setLoading]       = useState(true)
@@ -112,10 +114,10 @@ export default function SocialPage() {
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(86,187,240,0.15)', border: '1px solid rgba(86,187,240,0.3)' }}>
               <Users2 size={18} style={{ color: '#56BBF0' }} />
             </div>
-            <h1 className="font-syne text-2xl font-black text-white">Social</h1>
+            <h1 className="font-syne text-2xl font-black text-white">{t('social.title')}</h1>
           </div>
           <p className="font-outfit text-sm ml-12" style={{ color: 'rgba(198,235,255,0.45)' }}>
-            Community directory, connections, and contact.
+            {t('social.subtitle')}
           </p>
         </motion.div>
 
@@ -124,10 +126,10 @@ export default function SocialPage() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="rounded-2xl p-5" style={{ background: 'rgba(86,187,240,0.07)', border: '1px solid rgba(86,187,240,0.18)' }}>
             <div className="flex items-center justify-between mb-3">
-              <p className="font-syne text-sm font-bold text-white">Your Community Profile</p>
+              <p className="font-syne text-sm font-bold text-white">{t('social.my_profile')}</p>
               <button onClick={() => setEditing(e => !e)} className="flex items-center gap-1.5 font-outfit text-xs transition-colors hover:text-sky-300" style={{ color: 'rgba(198,235,255,0.5)' }}>
                 {editing ? <X size={13} /> : <Edit3 size={13} />}
-                {editing ? 'Cancel' : (myProfile ? 'Edit' : 'Create Profile')}
+                {editing ? t('social.cancel') : (myProfile ? t('social.edit') : t('social.create_profile'))}
               </button>
             </div>
 
@@ -135,22 +137,22 @@ export default function SocialPage() {
               {editing ? (
                 <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
                   <input value={form.display_name} onChange={e => setForm(p => ({ ...p, display_name: e.target.value }))}
-                    placeholder="Display name" className="w-full px-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
+                    placeholder={t('social.display_ph')} className="w-full px-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.2)' }} />
                   <textarea rows={2} value={form.bio} onChange={e => setForm(p => ({ ...p, bio: e.target.value }))}
-                    placeholder="Short bio (optional)" className="w-full px-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35 resize-none"
+                    placeholder={t('social.bio_ph')} className="w-full px-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35 resize-none"
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.2)' }} />
                   <div className="flex items-center gap-3">
                     <button type="button" onClick={() => setForm(p => ({ ...p, is_public: !p.is_public }))}
                       className="flex items-center gap-1.5 font-outfit text-xs transition-colors"
                       style={{ color: form.is_public ? '#56BBF0' : 'rgba(198,235,255,0.4)' }}>
                       {form.is_public ? <Globe size={13} /> : <Lock size={13} />}
-                      {form.is_public ? 'Visible in directory' : 'Hidden from directory'}
+                      {form.is_public ? t('social.visible') : t('social.hidden')}
                     </button>
                     <button onClick={saveProfile} disabled={saving || !form.display_name.trim()}
                       className="ml-auto flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-xs font-semibold text-white transition-all disabled:opacity-50"
                       style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
-                      <Save size={12} /> {saving ? 'Saving…' : 'Save'}
+                      <Save size={12} /> {saving ? t('social.saving') : t('social.save')}
                     </button>
                   </div>
                 </motion.div>
@@ -160,13 +162,13 @@ export default function SocialPage() {
                   {myProfile.bio && <p className="font-outfit text-xs mt-0.5" style={{ color: 'rgba(198,235,255,0.55)' }}>{myProfile.bio}</p>}
                   <p className="font-outfit text-xs mt-1 flex items-center gap-1" style={{ color: 'rgba(198,235,255,0.35)' }}>
                     {myProfile.is_public ? <Globe size={11} /> : <Lock size={11} />}
-                    {myProfile.is_public ? 'Visible in community directory' : 'Hidden from directory'}
+                    {myProfile.is_public ? t('social.visible_dir') : t('social.hidden')}
                   </p>
                 </motion.div>
               ) : (
                 <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.45)' }}>
-                    Create a profile to appear in the community directory and let others connect with you.
+                    {t('social.create_hint')}
                   </p>
                 </motion.div>
               )}
@@ -176,17 +178,17 @@ export default function SocialPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 rounded-xl p-1" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(86,187,240,0.1)' }}>
-          {(['directory', 'connections'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
+          {(['directory', 'connections'] as const).map(tabId => (
+            <button key={tabId} onClick={() => setTab(tabId)}
               className="relative flex-1 py-2 rounded-lg font-outfit text-sm font-semibold transition-colors"
-              style={{ color: tab === t ? 'white' : 'rgba(198,235,255,0.4)' }}>
-              {tab === t && (
+              style={{ color: tab === tabId ? 'white' : 'rgba(198,235,255,0.4)' }}>
+              {tab === tabId && (
                 <motion.div layoutId="social-tab" className="absolute inset-0 rounded-lg"
                   style={{ background: 'rgba(36,153,214,0.25)', border: '1px solid rgba(86,187,240,0.3)' }}
                   transition={{ duration: 0.2 }} />
               )}
               <span className="relative z-10 capitalize">
-                {t === 'directory' ? 'Community Directory' : `My Connections (${connections.length})`}
+                {tabId === 'directory' ? t('social.directory') : `${t('social.my_connections')} (${connections.length})`}
               </span>
             </button>
           ))}
@@ -197,7 +199,7 @@ export default function SocialPage() {
             {/* Search */}
             <div className="relative mb-4">
               <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…"
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('social.search_ph')}
                 className="w-full pl-10 pr-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)' }} />
             </div>
@@ -207,9 +209,9 @@ export default function SocialPage() {
             ) : filtered.length === 0 ? (
               <div className="text-center py-12">
                 <Users2 size={32} className="mx-auto mb-3" style={{ color: 'rgba(198,235,255,0.2)' }} />
-                <p className="font-syne text-base font-bold text-white mb-1">No profiles found</p>
+                <p className="font-syne text-base font-bold text-white mb-1">{t('social.no_profiles')}</p>
                 <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>
-                  {search ? 'Try a different search term.' : 'Be the first to create a profile above!'}
+                  {search ? t('social.try_search') : t('social.be_first')}
                 </p>
               </div>
             ) : (
@@ -226,8 +228,8 @@ export default function SocialPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
             {connections.length === 0 ? (
               <div className="text-center py-12">
-                <p className="font-syne text-base font-bold text-white mb-1">No connections yet</p>
-                <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>Browse the directory and connect with community members.</p>
+                <p className="font-syne text-base font-bold text-white mb-1">{t('social.no_connections')}</p>
+                <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.4)' }}>{t('social.no_connections_sub')}</p>
               </div>
             ) : (
               <>
@@ -238,14 +240,14 @@ export default function SocialPage() {
                   <div key={email} className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(86,187,240,0.1)' }}>
                     <div>
                       <p className="font-outfit text-sm text-white">{email}</p>
-                      <p className="font-outfit text-[11px]" style={{ color: 'rgba(198,235,255,0.35)' }}>Not in directory</p>
+                      <p className="font-outfit text-[11px]" style={{ color: 'rgba(198,235,255,0.35)' }}>{t('social.not_in_dir')}</p>
                     </div>
                     <div className="flex gap-2">
                       <a href={`mailto:${email}`} className="flex items-center gap-1 px-3 py-1.5 rounded-xl font-outfit text-xs text-sky-300 transition-colors hover:bg-sky-400/10">
-                        <Mail size={12} /> Email
+                        <Mail size={12} /> {t('social.email')}
                       </a>
                       <button onClick={() => toggleConnect(email)} className="px-3 py-1.5 rounded-xl font-outfit text-xs text-red-300 hover:bg-red-400/10 transition-colors">
-                        Remove
+                        {t('social.remove')}
                       </button>
                     </div>
                   </div>
@@ -260,6 +262,7 @@ export default function SocialPage() {
 }
 
 function ProfileCard({ profile, connected, onToggle }: { profile: Profile; connected: boolean; onToggle: () => void }) {
+  const t = useT()
   const initials = profile.display_name.slice(0, 2).toUpperCase()
   return (
     <motion.div whileHover={{ y: -1 }} className="flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors"
@@ -285,7 +288,7 @@ function ProfileCard({ profile, connected, onToggle }: { profile: Profile; conne
             border: `1px solid ${connected ? 'rgba(16,185,129,0.35)' : 'rgba(86,187,240,0.25)'}`,
             color: connected ? '#10B981' : '#56BBF0',
           }}>
-          {connected ? <><Check size={11} /> Connected</> : <><UserPlus size={11} /> Connect</>}
+          {connected ? <><Check size={11} /> {t('social.connected')}</> : <><UserPlus size={11} /> {t('social.connect')}</>}
         </button>
       </div>
     </motion.div>

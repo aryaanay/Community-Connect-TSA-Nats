@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
+import { useT } from '@/lib/useT'
 import { useRouter } from 'next/navigation'
 import { FileText } from 'lucide-react'
 
@@ -94,6 +95,7 @@ export default function DashboardReferencesPage() {
   const { settings } = useSettings()
   const { user, loading } = useAuth()
   const { markPageVisited } = useAchievements()
+  const t = useT()
   const router = useRouter()
   const dk = settings.dark
 
@@ -138,8 +140,8 @@ export default function DashboardReferencesPage() {
             <FileText className="w-5 h-5" style={{ color: LINK }} />
           </div>
           <div>
-            <h1 className="font-syne text-2xl font-bold" style={{ color: H }}>References</h1>
-            <p className="font-outfit text-sm" style={{ color: MUTED }}>Student copyright checklist, work log, and all sources cited.</p>
+            <h1 className="font-syne text-2xl font-bold" style={{ color: H }}>{t('ref.title')}</h1>
+            <p className="font-outfit text-sm" style={{ color: MUTED }}>{t('ref.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -148,7 +150,7 @@ export default function DashboardReferencesPage() {
 
         {/* PROJECT INFO */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Project Information</h2>
+          <h2 style={h2Style}>{t('ref.project_info')}</h2>
           <div className="rounded-2xl overflow-hidden border p-6" style={{ backgroundColor: CARD, borderColor: BORDER }}>
             <div className="grid md:grid-cols-2 gap-5">
               {[
@@ -170,7 +172,7 @@ export default function DashboardReferencesPage() {
 
         {/* COPYRIGHT CHECKLIST */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Student Copyright Checklist</h2>
+          <h2 style={h2Style}>{t('ref.copyright')}</h2>
           <div className="rounded-2xl overflow-hidden border" style={{ backgroundColor: CARD, borderColor: BORDER }}>
             <div className="bg-sky-600 px-8 py-5">
               <p style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '18px', color: 'white' }}>
@@ -208,7 +210,7 @@ export default function DashboardReferencesPage() {
 
         {/* STUDENT COPYRIGHT CHECKLISTS PDF */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Student Copyright Checklists</h2>
+          <h2 style={h2Style}>{t('ref.copyrights')}</h2>
           <div className="rounded-2xl overflow-hidden border" style={{ borderColor: BORDER }}>
             <iframe
               src="/TSA_Student_Copyright_Checklists.pdf"
@@ -224,14 +226,14 @@ export default function DashboardReferencesPage() {
               rel="noopener noreferrer"
               style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: LINK }}
             >
-              Open PDF in new tab
+              {t('ref.open_pdf')}
             </a>
           </div>
         </motion.div>
 
         {/* WORK LOG */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Work Log</h2>
+          <h2 style={h2Style}>{t('ref.work_log')}</h2>
           <p style={{ ...bodyStyle, marginBottom: '16px' }}>
             Total entries: {workLog.length} sessions — April 15 through May 12, 2026. Team initials: AA · NS · SP · GM · AK · VM
           </p>
@@ -239,10 +241,10 @@ export default function DashboardReferencesPage() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b" style={{ backgroundColor: TH_BG, borderColor: BORDER }}>
-                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>Date</th>
-                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>Member(s)</th>
-                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>Hrs</th>
-                  <th className="text-left px-5 py-3.5" style={hdStyle}>Task / Description</th>
+                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>{t('ref.col.date')}</th>
+                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>{t('ref.col.members')}</th>
+                  <th className="text-left px-5 py-3.5 whitespace-nowrap" style={hdStyle}>{t('ref.col.hrs')}</th>
+                  <th className="text-left px-5 py-3.5" style={hdStyle}>{t('ref.col.task')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -257,7 +259,7 @@ export default function DashboardReferencesPage() {
               </tbody>
               <tfoot>
                 <tr style={{ backgroundColor: TH_BG }}>
-                  <td className="px-5 py-3" colSpan={2} style={hdStyle}>Total Hours</td>
+                  <td className="px-5 py-3" colSpan={2} style={hdStyle}>{t('ref.col.total')}</td>
                   <td className="px-5 py-3" style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '13px', color: LINK }}>
                     {workLog.reduce((s, r) => s + parseFloat(r.hours), 0).toFixed(1)}
                   </td>
@@ -270,15 +272,15 @@ export default function DashboardReferencesPage() {
 
         {/* SOURCES AND CITATIONS */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Sources and Citations</h2>
+          <h2 style={h2Style}>{t('ref.sources')}</h2>
           <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: BORDER }}>
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b" style={{ backgroundColor: TH_BG, borderColor: BORDER }}>
-                  <th className="text-left px-6 py-4" style={hdStyle}>Resource</th>
-                  <th className="text-left px-6 py-4" style={hdStyle}>Type</th>
-                  <th className="text-left px-6 py-4" style={hdStyle}>License</th>
-                  <th className="text-left px-6 py-4" style={hdStyle}>URL</th>
+                  <th className="text-left px-6 py-4" style={hdStyle}>{t('ref.col.resource')}</th>
+                  <th className="text-left px-6 py-4" style={hdStyle}>{t('ref.col.type')}</th>
+                  <th className="text-left px-6 py-4" style={hdStyle}>{t('ref.col.license')}</th>
+                  <th className="text-left px-6 py-4" style={hdStyle}>{t('ref.col.url')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,7 +299,7 @@ export default function DashboardReferencesPage() {
 
         {/* FRAMEWORK STATEMENT */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Framework Statement</h2>
+          <h2 style={h2Style}>{t('ref.framework')}</h2>
           <div className="rounded-2xl overflow-hidden border p-6" style={{ backgroundColor: CARD, borderColor: BORDER }}>
             <p style={bodyStyle}>
               This website was built entirely from scratch using <strong style={{ color: H }}>Next.js 16</strong> with the App Router.
@@ -310,7 +312,7 @@ export default function DashboardReferencesPage() {
 
         {/* ACCESSIBILITY */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Accessibility Statement</h2>
+          <h2 style={h2Style}>{t('ref.accessibility')}</h2>
           <div className="rounded-2xl overflow-hidden border p-6" style={{ backgroundColor: CARD, borderColor: BORDER }}>
             <p style={{ ...bodyStyle, marginBottom: '16px' }}>
               Community Connect is committed to ensuring digital accessibility for all users. A full Accessibility Settings
@@ -338,7 +340,7 @@ export default function DashboardReferencesPage() {
 
         {/* PRIVACY */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <h2 style={h2Style}>Privacy and Terms</h2>
+          <h2 style={h2Style}>{t('ref.privacy')}</h2>
           <div className="rounded-2xl overflow-hidden border p-6" style={{ backgroundColor: CARD, borderColor: BORDER }}>
             <p style={bodyStyle}>
               This website was created for educational purposes as part of the TSA Webmaster competition. All events,

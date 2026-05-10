@@ -7,6 +7,7 @@ import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
+import { useT } from '@/lib/useT'
 import Link from 'next/link'
 
 type SupabaseEvent = {
@@ -467,6 +468,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, o
 }) {
   const { user } = useAuth()
   const { isGoing, toggle, count, friendsGoing } = useEventRsvp(event.id, user?.id)
+  const t = useT()
   const [editing, setEditing] = useState(false)
   const [editSaving, setEditSaving] = useState(false)
   const [editForm, setEditForm] = useState<EventUpdates>({
@@ -565,10 +567,10 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, o
           {!editing && (
           <div className="grid grid-cols-2 gap-2 mb-6">
             {[
-              { label: 'Date', value: event.date },
-              { label: 'Time', value: event.time },
-              { label: 'Location', value: event.location.split(',')[0] },
-              { label: 'Who', value: event.audience },
+              { label: t('events.lbl_date'), value: event.date },
+              { label: t('events.lbl_time'), value: event.time },
+              { label: t('events.lbl_location'), value: event.location.split(',')[0] },
+              { label: t('events.lbl_who'), value: event.audience },
             ].map(item => (
               <div key={item.label} className="rounded-xl p-3 border border-slate-100 bg-slate-50 event-detail-item">
                 <div style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#008fb5', marginBottom: '4px' }}>
@@ -614,7 +616,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, o
                 gap: '6px',
               }}
             >
-              {isGoing ? '✓ Going' : 'RSVP'}
+              {isGoing ? t('events.going') : t('events.rsvp')}
             </button>
           </div>
           )}
@@ -628,7 +630,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, o
               className="flex-1 px-4 py-3 rounded-xl text-white transition-all hover:opacity-90 text-center"
               style={{ backgroundColor: event.color, fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600 }}
             >
-              📍 Get Directions
+              {t('events.get_dir')}
             </a>
             )}
             {!editing && (
@@ -639,7 +641,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, o
               className="flex-1 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all text-center"
               style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#64748b' }}
             >
-              📅 Add to Calendar
+              {t('events.add_cal')}
             </a>
             )}
             {isOwned && onEdit && !editing && (
@@ -680,6 +682,7 @@ function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, o
 export default function EventsPage() {
   const { settings } = useSettings()
   const dk = settings.dark
+  const t = useT()
   const [allEvents, setAllEvents] = useState<EventType[]>(events)
   const [selected, setSelected] = useState<EventType | null>(null)
   const [calendarSelected, setCalendarSelected] = useState<EventType | null>(null)
@@ -828,9 +831,9 @@ export default function EventsPage() {
   return (
     <>
       <HeroDemo
-        badge="Always Something Happening"
-        staticTitle="Upcoming Events"
-        subtitle="Stay connected with what is happening in our community. From cleanups to workshops, there is a place for everyone."
+        badge={t('events.badge')}
+        staticTitle={t('events.title')}
+        subtitle={t('events.subtitle')}
         backgroundImage="/img/page-3.jpg"
       />
 
@@ -846,10 +849,10 @@ export default function EventsPage() {
             className="text-center mb-12"
           >
             <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
-              All months · Navigate with the arrows below
+              {t('events.cal_nav')}
             </span>
             <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#022747', lineHeight: 1.1 }}>
-              Next Events Pinned
+              {t('events.cal_heading')}
             </h3>
           </motion.div>
 
@@ -905,10 +908,10 @@ export default function EventsPage() {
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
                       {[
-                        { label: 'Date', value: calendarSelected.date },
-                        { label: 'Time', value: calendarSelected.time },
-                        { label: 'Location', value: calendarSelected.location.split(',')[0] },
-                        { label: 'Audience', value: calendarSelected.audience },
+                        { label: t('events.lbl_date'), value: calendarSelected.date },
+                        { label: t('events.lbl_time'), value: calendarSelected.time },
+                        { label: t('events.lbl_location'), value: calendarSelected.location.split(',')[0] },
+                        { label: t('events.lbl_audience'), value: calendarSelected.audience },
                       ].map(item => (
                         <div key={item.label} className="event-detail-item rounded-xl p-3"
                           style={{
@@ -934,7 +937,7 @@ export default function EventsPage() {
                         className="px-6 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90"
                         style={{ backgroundColor: calendarSelected.color, fontFamily: 'var(--font-space)' }}
                       >
-                        Get Directions
+                        {t('events.get_dir_plain')}
                       </a>
                       <a
                         href={getGCalUrl(calendarSelected)}
@@ -948,7 +951,7 @@ export default function EventsPage() {
                           background: dk ? 'rgba(86,187,240,0.06)' : 'transparent',
                         }}
                       >
-                        Add to Calendar
+                        {t('events.add_cal_plain')}
                       </a>
                       <button
                         onClick={() => setCalendarSelected(null)}
@@ -960,7 +963,7 @@ export default function EventsPage() {
                           background: dk ? 'rgba(86,187,240,0.04)' : 'transparent',
                         }}
                       >
-                        Dismiss
+                        {t('events.dismiss')}
                       </button>
                     </div>
                   </div>
@@ -983,21 +986,21 @@ export default function EventsPage() {
             className="mb-16"
           >
             <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '12px' }}>
-              What's Coming Up
+              {t('events.coming_up')}
             </span>
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mt-1">
               <h2 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#19619f', lineHeight: 1, letterSpacing: '-1px' }}>
-                Mark Your<br />Calendar.
+                {t('events.heading')}
               </h2>
               <div className="flex flex-col items-start lg:items-end gap-3">
                 <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: dk ? 'rgba(198,235,255,0.65)' : '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
-                  All events are free and open to the public. Click any card for full details.
+                  {t('events.free_note')}
                 </p>
                 <Link href="/dashboard/create-event"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 active:scale-95"
                   style={{ fontFamily: 'var(--font-outfit)', background: dk ? 'linear-gradient(135deg,#0857A0,#2499D6)' : 'linear-gradient(135deg,#085D8A,#0E9ECC)', boxShadow: '0 2px 12px rgba(8,87,160,0.35)' }}>
                   <PlusCircle size={15} />
-                  Create Event
+                  {t('events.create')}
                 </Link>
               </div>
             </div>
@@ -1187,7 +1190,7 @@ export default function EventsPage() {
               className="flex items-center gap-2 px-8 py-4 rounded-2xl border-2 border-sky-300 text-sky-700 font-bold hover:bg-sky-50 transition-all"
               style={{ fontFamily: 'var(--font-syne)', fontSize: '14px' }}
             >
-              {showAll ? '↑ Show Less' : `See All ${events.length} Events →`}
+              {showAll ? t('events.show_less') : t('events.see_all').replace('{n}', String(events.length))}
             </motion.button>
           </div>
 

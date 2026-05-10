@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Layers, Plus, Mail, Trash2, Crown, Users, X, ChevronDown, Send } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
+import { useT } from '@/lib/useT'
 import { supabase } from '@/lib/supabaseClient'
 
 type Group = {
@@ -25,6 +26,7 @@ type Member = {
 export default function GroupsPage() {
   const { user, isSignedIn } = useAuth()
   const { markPageVisited } = useAchievements()
+  const t = useT()
 
   const [groups, setGroups]       = useState<Group[]>([])
   const [loading, setLoading]     = useState(true)
@@ -138,7 +140,7 @@ export default function GroupsPage() {
 
   if (!isSignedIn) return (
     <div className="flex items-center justify-center h-full min-h-[400px]" style={{ background: 'linear-gradient(150deg,#011629,#022747)' }}>
-      <p className="font-outfit text-white">Sign in to manage groups.</p>
+      <p className="font-outfit text-white">{t('groups.signin')}</p>
     </div>
   )
 
@@ -153,14 +155,14 @@ export default function GroupsPage() {
               <Layers size={18} style={{ color: '#818CF8' }} />
             </div>
             <div>
-              <h1 className="font-syne text-2xl font-black text-white">Groups</h1>
-              <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>Create groups, manage members, send bulk emails</p>
+              <h1 className="font-syne text-2xl font-black text-white">{t('groups.title')}</h1>
+              <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.45)' }}>{t('groups.subtitle')}</p>
             </div>
           </div>
           <button onClick={() => setCreating(c => !c)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
             style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)', boxShadow: '0 4px 16px rgba(99,102,241,0.3)' }}>
-            <Plus size={15} /> New Group
+            <Plus size={15} /> {t('groups.new')}
           </button>
         </motion.div>
 
@@ -171,21 +173,21 @@ export default function GroupsPage() {
               className="overflow-hidden">
               <div className="rounded-2xl p-5 space-y-3" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)' }}>
                 <div className="flex justify-between items-center">
-                  <p className="font-syne text-sm font-bold text-white">New Group</p>
+                  <p className="font-syne text-sm font-bold text-white">{t('groups.new_title')}</p>
                   <button onClick={() => { setCreating(false); setError('') }}><X size={15} style={{ color: 'rgba(198,235,255,0.4)' }} /></button>
                 </div>
 
                 <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                  placeholder="Group name *" className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-indigo-400/40"
+                  placeholder={t('groups.name_ph')} className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-indigo-400/40"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(99,102,241,0.25)' }} />
 
                 <textarea rows={2} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                  placeholder="Description (optional)" className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-indigo-400/40 resize-none"
+                  placeholder={t('groups.desc_ph')} className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-indigo-400/40 resize-none"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(99,102,241,0.25)' }} />
 
                 <div>
                   <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>
-                    Member Emails (comma or line separated)
+                    {t('groups.emails_label')}
                   </label>
                   <textarea rows={3} value={form.emails} onChange={e => setForm(p => ({ ...p, emails: e.target.value }))}
                     placeholder={"friend@email.com,\nanother@email.com"} className="w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-indigo-400/40 resize-none"
@@ -197,7 +199,7 @@ export default function GroupsPage() {
                 <button onClick={createGroup} disabled={saving || !form.name.trim()}
                   className="w-full py-2.5 rounded-xl font-outfit text-sm font-semibold text-white transition-all disabled:opacity-50"
                   style={{ background: 'linear-gradient(135deg,#4F46E5,#818CF8)' }}>
-                  {saving ? 'Creating…' : 'Create Group'}
+                  {saving ? t('groups.creating') : t('groups.create')}
                 </button>
               </div>
             </motion.div>
@@ -210,8 +212,8 @@ export default function GroupsPage() {
         ) : groups.length === 0 ? (
           <div className="text-center py-16" style={{ color: 'rgba(198,235,255,0.4)' }}>
             <Layers size={36} className="mx-auto mb-3 opacity-30" />
-            <p className="font-syne text-base font-bold text-white mb-1">No groups yet</p>
-            <p className="font-outfit text-sm">Create a group to organize community members.</p>
+            <p className="font-syne text-base font-bold text-white mb-1">{t('groups.empty_title')}</p>
+            <p className="font-outfit text-sm">{t('groups.empty_sub')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -240,6 +242,7 @@ function GroupCard({ group, isCreator, expanded, onToggle, onDelete, onEmailAll,
   onToggle: () => void; onDelete: () => void; onEmailAll: () => void
   onAddMember: (email: string) => void; onRemoveMember: (id: string) => void
 }) {
+  const t = useT()
   const [newEmail, setNewEmail] = useState('')
 
   return (
@@ -273,20 +276,20 @@ function GroupCard({ group, isCreator, expanded, onToggle, onDelete, onEmailAll,
                 <button onClick={onEmailAll}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-outfit text-xs font-semibold text-white transition-all hover:-translate-y-0.5"
                   style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
-                  <Send size={12} /> Email All Members
+                  <Send size={12} /> {t('groups.email_all')}
                 </button>
                 {isCreator && (
                   <button onClick={onDelete} className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs text-red-400 hover:bg-red-400/10 transition-colors">
-                    <Trash2 size={12} /> Delete Group
+                    <Trash2 size={12} /> {t('groups.delete')}
                   </button>
                 )}
               </div>
 
               {/* Members */}
               <div>
-                <p className="font-outfit text-[10px] uppercase tracking-wider mb-2" style={{ color: 'rgba(198,235,255,0.4)' }}>Members</p>
+                <p className="font-outfit text-[10px] uppercase tracking-wider mb-2" style={{ color: 'rgba(198,235,255,0.4)' }}>{t('groups.members')}</p>
                 {!group.members?.length ? (
-                  <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.35)' }}>No members yet.</p>
+                  <p className="font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.35)' }}>{t('groups.no_members')}</p>
                 ) : (
                   <div className="space-y-1.5">
                     {group.members.map(m => (
@@ -315,7 +318,7 @@ function GroupCard({ group, isCreator, expanded, onToggle, onDelete, onEmailAll,
                 <div className="flex gap-2">
                   <input value={newEmail} onChange={e => setNewEmail(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') { onAddMember(newEmail); setNewEmail('') } }}
-                    placeholder="Add member email…" className="flex-1 px-3 py-2 rounded-xl font-outfit text-xs text-white outline-none focus:ring-1 focus:ring-indigo-400/35"
+                    placeholder={t('groups.add_ph')} className="flex-1 px-3 py-2 rounded-xl font-outfit text-xs text-white outline-none focus:ring-1 focus:ring-indigo-400/35"
                     style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,102,241,0.2)' }} />
                   <button onClick={() => { onAddMember(newEmail); setNewEmail('') }}
                     className="px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-white transition-colors"

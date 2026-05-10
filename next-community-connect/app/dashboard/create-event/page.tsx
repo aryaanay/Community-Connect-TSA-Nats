@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CalendarDays, MapPin, Clock, Lock, Globe, Mail, X, CheckCircle, AlertCircle, Plus, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
+import { useT } from '@/lib/useT'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
@@ -33,6 +34,7 @@ const EMPTY: FormState = {
 export default function CreateEventPage() {
   const { user, isSignedIn } = useAuth()
   const { unlock, markPageVisited } = useAchievements()
+  const t = useT()
   const router = useRouter()
   const [form, setForm] = useState<FormState>(EMPTY)
   const [isPending, startTransition] = useTransition()
@@ -93,8 +95,8 @@ export default function CreateEventPage() {
 
   if (!isSignedIn) return (
     <div className="flex items-center justify-center h-full min-h-[400px] flex-col gap-4" style={{ background: 'linear-gradient(150deg,#011629,#022747)' }}>
-      <p className="font-outfit text-white">Sign in to create events.</p>
-      <button onClick={() => router.push('/signin')} className="px-4 py-2 rounded-xl font-outfit text-sm text-white" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>Sign In</button>
+      <p className="font-outfit text-white">{t('event.signin')}</p>
+      <button onClick={() => router.push('/signin')} className="px-4 py-2 rounded-xl font-outfit text-sm text-white" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>{t('event.signin_btn')}</button>
     </div>
   )
 
@@ -113,18 +115,16 @@ export default function CreateEventPage() {
             >
               <div className="text-6xl mb-4">{form.emoji}</div>
               <CheckCircle size={32} className="mx-auto mb-3 text-emerald-400" />
-              <h2 className="font-syne text-2xl font-black text-white mb-2">Event Created!</h2>
+              <h2 className="font-syne text-2xl font-black text-white mb-2">{t('event.success_h')}</h2>
               <p className="font-outfit text-sm mb-6" style={{ color: 'rgba(198,235,255,0.6)' }}>
-                {form.isPublic
-                  ? 'Your event is now live on the Events page and Community Map.'
-                  : 'Your private event was saved and invite emails have been drafted.'}
+                {form.isPublic ? t('event.success_public') : t('event.success_private')}
               </p>
               <div className="flex gap-3 justify-center">
                 <button onClick={() => router.push('/dashboard/events')} className="px-5 py-2.5 rounded-xl font-outfit text-sm text-white font-semibold" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
-                  View Events
+                  {t('event.view_events')}
                 </button>
                 <button onClick={() => { setDone(false); setForm(EMPTY) }} className="px-5 py-2.5 rounded-xl font-outfit text-sm font-semibold" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.2)', color: 'rgba(198,235,255,0.7)' }}>
-                  Create Another
+                  {t('event.create_another')}
                 </button>
               </div>
             </motion.div>
@@ -138,11 +138,11 @@ export default function CreateEventPage() {
                   className="flex items-center gap-1.5 mb-4 font-outfit text-sm transition-colors hover:text-sky-300"
                   style={{ color: 'rgba(198,235,255,0.45)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 >
-                  <ArrowLeft size={14} /> Go Back
+                  <ArrowLeft size={14} /> {t('event.go_back')}
                 </button>
-                <h1 className="font-syne text-2xl font-black text-white mb-1">Create an Event</h1>
+                <h1 className="font-syne text-2xl font-black text-white mb-1">{t('event.title_h')}</h1>
                 <p className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.5)' }}>
-                  Public events appear on the Events page and Community Map. Private events send email invites.
+                  {t('event.desc_sub')}
                 </p>
               </div>
 
@@ -163,14 +163,14 @@ export default function CreateEventPage() {
                       }}
                     >
                       {pub ? <Globe size={15} /> : <Lock size={15} />}
-                      {pub ? 'Public' : 'Private'}
+                      {pub ? t('event.public') : t('event.private')}
                     </button>
                   ))}
                 </div>
 
                 {/* Emoji picker */}
                 <div>
-                  <label className="block font-outfit text-[10px] uppercase tracking-wider mb-2" style={{ color: 'rgba(198,235,255,0.45)' }}>Event Emoji</label>
+                  <label className="block font-outfit text-[10px] uppercase tracking-wider mb-2" style={{ color: 'rgba(198,235,255,0.45)' }}>{t('event.emoji_label')}</label>
                   <div className="flex flex-wrap gap-2">
                     {EMOJIS.map(em => (
                       <button
@@ -190,20 +190,20 @@ export default function CreateEventPage() {
                 </div>
 
                 {/* Title */}
-                <Field label="Event Title *">
+                <Field label={t('event.title_label')}>
                   <input
                     required value={form.title} onChange={e => set('title', e.target.value)}
-                    placeholder="Community Cleanup, Workshop, etc."
+                    placeholder={t('event.title_ph')}
                     className="w-full px-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)' }}
                   />
                 </Field>
 
                 {/* Description */}
-                <Field label="Description">
+                <Field label={t('event.description')}>
                   <textarea
                     rows={3} value={form.description} onChange={e => set('description', e.target.value)}
-                    placeholder="What's happening? Who should come?"
+                    placeholder={t('event.desc_ph')}
                     className="w-full px-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35 resize-none"
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)' }}
                   />
@@ -211,21 +211,21 @@ export default function CreateEventPage() {
 
                 {/* Date + Time row */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <Field label="Date *" className="sm:col-span-1">
+                  <Field label={t('event.date')} className="sm:col-span-1">
                     <input
                       type="date" required value={form.date} onChange={e => set('date', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)', colorScheme: 'dark' }}
                     />
                   </Field>
-                  <Field label="Start Time">
+                  <Field label={t('event.start_time')}>
                     <input
                       type="time" value={form.time} onChange={e => set('time', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)', colorScheme: 'dark' }}
                     />
                   </Field>
-                  <Field label="End Time">
+                  <Field label={t('event.end_time')}>
                     <input
                       type="time" value={form.endTime} onChange={e => set('endTime', e.target.value)}
                       className="w-full px-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
@@ -235,12 +235,12 @@ export default function CreateEventPage() {
                 </div>
 
                 {/* Location */}
-                <Field label="Location">
+                <Field label={t('event.location')}>
                   <div className="relative">
                     <MapPin size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
                     <input
                       value={form.location} onChange={e => set('location', e.target.value)}
-                      placeholder="Address or place name"
+                      placeholder={t('event.location_ph')}
                       className="w-full pl-9 pr-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)' }}
                     />
@@ -248,7 +248,7 @@ export default function CreateEventPage() {
                 </Field>
 
                 {/* Category */}
-                <Field label="Category">
+                <Field label={t('event.category')}>
                   <div className="flex flex-wrap gap-2">
                     {CATEGORIES.map(cat => (
                       <button
@@ -269,7 +269,7 @@ export default function CreateEventPage() {
                 {/* Private: invite emails */}
                 {!form.isPublic && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                    <Field label="Invite Emails (comma or line separated)">
+                    <Field label={t('event.invite_label')}>
                       <div className="relative">
                         <Mail size={14} className="absolute left-3.5 top-3.5" style={{ color: 'rgba(198,235,255,0.35)' }} />
                         <textarea
@@ -280,7 +280,7 @@ export default function CreateEventPage() {
                         />
                       </div>
                       <p className="mt-1.5 font-outfit text-[10px]" style={{ color: 'rgba(198,235,255,0.35)' }}>
-                        After creating the event, your email client will open with a draft invite to all these addresses.
+                        {t('event.invite_hint')}
                       </p>
                     </Field>
                   </motion.div>
@@ -300,7 +300,7 @@ export default function CreateEventPage() {
                   style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)', boxShadow: '0 8px 24px rgba(36,153,214,0.25)' }}
                 >
                   <Plus size={16} />
-                  {isPending ? 'Creating…' : 'Create Event'}
+                  {isPending ? t('event.creating') : t('event.create')}
                 </button>
               </form>
             </motion.div>
