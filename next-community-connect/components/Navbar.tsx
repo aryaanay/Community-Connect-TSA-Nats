@@ -68,7 +68,7 @@ export function Navbar() {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }
             }}
-            className="liquid-glass pointer-events-auto flex h-14 items-center gap-2.5 px-5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
+            className="liquid-glass pointer-events-auto flex h-14 items-center gap-2.5 px-5 rounded-full hover:scale-[1.03] transition-transform flex-shrink-0"
           >
             <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
               <circle cx="17" cy="17" r="15.5" stroke="#2499D6" strokeWidth="1.5"/>
@@ -91,7 +91,7 @@ export function Navbar() {
               layout
               className="liquid-glass h-14 flex items-center"
               style={{ overflow: 'hidden' }}
-              animate={{ borderRadius: showPill ? 16 : 20 }}
+              animate={{ borderRadius: 9999 }}
               transition={{ layout: { duration: 0.38, ease: EASE }, borderRadius: { duration: 0.38, ease: EASE } }}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -108,7 +108,7 @@ export function Navbar() {
                       <button
                         key={id}
                         onClick={() => scrollTo(id)}
-                        className="inline-flex h-10 items-center px-3 rounded-xl font-outfit text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                        className="inline-flex h-10 items-center px-3 rounded-full font-outfit text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
                       >
                         {label}
                       </button>
@@ -161,7 +161,7 @@ export function Navbar() {
 
             <Link
               href="/references"
-              className="liquid-glass hidden h-14 sm:flex items-center font-outfit text-sm px-5 rounded-xl text-white transition-all whitespace-nowrap"
+              className="liquid-glass hidden h-14 sm:flex items-center font-outfit text-sm px-5 rounded-full text-white transition-all whitespace-nowrap"
             >
               {t('nav.references')}
             </Link>
@@ -169,14 +169,14 @@ export function Navbar() {
             {isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="liquid-glass hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
+                className="liquid-glass hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-full text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
               >
                 {t('nav.dashboard')}
               </Link>
             ) : (
               <Link
                 href="/signin"
-                className="hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                className="hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-full text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
                 style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(14,165,233,0.35)' }}
               >
                 {t('nav.signin')}
