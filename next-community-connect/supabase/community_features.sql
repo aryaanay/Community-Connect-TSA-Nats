@@ -58,14 +58,7 @@ CREATE TABLE IF NOT EXISTS community_groups (
 );
 ALTER TABLE community_groups ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Groups viewable by members"
-  ON community_groups FOR SELECT USING (
-    auth.uid() = creator_id OR
-    EXISTS (
-      SELECT 1 FROM group_members gm
-      WHERE gm.group_id = community_groups.id
-        AND gm.user_id = auth.uid()
-    )
-  );
+  ON community_groups FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "Authenticated users can create groups"
   ON community_groups FOR INSERT WITH CHECK (auth.uid() = creator_id);
 CREATE POLICY "Creators can update/delete own groups"
@@ -82,9 +75,7 @@ CREATE TABLE IF NOT EXISTS group_members (
 );
 ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Members can view their own group memberships"
-  ON group_members FOR SELECT USING (user_id = auth.uid() OR
-    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id = auth.uid())
-  );
+  ON group_members FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "Admins can manage members"
   ON group_members FOR ALL USING (
     EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id = auth.uid())

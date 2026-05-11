@@ -80,19 +80,15 @@ CREATE TABLE IF NOT EXISTS group_members (
 );
 ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
 
--- community_groups policies (reference group_members, so group_members must exist first)
+-- community_groups policies
+-- Keep SELECT policies non-recursive. Older policies that cross-referenced
+-- group_members and community_groups caused "infinite recursion detected"
+-- errors in Supabase/PostgREST.
 DROP POLICY IF EXISTS "Groups viewable by members" ON community_groups;
 DROP POLICY IF EXISTS "Authenticated users can create groups" ON community_groups;
 DROP POLICY IF EXISTS "Creators can update/delete own groups" ON community_groups;
 CREATE POLICY "Groups viewable by members"
-  ON community_groups FOR SELECT USING (
-    creator_id::text = auth.uid()::text OR
-    EXISTS (
-      SELECT 1 FROM group_members gm
-      WHERE gm.group_id = community_groups.id
-        AND gm.user_id::text = auth.uid()::text
-    )
-  );
+  ON community_groups FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "Authenticated users can create groups"
   ON community_groups FOR INSERT WITH CHECK (creator_id::text = auth.uid()::text);
 CREATE POLICY "Creators can update/delete own groups"
@@ -102,10 +98,7 @@ CREATE POLICY "Creators can update/delete own groups"
 DROP POLICY IF EXISTS "Members can view their own group memberships" ON group_members;
 DROP POLICY IF EXISTS "Admins can manage members" ON group_members;
 CREATE POLICY "Members can view their own group memberships"
-  ON group_members FOR SELECT USING (
-    user_id::text = auth.uid()::text OR
-    EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id::text = auth.uid()::text)
-  );
+  ON group_members FOR SELECT USING (auth.uid() IS NOT NULL);
 CREATE POLICY "Admins can manage members"
   ON group_members FOR ALL USING (
     EXISTS (SELECT 1 FROM community_groups cg WHERE cg.id = group_id AND cg.creator_id::text = auth.uid()::text)

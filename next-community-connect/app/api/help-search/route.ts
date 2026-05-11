@@ -56,9 +56,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Groq unavailable or key missing — return null answer gracefully
-    return NextResponse.json({ answer: null })
+    return NextResponse.json({ answer: getFallbackAnswer(query), fallback: true })
   } catch (err) {
     console.error('help-search API error:', err)
-    return NextResponse.json({ answer: null })
+    return NextResponse.json({ answer: getFallbackAnswer(''), fallback: true })
   }
+}
+
+function getFallbackAnswer(query: string) {
+  const text = (query || '').toLowerCase()
+
+  if (text.includes('event')) {
+    return 'To create an event, sign in, go to Dashboard, then open Create Event. Add the title, date, time, location, and choose whether it is public or private.'
+  }
+  if (text.includes('favor')) {
+    return 'To ask for or help with a favor, sign in and go to Dashboard > Favors. Use Ask a Favor to post a request, or open an existing favor to contact the poster.'
+  }
+  if (text.includes('resource')) {
+    return 'Use Resources to browse support services. To add one, sign in and use Submit Resource so it can be reviewed and added to the directory.'
+  }
+  if (text.includes('group')) {
+    return 'Groups are available from Dashboard > Groups after signing in. You can create a group, add member emails, and send an email to everyone in the group.'
+  }
+  if (text.includes('lost') || text.includes('found')) {
+    return 'Lost and Found is in the dashboard. Sign in, open Lost & Found, then post the item details and optional contact information.'
+  }
+
+  return 'CommunityConnect helps you find resources, browse and create events, ask favors, manage groups, post lost and found items, and adjust accessibility settings.'
 }

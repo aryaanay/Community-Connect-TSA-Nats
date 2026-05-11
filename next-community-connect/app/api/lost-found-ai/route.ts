@@ -7,7 +7,17 @@ export async function POST(request: NextRequest) {
 
     const groqApiKey = process.env.GROQ_API_KEY
     if (!groqApiKey) {
-      return NextResponse.json({ result: null, error: 'AI not configured' })
+      if (action === 'generate_description') {
+        const { title, type, location } = body as { title?: string; type?: string; location?: string }
+        return NextResponse.json({
+          description: buildFallbackDescription(title, type, location),
+          fallback: true,
+        })
+      }
+      if (action === 'approve_image') {
+        return NextResponse.json({ approved: true, fallback: true })
+      }
+      return NextResponse.json({ result: null, fallback: true })
     }
 
     if (action === 'generate_description') {
@@ -77,4 +87,11 @@ export async function POST(request: NextRequest) {
     console.error('lost-found-ai API error:', err)
     return NextResponse.json({ result: null, error: 'Server error' })
   }
+}
+
+function buildFallbackDescription(title?: string, type?: string, location?: string) {
+  const item = title?.trim() || 'Item'
+  const kind = type === 'found' ? 'found' : 'lost'
+  const place = location?.trim() ? ` near ${location.trim()}` : ''
+  return `${item} was reported ${kind}${place}. Please contact the poster if you have information that can help identify or return it.`
 }

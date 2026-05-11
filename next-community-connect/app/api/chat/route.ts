@@ -7,10 +7,7 @@ export async function POST(request: NextRequest) {
     const groqApiKey = process.env.GROQ_API_KEY
 
     if (!groqApiKey) {
-      return NextResponse.json(
-        { error: 'API key not configured' },
-        { status: 500 }
-      )
+      return NextResponse.json({ message: getFallbackReply(message), fallback: true })
     }
 
     // Build messages for Groq
@@ -94,4 +91,23 @@ Be concise, direct, and friendly. For how-to questions give step-by-step instruc
       { status: 500 }
     )
   }
+}
+
+function getFallbackReply(message: string) {
+  const text = (message || '').toLowerCase()
+
+  if (text.includes('event')) {
+    return 'You can browse events from the Events page. To create one, sign in, open the dashboard, and choose Create Event.'
+  }
+  if (text.includes('favor') || text.includes('help')) {
+    return 'For community favors, sign in and open Dashboard > Favors. You can post a request or offer to help with an open favor.'
+  }
+  if (text.includes('resource') || text.includes('food') || text.includes('housing') || text.includes('health')) {
+    return 'Use the Resources page to search local support by category. You can also submit a new resource from Submit Resource once signed in.'
+  }
+  if (text.includes('lost') || text.includes('found')) {
+    return 'Lost and Found is available from the dashboard after signing in. You can post an item, add details, and include contact information.'
+  }
+
+  return 'I can help with resources, events, favors, lost and found, groups, donations, accessibility settings, and profiles. Try asking about one of those features.'
 }
