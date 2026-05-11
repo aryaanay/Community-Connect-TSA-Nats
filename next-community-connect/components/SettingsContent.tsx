@@ -124,7 +124,6 @@ const FONT_SIZE_STEPS: { display: string; value: 'small' | 'medium' | 'large' | 
   { display: 'M',  value: 'medium', textSize: 'text-sm' },
   { display: 'L',  value: 'large',  textSize: 'text-base' },
   { display: 'XL', value: 'xlarge', textSize: 'text-lg' },
-  { display: 'XXL',value: 'xlarge', textSize: 'text-xl' },
 ]
 
 // ─── Main component ────────────────────────────────────────────────────────────
@@ -305,7 +304,6 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
                   const active = display === 'M' ? settings.fontSize === 'medium'
                     : display === 'L' ? settings.fontSize === 'large'
                     : display === 'XL' ? settings.fontSize === 'xlarge' && i === 4
-                    : display === 'XXL' ? settings.fontSize === 'xlarge' && i === 5
                     : display === 'S' ? settings.fontSize === 'small' && i === 1
                     : settings.fontSize === 'small' && i === 0
                   return (
