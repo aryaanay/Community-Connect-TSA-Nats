@@ -303,7 +303,7 @@ export function SettingsContent({ isDashboard = false }: { isDashboard?: boolean
                 {FONT_SIZE_STEPS.map(({ display, value, textSize }, i) => {
                   const active = display === 'M' ? settings.fontSize === 'medium'
                     : display === 'L' ? settings.fontSize === 'large'
-                    : display === 'XL' ? settings.fontSize === 'xlarge' && i === 4
+                    : display === 'XL' ? settings.fontSize === 'xlarge'
                     : display === 'S' ? settings.fontSize === 'small' && i === 1
                     : settings.fontSize === 'small' && i === 0
                   return (
