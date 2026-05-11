@@ -59,13 +59,13 @@ export function Footer() {
             <h4 className="font-syne text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#90D4F7' }}>Categories</h4>
             <ul className="space-y-2.5">
               {footerLinks.categories.map((link) => (
-                <li key={link.href + link.label}>
+                <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="footer-nav-link font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-all"
+                    className="footer-nav-link font-dm-sans text-sm flex items-center gap-2 group transition-all hover:text-white"
                     style={{ color: 'rgba(198,235,255,0.8)' }}
                   >
-                    <span className="text-[9px] text-sky-400 group-hover:translate-x-1 transition-transform">›</span>
+                    <span className="text-[9px] text-sky-400">›</span>
                     {link.label}
                   </Link>
                 </li>
