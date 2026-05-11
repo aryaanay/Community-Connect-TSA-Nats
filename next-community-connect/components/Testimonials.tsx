@@ -71,6 +71,9 @@ export function Testimonials() {
           <p className="mx-auto max-w-lg font-dm-sans text-sm text-sky-700">
             Drag or tap the dots to explore stories from residents who found connection through our platform.
           </p>
+          <p className="mx-auto mt-4 max-w-md font-dm-sans text-xs text-sky-600 leading-relaxed">
+            Names are fictional and used for competition purposes only. Any resemblance to real persons is coincidental.
+          </p>
         </motion.div>
 
         <motion.div
