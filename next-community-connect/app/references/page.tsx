@@ -288,9 +288,9 @@ export default function DocumentationPage() {
             <div className="rounded-2xl overflow-hidden border p-6" style={{ backgroundColor: CARD, borderColor: BORDER }}>
               <p style={bodyStyle}>
                 This website was created for educational purposes as part of the TSA Webmaster competition. All events,
-                donation causes, and submitted resource data are fictional and created for demonstration purposes only.
+                donation causes, submitted resource data, names are fictional and created for demonstration purposes only.
                 Organization names and contact information reference publicly available data for real Bothell-area nonprofits.
-                No actual user data is collected, stored, or processed.
+                Supabase is used for secure data storage.
               </p>
             </div>
           </motion.div>
