@@ -12,7 +12,7 @@ const timeline = [
   { year: '2022', title: 'First Nonprofit Partnerships', description: 'The first formal nonprofit partnerships are established. Community Connect begins representing Bothell residents at community meetings and city events.', icon: 'handshake', image: '/img/optimized/heartwithhands6.jpg' },
   { year: '2023', title: 'Growing Directory & First Events', description: 'The directory grows steadily. The first Community Resource Fair brings together local organizations and community members.', icon: 'star', image: '/img/optimized/community7.jpg' },
   { year: '2025', title: 'Volunteer Network Expands', description: 'Community volunteers sign up to help verify listings, run workshops, and support events. The platform becomes genuinely community-run.', icon: 'users', image: '/img/optimized/cleanup4.jpg' },
-  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of Bothell residents using the platform monthly.', icon: 'rocket', image: '/img/optimized/playground1.jpg' },
+  { year: '2026', title: '30+ Resources & 10 Partners', description: 'We reach 30+ verified resources and 10 organizational partners, with a growing base of residents using the platform monthly.', icon: 'rocket', image: '/img/optimized/playground1.jpg' },
 ]
 
 const partners = [
@@ -92,7 +92,7 @@ export default function AboutPage() {
       <HeroDemo
         badge="Our Story"
         staticTitle="Built by the Community,<br />for the Community"
-        subtitle="Community Connect started with one simple belief: everyone deserves to know what support exists in the Bothell area. We built that place."
+        subtitle="Community Connect started with one simple belief: everyone deserves to know what support exists in the community. We built that place."
         stats={[
           { value: '2019', label: 'Founded' },
           { value: '30+', label: 'Resources' },
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <div className="font-space font-bold text-lg text-[var(--text-dark)]">150+</div>
-                  <div className="font-outfit text-xs text-[var(--text-muted)]">Bothell Volunteers</div>
+                  <div className="font-outfit text-xs text-[var(--text-muted)]">Volunteers</div>
                 </div>
               </div>
               <div className="absolute top-7 left-[-20px] bg-white rounded-[var(--radius-md)] p-4 shadow-lg flex items-center gap-3 z-10">
@@ -220,7 +220,7 @@ export default function AboutPage() {
           >
             <span className="section-eyebrow">Our Journey</span>
             <h2 className="section-heading">How We Got Here</h2>
-            <p className="section-subtext mx-auto">From a weekend project to a Bothell institution, here is the story of Community Connect.</p>
+            <p className="section-subtext mx-auto">From a weekend project to a Washington institution, here is the story of Community Connect.</p>
           </motion.div>
           <div className="space-y-6">
             {timeline.map((item, i) => (
