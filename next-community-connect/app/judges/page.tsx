@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Star, ArrowRight, CheckCircle, BookOpen, Heart, Send } from 'lucide-react'
+import { Star, ArrowRight, CheckCircle, BookOpen, Heart, Send, AlertTriangle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 const features = [
@@ -17,7 +16,6 @@ export default function JudgesPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const { signIn, isSignedIn, user } = useAuth()
-  const router = useRouter()
 
   const handleJudgeSignIn = async () => {
     setLoading(true)
@@ -43,7 +41,7 @@ export default function JudgesPage() {
           style={{ backgroundColor: 'rgba(36,153,214,0.15)', borderColor: 'rgba(86,187,240,0.35)' }}
         >
           <Star className="w-4 h-4 text-sky-300" fill="currentColor" />
-          <span className="font-syne text-xs font-bold uppercase tracking-widest text-sky-300">TSA Webmaster — State 2026</span>
+          <span className="font-syne text-xs font-bold uppercase tracking-widest text-sky-300">TSA Webmaster, State 2026</span>
         </motion.div>
 
         {/* Heading */}
@@ -111,7 +109,7 @@ export default function JudgesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="w-full rounded-3xl p-6 mb-8 border"
+          className="w-full rounded-3xl p-6 mb-6 border"
           style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderColor: 'rgba(86,187,240,0.15)' }}
         >
           <p className="font-syne text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'rgba(144,212,247,0.5)' }}>What you can explore</p>
@@ -124,6 +122,23 @@ export default function JudgesPage() {
                 <span className="font-outfit text-sm" style={{ color: 'rgba(198,235,255,0.8)' }}>{label}</span>
               </div>
             ))}
+          </div>
+        </motion.div>
+
+        {/* Judge notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="w-full rounded-3xl p-5 mb-8 border flex items-start gap-3"
+          style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.3)' }}
+        >
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
+          <div>
+            <p className="font-syne text-sm font-bold mb-1" style={{ color: '#FCD34D' }}>Shared Judge Account</p>
+            <p className="font-outfit text-xs leading-relaxed" style={{ color: 'rgba(252,211,77,0.8)' }}>
+              This account is shared across all judges. Please <strong>do not change the password</strong> or <strong>delete the account</strong> so that other judges can still sign in. Feel free to explore all other features freely.
+            </p>
           </div>
         </motion.div>
 

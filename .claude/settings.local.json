@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:itemly-9191a.web.app)",
+      "Bash(cd /c/Users/aryaa/Community-Connect-TSA-Nats/next-community-connect && grep -r \"import.*Testimonials\" --include=\"*.tsx\" --include=\"*.ts\" 2>/dev/null)",
+      "Read(//c/c/Users/aryaa/Community-Connect-TSA-Nats/**)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}

@@ -2,30 +2,21 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSettings } from '@/context/SettingsContext'
+import { useAuth } from '@/context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, GraduationCap, Users, Briefcase, Heart, Building2,
   Search, Leaf, Flame, ChevronDown, ArrowUp, MapPin, Phone,
   Clock, Mail, ExternalLink, HeartHandshake, Home, Stethoscope,
   Dumbbell, PhoneCall, TreePine, Award, HelpCircle, Bus, Shield,
-  AlertCircle, RefreshCw, Loader2, FlaskConical,
+  AlertCircle, RefreshCw, Loader2, Trash2, Pencil, X, Save,
 } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
-import { ZoomParallax } from '@/components/ZoomParallax'
 import TiltCard from '@/components/TiltCard'
 import { supabase } from '@/lib/supabaseClient'
+import { useT } from '@/lib/useT'
 
 // ─── Images ───────────────────────────────────────────────────────────────────
-
-const communityImages = [
-  { src: '/img/optimized/heartwithhands6.jpg', alt: 'Hands forming heart community symbol' },
-  { src: '/img/optimized/garden2.jpg',         alt: 'Neighborhood garden space' },
-  { src: '/img/optimized/library3.jpg',        alt: 'Local library community area' },
-  { src: '/img/optimized/cleanup4.jpg',        alt: 'Neighborhood cleanup volunteers' },
-  { src: '/img/optimized/foodpantry5.jpg',     alt: 'Community food pantry shelves' },
-  { src: '/img/optimized/playground1.jpg',     alt: 'Community playground gathering' },
-  { src: '/img/optimized/community7.jpg',      alt: 'General community gathering' },
-]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,7 +30,8 @@ type ResourceCard = {
   location?: string
   website?: string
   resourceIcon: React.ElementType
-  isSubmission?: boolean
+  dbId?: string
+  contactEmail?: string
 }
 
 type DbResource = {
@@ -102,7 +94,7 @@ const hardcodedResources: ResourceCard[] = [
 
 // ─── DB → card mapper ─────────────────────────────────────────────────────────
 
-function dbToCard(r: DbResource, isSubmission = false): ResourceCard {
+function dbToCard(r: DbResource): ResourceCard {
   return {
     title:        r.name        ?? 'Untitled Resource',
     category:     r.category    ?? 'Other',
@@ -113,29 +105,26 @@ function dbToCard(r: DbResource, isSubmission = false): ResourceCard {
     location:     r.address     ?? undefined,
     website:      r.website_url ?? undefined,
     resourceIcon: getIcon(r.category ?? ''),
-    isSubmission,
+    dbId:         r.id,
+    contactEmail: r.email       ?? undefined,
   }
 }
 
-// ─── Merge helper (dedupes by lowercase title) ────────────────────────────────
+// ─── Merge helper (dedupes by lowercase title, excludes test/demo entries) ────
 
-function mergeAll(dbCards: ResourceCard[], submissionCards: ResourceCard[]): ResourceCard[] {
+const EXCLUDED_TITLES = new Set(['test', 'test 2', 'fsd'])
+
+function mergeAll(dbCards: ResourceCard[]): ResourceCard[] {
   const seen = new Set<string>()
   const result: ResourceCard[] = []
-
   for (const r of hardcodedResources) {
     seen.add(r.title.toLowerCase())
     result.push(r)
   }
   for (const r of dbCards) {
-    if (!seen.has(r.title.toLowerCase())) {
-      seen.add(r.title.toLowerCase())
-      result.push(r)
-    }
-  }
-  for (const r of submissionCards) {
-    if (!seen.has(r.title.toLowerCase())) {
-      seen.add(r.title.toLowerCase())
+    const lower = r.title.toLowerCase()
+    if (!seen.has(lower) && !EXCLUDED_TITLES.has(lower)) {
+      seen.add(lower)
       result.push(r)
     }
   }
@@ -154,11 +143,97 @@ const categoryFilters = [
   { id: 'Events',           label: 'Events' },
 ]
 
+// ─── Edit Resource Modal ──────────────────────────────────────────────────────
+
+function EditResourceModal({ resource, onClose, onSaved }: {
+  resource: ResourceCard & { dbId: string }
+  onClose: () => void
+  onSaved: (updates: Partial<ResourceCard>) => void
+}) {
+  const t = useT()
+  const [name,    setName]    = useState(resource.title)
+  const [desc,    setDesc]    = useState(resource.description)
+  const [phone,   setPhone]   = useState(resource.phone    || '')
+  const [email,   setEmail]   = useState(resource.email    || '')
+  const [address, setAddress] = useState(resource.location || '')
+  const [hours,   setHours]   = useState(resource.hours    || '')
+  const [website, setWebsite] = useState(resource.website  || '')
+  const [saving,  setSaving]  = useState(false)
+  const [err,     setErr]     = useState('')
+
+  const inp = "w-full px-3 py-2 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/40"
+  const inpStyle = { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.2)' }
+
+  const save = async () => {
+    if (!name.trim()) { setErr('Name is required'); return }
+    setSaving(true); setErr('')
+    const { error } = await supabase.from('resources').update({
+      name, description: desc,
+      phone:       phone   || null,
+      email:       email   || null,
+      address:     address || null,
+      hours:       hours   || null,
+      website_url: website || null,
+    }).eq('id', resource.dbId)
+    if (error) { setErr('Save failed. Try again.'); setSaving(false); return }
+    onSaved({ title: name, description: desc, phone: phone || undefined, email: email || undefined, location: address || undefined, hours: hours || undefined, website: website || undefined })
+    onClose()
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(1,22,41,0.85)', backdropFilter: 'blur(20px)' }}
+      onClick={onClose}
+    >
+      <motion.div initial={{ opacity: 0, y: 24, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md rounded-3xl overflow-hidden"
+        style={{ background: 'linear-gradient(180deg, #022747 0%, #033460 100%)', border: '1px solid rgba(86,187,240,0.22)', boxShadow: '0 40px 100px rgba(1,22,41,0.6)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="px-6 pt-6 pb-4 flex items-center justify-between border-b border-sky-400/10">
+          <h3 className="font-syne text-lg font-bold text-white">Edit Resource</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: 'rgba(198,235,255,0.5)', background: 'rgba(255,255,255,0.05)' }}><X size={14} /></button>
+        </div>
+        <div className="px-6 py-5 space-y-3 max-h-[65vh] overflow-y-auto">
+          {err && <p className="text-xs font-outfit text-red-400 px-1">{err}</p>}
+          {[
+            { label: 'Name *', val: name, set: setName },
+            { label: 'Email', val: email, set: setEmail },
+            { label: 'Phone', val: phone, set: setPhone },
+            { label: 'Address', val: address, set: setAddress },
+            { label: 'Hours', val: hours, set: setHours },
+            { label: 'Website', val: website, set: setWebsite },
+          ].map(f => (
+            <div key={f.label}>
+              <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: 'rgba(198,235,255,0.45)' }}>{f.label}</label>
+              <input value={f.val} onChange={e => f.set(e.target.value)} className={inp} style={inpStyle} />
+            </div>
+          ))}
+          <div>
+            <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: 'rgba(198,235,255,0.45)' }}>Description</label>
+            <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3} className={`${inp} resize-none`} style={inpStyle} />
+          </div>
+        </div>
+        <div className="px-6 pb-6 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-2xl font-outfit text-sm font-semibold" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(198,235,255,0.6)' }}>Cancel</button>
+          <button onClick={save} disabled={saving} className="flex-1 py-3 rounded-2xl font-outfit text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ResourcesPage() {
   const { settings } = useSettings()
   const dk = settings.dark
+  const { user } = useAuth()
 
   // Dark-mode colour tokens (used in inline styles below)
   const d = {
@@ -198,7 +273,38 @@ export default function ResourcesPage() {
   const [allResources, setAllResources]     = useState<ResourceCard[]>(hardcodedResources)
   const [loading, setLoading]               = useState(true)
   const [error, setError]                   = useState<string | null>(null)
-  const [submissionCount, setSubmissionCount] = useState(0)
+  const [ownedIds, setOwnedIds]             = useState<Set<string>>(new Set())
+  const [deletingId, setDeletingId]         = useState<string | null>(null)
+  const [editingResource, setEditingResource] = useState<(ResourceCard & { dbId: string }) | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+    try {
+      const key = `cc-my-resources-${user.id}`
+      const ids: string[] = JSON.parse(localStorage.getItem(key) || '[]')
+      setOwnedIds(new Set(ids))
+    } catch { /* ignore */ }
+  }, [user])
+
+  const isOwned = (r: ResourceCard) =>
+    !!(r.dbId && (ownedIds.has(r.dbId) || (user && r.contactEmail && r.contactEmail === user.email)))
+
+  const handleDeleteResource = async (dbId: string) => {
+    setDeletingId(dbId)
+    const { error: delErr } = await supabase.from('resources').delete().eq('id', dbId)
+    if (!delErr) {
+      setAllResources(prev => prev.filter(r => r.dbId !== dbId))
+      if (user) {
+        try {
+          const key = `cc-my-resources-${user.id}`
+          const ids: string[] = JSON.parse(localStorage.getItem(key) || '[]')
+          localStorage.setItem(key, JSON.stringify(ids.filter(id => id !== dbId)))
+          setOwnedIds(prev => { const s = new Set(prev); s.delete(dbId); return s })
+        } catch { /* ignore */ }
+      }
+    }
+    setDeletingId(null)
+  }
 
   // scroll watcher
   useEffect(() => {
@@ -213,24 +319,15 @@ export default function ResourcesPage() {
       setLoading(true)
       setError(null)
       try {
-        const [dbRes, subRes] = await Promise.allSettled([
-          supabase.from('resources').select('*').eq('is_verified', true).order('created_at', { ascending: false }),
-          supabase.from('resources').select('*').eq('is_verified', false).order('created_at', { ascending: false }),
-        ])
+        const { data, error: dbError } = await supabase
+          .from('resources')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-        const dbCards  = dbRes.status  === 'fulfilled' && dbRes.value.data
-          ? (dbRes.value.data  as DbResource[]).map(r => dbToCard(r, false))
-          : []
-        const subCards = subRes.status === 'fulfilled' && subRes.value.data
-          ? (subRes.value.data as DbResource[]).map(r => dbToCard(r, true))
-          : []
+        const dbCards = data ? (data as DbResource[]).map(r => dbToCard(r)) : []
+        setAllResources(mergeAll(dbCards))
 
-        setSubmissionCount(subCards.length)
-        setAllResources(mergeAll(dbCards, subCards))
-
-        if (dbRes.status === 'rejected' || subRes.status === 'rejected') {
-          setError('Some live data could not be loaded.')
-        }
+        if (dbError) setError('Some live data could not be loaded.')
       } catch (err: unknown) {
         console.error('Resources load error:', JSON.stringify(err, null, 2))
         setError('Could not load live resources. Showing static content.')
@@ -248,10 +345,9 @@ export default function ResourcesPage() {
       .channel('resources-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'resources' }, payload => {
         const r = payload.new as DbResource
-        const card = dbToCard(r, !r.is_verified)
+        const card = dbToCard(r)
         setAllResources(prev => {
           if (prev.some(p => p.title.toLowerCase() === card.title.toLowerCase())) return prev
-          if (!r.is_verified) setSubmissionCount(c => c + 1)
           return [...prev, card]
         })
       })
@@ -279,6 +375,18 @@ export default function ResourcesPage() {
 
   return (
     <>
+      <AnimatePresence>
+        {editingResource && (
+          <EditResourceModal
+            resource={editingResource}
+            onClose={() => setEditingResource(null)}
+            onSaved={updates => {
+              setAllResources(prev => prev.map(r => r.dbId === editingResource.dbId ? { ...r, ...updates } : r))
+              setEditingResource(null)
+            }}
+          />
+        )}
+      </AnimatePresence>
       <HeroDemo
         badge="30+ Resources Listed"
         staticTitle="Community Resource Hub"
@@ -286,27 +394,10 @@ export default function ResourcesPage() {
         backgroundImage="/img/page-4.jpg"
       />
 
-      <ZoomParallax images={communityImages} />
-
+      <div className="relative z-10">
       <section className="py-24 resources-section" id="directory"
         style={{ background: 'linear-gradient(160deg, #EBF7FF 0%, #F0F9FF 50%, #E0F2FE 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* Testing banner */}
-          <AnimatePresence>
-            {submissionCount > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
-                className="mb-8 flex items-start gap-3 px-5 py-4 rounded-2xl border"
-                style={{ backgroundColor: 'rgba(254,243,199,0.8)', borderColor: '#FCD34D', backdropFilter: 'blur(8px)' }}
-              >
-                <FlaskConical size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm font-dm-sans" style={{ color: '#78350F' }}>
-                  <strong>Testing mode:</strong> {submissionCount} community submission{submissionCount !== 1 ? 's are' : ' is'} showing immediately without review. In production, submissions will require approval first.
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Error banner */}
           <AnimatePresence>
@@ -427,25 +518,19 @@ export default function ResourcesPage() {
                         style={{
                           backdropFilter: 'blur(12px)',
                           backgroundColor: 'rgba(255,255,255,0.82)',
-                          borderColor: resource.isSubmission ? '#FCD34D' : '#BFDBFE',
+                          borderColor: '#BFDBFE',
                         }}
                       >
                         {/* Accent strip */}
                         <div
                           className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
-                          style={{
-                            background: resource.isSubmission
-                              ? 'linear-gradient(to right, #F59E0B, #FBBF24)'
-                              : 'linear-gradient(to right, #38BDF8, #0EA5E9)',
-                          }}
+                          style={{ background: 'linear-gradient(to right, #38BDF8, #0EA5E9)' }}
                         />
 
                         {/* Body */}
                         <div className="p-8 resource-card-body">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-5 -mt-7 border-2 border-white"
-                        style={{ background: resource.isSubmission
-                          ? 'linear-gradient(135deg, #D97706, #F59E0B)'
-                          : 'linear-gradient(135deg, #0ea5e9, #38bdf8)' }}>
+                        style={{ background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)' }}>
                         <Icon className="w-7 h-7 text-white" strokeWidth={1.5} />
                       </div>
 
@@ -526,14 +611,30 @@ export default function ResourcesPage() {
 
                           </div>
 
-                          {resource.isSubmission && (
-                            <div className="mt-4 pt-4 border-t border-amber-200 flex items-center gap-2 text-xs font-dm-sans text-amber-700">
-                              <FlaskConical size={12} />
-                              Community submission · Appears immediately for testing
-                            </div>
-                          )}
                         </div>
                       </div>
+
+                      {/* Owner actions */}
+                      {isOwned(resource) && resource.dbId && expandedCard === i && (
+                        <div className="flex gap-2 mb-4">
+                          <button
+                            onClick={e => { e.stopPropagation(); setEditingResource(resource as ResourceCard & { dbId: string }) }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all"
+                            style={{ background: 'rgba(86,187,240,0.1)', border: '1px solid rgba(86,187,240,0.25)', color: '#56BBF0' }}
+                          >
+                            <Pencil size={11} /> Edit
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); if (resource.dbId) handleDeleteResource(resource.dbId) }}
+                            disabled={deletingId === resource.dbId}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all disabled:opacity-50"
+                            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+                          >
+                            {deletingId === resource.dbId ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                            {deletingId === resource.dbId ? 'Deleting…' : 'Delete'}
+                          </button>
+                        </div>
+                      )}
 
                       {/* Toggle */}
                       <button
@@ -560,10 +661,11 @@ export default function ResourcesPage() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={showBackToTop ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-3xl bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center shadow-2xl hover:shadow-sky-500/50 transition-all duration-300 z-50 hover:-translate-y-1 active:scale-95"
+        className="fixed bottom-8 left-8 w-14 h-14 rounded-3xl bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center shadow-2xl hover:shadow-sky-500/50 transition-all duration-300 z-50 hover:-translate-y-1 active:scale-95"
       >
         <ArrowUp size={20} />
       </motion.button>
+      </div>
     </>
   )
 }

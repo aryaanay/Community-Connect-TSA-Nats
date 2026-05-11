@@ -3,16 +3,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
-import { Heart, Users, TrendingUp, X, Check, ChevronRight, Sparkles, ImagePlus, LogIn, Loader2, RefreshCw, AlertCircle, Lock } from 'lucide-react'
+import { Heart, Users, TrendingUp, X, Check, ChevronRight, Sparkles, ImagePlus, LogIn, Loader2, RefreshCw, AlertCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useSettings } from '@/context/SettingsContext'
 import { useAuth } from '@/context/AuthContext'
+import { useAchievements } from '@/context/AchievementsContext'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import TiltCard from '@/components/TiltCard'
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -214,80 +212,6 @@ function ProgressBar({ percent, color }: { percent: number; color: string }) {
   )
 }
 
-// ─── Stripe payment form (inner, must be inside <Elements>) ──────────────────
-
-function StripePaymentForm({ cause, amount, onSuccess, onBack, tc, dark }: {
-  cause: Cause
-  amount: number
-  onSuccess: () => void
-  onBack: () => void
-  tc: Record<string, string>
-  dark: boolean
-}) {
-  const stripe = useStripe()
-  const elements = useElements()
-  const [paying, setPaying] = useState(false)
-  const [payError, setPayError] = useState('')
-
-  const handlePay = async () => {
-    if (!stripe || !elements) return
-    setPaying(true)
-    setPayError('')
-    const { error } = await stripe.confirmPayment({
-      elements,
-      redirect: 'if_required',
-    })
-    if (error) {
-      setPayError(error.message ?? 'Payment failed.')
-      setPaying(false)
-    } else {
-      onSuccess()
-    }
-  }
-
-  return (
-    <div className="px-8 py-6">
-      <button onClick={onBack} className="flex items-center gap-1 text-xs mb-6 transition-opacity hover:opacity-70"
-        style={{ fontFamily: 'var(--font-dm-sans)', color: tc.m }}>
-        ← Back
-      </button>
-      <p style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
-        Donating <span style={{ color: cause.color }}>${amount}</span> to {cause.title}
-      </p>
-      <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginBottom: '24px' }}>
-        Enter your card details below. Powered by Stripe.
-      </p>
-
-      <div className="mb-5 rounded-2xl overflow-hidden" style={{ border: `1.5px solid ${dark ? 'rgba(36,153,214,0.25)' : '#E2E8F0'}`, padding: '16px', backgroundColor: dark ? 'rgba(2,39,71,0.6)' : '#F8FAFC' }}>
-        <PaymentElement options={{ layout: 'tabs' }} />
-      </div>
-
-      {payError && (
-        <p className="text-red-500 text-xs mb-4 flex items-center gap-1">
-          <AlertCircle size={12} /> {payError}
-        </p>
-      )}
-
-      <button
-        onClick={handlePay}
-        disabled={!stripe || paying}
-        className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all"
-        style={{
-          fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600,
-          backgroundColor: !stripe || paying ? '#CBD5E1' : cause.color,
-          boxShadow: !stripe || paying ? 'none' : `0 8px 24px ${cause.color}40`,
-          cursor: !stripe || paying ? 'not-allowed' : 'pointer',
-        }}
-      >
-        {paying ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <><Lock size={16} /> Pay ${amount}</>}
-      </button>
-      <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '10px' }}>
-        Secured by Stripe · SSL encrypted · Test mode — no real charges
-      </p>
-    </div>
-  )
-}
-
 // ─── Donation Modal ───────────────────────────────────────────────────────────
 
 function DonationModal({ cause, onClose, onDonate }: {
@@ -297,9 +221,9 @@ function DonationModal({ cause, onClose, onDonate }: {
 }) {
   const [amount, setAmount] = useState(25)
   const [custom, setCustom] = useState('')
-  const [step, setStep] = useState<'amount' | 'payment' | 'success'>('amount')
+  const [step, setStep] = useState<'amount' | 'simulation' | 'zelle' | 'success'>('amount')
   const [localSaving, setLocalSaving] = useState(false)
-  const [clientSecret, setClientSecret] = useState('')
+  const [copied, setCopied] = useState(false)
   const finalAmount = custom ? Number(custom) : amount
   const { settings } = useSettings()
   const dark = settings.dark
@@ -314,24 +238,9 @@ function DonationModal({ cause, onClose, onDonate }: {
     borderInput: dark ? 'rgba(36,153,214,0.3)' : '#E2E8F0',
   }
 
-  const handleDonate = async () => {
+  const handleDonate = () => {
     if (finalAmount <= 0) return
-    setLocalSaving(true)
-    try {
-      const res = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: finalAmount, causeId: cause.id, causeName: cause.title }),
-      })
-      const data = await res.json()
-      if (data.error) throw new Error(data.error)
-      setClientSecret(data.clientSecret)
-      setStep('payment')
-    } catch (e: any) {
-      alert(e.message ?? 'Could not start payment. Please try again.')
-    } finally {
-      setLocalSaving(false)
-    }
+    setStep('simulation')
   }
 
   return (
@@ -353,17 +262,111 @@ function DonationModal({ cause, onClose, onDonate }: {
         onClick={e => e.stopPropagation()}
       >
         <AnimatePresence mode="wait">
-          {step === 'payment' && clientSecret ? (
-            <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: dark ? 'night' : 'stripe' } }}>
-              <StripePaymentForm
-                cause={cause}
-                amount={finalAmount}
-                onBack={() => setStep('amount')}
-                onSuccess={async () => { await onDonate(finalAmount); setStep('success') }}
-                tc={tc}
-                dark={dark}
-              />
-            </Elements>
+          {step === 'zelle' ? (
+            <motion.div key="zelle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-8 py-6">
+              <button onClick={() => setStep('amount')} className="flex items-center gap-1 text-xs mb-6 transition-opacity hover:opacity-70"
+                style={{ fontFamily: 'var(--font-dm-sans)', color: tc.m }}>
+                ← Back
+              </button>
+              <p style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
+                Pay via Zelle: <span style={{ color: cause.color }}>${finalAmount}</span> to {cause.title}
+              </p>
+              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginBottom: '24px' }}>
+                Send the amount directly through your Zelle app using the info below.
+              </p>
+
+              <div className="rounded-2xl p-5 mb-4" style={{ background: dark ? 'rgba(108,59,255,0.12)' : '#F5F0FF', border: '1.5px solid rgba(108,59,255,0.25)' }}>
+                <p style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6C3BFF', marginBottom: '8px' }}>Zelle Recipient</p>
+                <p style={{ fontFamily: 'var(--font-space)', fontSize: '18px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
+                  donate@communityconnect.org
+                </p>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>Community Connect: {cause.title}</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('donate@communityconnect.org')
+                  setCopied(true)
+                  setTimeout(() => setCopied(false), 2000)
+                }}
+                className="w-full py-3 rounded-xl mb-4 transition-all flex items-center justify-center gap-2"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#6C3BFF', background: dark ? 'rgba(108,59,255,0.1)' : 'white', border: '1.5px solid rgba(108,59,255,0.3)' }}
+              >
+                {copied ? <><Check size={14} /> Copied!</> : '📋 Copy Zelle Email'}
+              </button>
+
+              <div className="rounded-xl p-4 mb-5" style={{ background: dark ? 'rgba(245,158,11,0.1)' : '#FFFBEB', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dark ? '#FCD34D' : '#92400e', lineHeight: 1.6 }}>
+                  <strong>Demo mode:</strong> No real payment method is set up for this project. This is a simulation. No actual Zelle transfer is needed. Just click the button below to simulate your contribution.
+                </p>
+              </div>
+
+              <button
+                onClick={async () => { await onDonate(finalAmount); setStep('success') }}
+                className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, backgroundColor: '#6C3BFF', boxShadow: '0 8px 24px rgba(108,59,255,0.35)' }}
+              >
+                <Check size={16} /> I&apos;ve sent ${finalAmount} via Zelle
+              </button>
+            </motion.div>
+          ) : step === 'simulation' ? (
+            <motion.div key="simulation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-8 py-6">
+              <button onClick={() => setStep('amount')} className="flex items-center gap-1 text-xs mb-6 transition-opacity hover:opacity-70"
+                style={{ fontFamily: 'var(--font-dm-sans)', color: tc.m }}>
+                ← Back
+              </button>
+              <p style={{ fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600, color: tc.h, marginBottom: '4px' }}>
+                Donating <span style={{ color: cause.color }}>${finalAmount}</span> to {cause.title}
+              </p>
+              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginBottom: '24px' }}>
+                Card / Apple Pay / Google Pay
+              </p>
+
+              <div className="rounded-2xl p-5 mb-5" style={{ background: dark ? 'rgba(245,158,11,0.1)' : '#FFFBEB', border: '1.5px solid rgba(245,158,11,0.4)' }}>
+                <div className="flex items-start gap-3">
+                  <span style={{ fontSize: '20px', lineHeight: 1 }}>⚠️</span>
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 700, color: dark ? '#FCD34D' : '#92400e', marginBottom: '6px' }}>
+                      Simulated Payment (Demo Only)
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dark ? '#FDE68A' : '#78350f', lineHeight: 1.6 }}>
+                      No real payment method has been set up for this project demo. No actual charge will occur. Click below to simulate a successful donation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl p-4 mb-5" style={{ background: dark ? 'rgba(36,153,214,0.08)' : '#F0F9FF', border: `1px solid ${dark ? 'rgba(36,153,214,0.2)' : '#BAE6FD'}` }}>
+                <div className="flex justify-between items-center">
+                  <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>Simulated amount</span>
+                  <span style={{ fontFamily: 'var(--font-space)', fontSize: '18px', fontWeight: 700, color: cause.color }}>${finalAmount}</span>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m }}>Cause</span>
+                  <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.d }}>{cause.title}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={async () => { setLocalSaving(true); await onDonate(finalAmount); setLocalSaving(false); setStep('success') }}
+                disabled={localSaving}
+                className="w-full py-4 rounded-2xl text-white flex items-center justify-center gap-2 transition-all mb-3"
+                style={{
+                  fontFamily: 'var(--font-space)', fontSize: '15px', fontWeight: 600,
+                  backgroundColor: localSaving ? '#CBD5E1' : cause.color,
+                  boxShadow: localSaving ? 'none' : `0 8px 24px ${cause.color}40`,
+                  cursor: localSaving ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {localSaving
+                  ? <><Loader2 size={16} className="animate-spin" /> Recording…</>
+                  : <><Heart size={16} fill="white" /> Confirm Simulated Donation</>
+                }
+              </button>
+              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center' }}>
+                This is a simulation · No real payment is processed
+              </p>
+            </motion.div>
           ) : step === 'amount' ? (
             <motion.div key="amount" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="relative px-8 pt-8 pb-6" style={{ borderBottom: `1px solid ${tc.border}` }}>
@@ -445,29 +448,53 @@ function DonationModal({ cause, onClose, onDonate }: {
                   </p>
                 </div>
 
+                {/* Simulation notice */}
+                <div className="rounded-xl px-3 py-2.5 mb-3 flex items-center gap-2"
+                  style={{ background: dark ? 'rgba(245,158,11,0.08)' : '#FFFBEB', border: '1px solid rgba(245,158,11,0.3)' }}>
+                  <span style={{ fontSize: '13px' }}>⚠️</span>
+                  <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: dark ? '#FDE68A' : '#92400e' }}>
+                    Demo mode. No real payment method is set up. Donations are simulated.
+                  </p>
+                </div>
+
+                {/* Simulate card donation */}
                 <button
                   onClick={handleDonate}
-                  disabled={finalAmount <= 0 || localSaving}
-                  className="w-full py-4 rounded-2xl text-white transition-all flex items-center justify-center gap-2"
+                  disabled={finalAmount <= 0}
+                  className="w-full py-4 rounded-2xl text-white transition-all flex items-center justify-center gap-2 mb-3"
                   style={{
                     fontFamily: 'var(--font-space)',
                     fontSize: '15px',
                     fontWeight: 600,
                     letterSpacing: '-0.2px',
-                    backgroundColor: finalAmount > 0 && !localSaving ? cause.color : '#CBD5E1',
-                    boxShadow: finalAmount > 0 && !localSaving ? `0 8px 24px ${cause.color}40` : 'none',
-                    cursor: finalAmount > 0 && !localSaving ? 'pointer' : 'not-allowed',
+                    backgroundColor: finalAmount > 0 ? cause.color : '#CBD5E1',
+                    boxShadow: finalAmount > 0 ? `0 8px 24px ${cause.color}40` : 'none',
+                    cursor: finalAmount > 0 ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {localSaving ? (
-                    <><Loader2 size={16} className="animate-spin" /> Setting up payment…</>
-                  ) : (
-                    <><Heart size={16} fill="white" /> Donate ${finalAmount > 0 ? finalAmount.toLocaleString() : '-'} <ChevronRight size={16} /></>
-                  )}
+                  <Heart size={16} fill="white" /> Simulate Card Donation <ChevronRight size={16} />
                 </button>
 
-                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '12px' }}>
-                  Secured by Stripe · SSL encrypted
+                {/* Pay via Zelle */}
+                <button
+                  onClick={() => setStep('zelle')}
+                  disabled={finalAmount <= 0}
+                  className="w-full py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2"
+                  style={{
+                    fontFamily: 'var(--font-space)',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: finalAmount > 0 ? '#6C3BFF' : '#CBD5E1',
+                    backgroundColor: dark ? 'rgba(108,59,255,0.12)' : '#F5F0FF',
+                    border: `1.5px solid ${finalAmount > 0 ? 'rgba(108,59,255,0.35)' : '#E2E8F0'}`,
+                    cursor: finalAmount <= 0 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>⚡</span> Simulate Zelle Donation
+                </button>
+
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: tc.m, textAlign: 'center', marginTop: '10px' }}>
+                  Simulation only · No real charges occur
                 </p>
               </div>
             </motion.div>
@@ -558,9 +585,21 @@ function DonateSignInModal({ onClose }: { onClose: () => void }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DonatePage() {
-  const { isSignedIn, user } = useAuth()
+  const { isSignedIn, user, loading: authLoading } = useAuth()
   const { settings } = useSettings()
   const dark = settings.dark
+  const router = useRouter()
+  const { unlock, markPageVisited } = useAchievements()
+
+  useEffect(() => {
+    if (!authLoading && !isSignedIn) {
+      router.replace('/signin?redirect=/wishlist')
+    }
+  }, [authLoading, isSignedIn, router])
+
+  useEffect(() => {
+    if (isSignedIn) markPageVisited('wishlist')
+  }, [isSignedIn, markPageVisited])
   const tc = {
     h: dark ? '#C6EBFF' : '#0F172A',
     b: dark ? '#90D4F7' : '#64748b',
@@ -638,7 +677,12 @@ export default function DonatePage() {
         supporters: (prev[selected.id]?.supporters || 0) + 1,
       },
     }))
-    setUserDonations(prev => ({ ...prev, [selected.id]: (prev[selected.id] || 0) + amount }))
+    setUserDonations(prev => {
+      const next = { ...prev, [selected.id]: (prev[selected.id] || 0) + amount }
+      unlock('first_donation')
+      if (STATIC_CAUSES.filter(c => next[c.id]).length >= 5) unlock('donate_all')
+      return next
+    })
     try {
       await insertDonation(user.id, selected.id, amount)
     } catch {
@@ -651,7 +695,7 @@ export default function DonatePage() {
         },
       }))
       setUserDonations(prev => ({ ...prev, [selected.id]: (prev[selected.id] || 0) - amount }))
-      throw new Error('Donation failed — please try again.')
+      throw new Error('Donation failed. Please try again.')
     }
   }
 
@@ -677,11 +721,12 @@ export default function DonatePage() {
     <>
       <HeroDemo
         badge="Every Dollar Stays Local"
-        staticTitle="Support Our Community"
+        staticTitle="Contribute to Your Community"
         subtitle="Choose a cause below and make a direct impact for families, youth, and neighbors right here in Bothell."
         backgroundImage="/img/page-5.jpg"
       />
 
+      <div className="relative z-10">
       {/* ── DB error banner ── */}
       <AnimatePresence>
         {dbError && (
@@ -891,6 +936,7 @@ export default function DonatePage() {
         </div>
       </section>
 
+      </div>
       <AnimatePresence>
         {selected && (
           <DonationModal

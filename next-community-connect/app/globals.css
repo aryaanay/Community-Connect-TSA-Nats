@@ -1,13 +1,10 @@
+@import 'leaflet/dist/leaflet.css';
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@keyframes liquid-shimmer {
-  0% { transform: translateX(-130%) skewX(-18deg); opacity: 0; }
-  20% { opacity: 0.65; }
-  55% { opacity: 0.35; }
-  100% { transform: translateX(160%) skewX(-18deg); opacity: 0; }
-}
 
 @keyframes glass-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
@@ -44,6 +41,19 @@
     inset 0 -1px 0 rgba(86,187,240,0.12);
   backdrop-filter: blur(24px) saturate(1.65);
   -webkit-backdrop-filter: blur(24px) saturate(1.65);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.liquid-glass:hover, a.liquid-glass:hover {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)),
+    rgba(1,10,25,0.90);
+}
+
+button.liquid-glass:active, a.liquid-glass:active {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)),
+    rgba(2,39,71,0.85);
 }
 
 .liquid-glass::before {
@@ -57,21 +67,37 @@
   opacity: 0.9;
 }
 
-.liquid-glass::after {
-  content: '';
-  position: absolute;
-  top: -20%;
-  bottom: -20%;
-  width: 38%;
-  left: 0;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
-  animation: liquid-shimmer 5.5s ease-in-out infinite;
-}
 
 .liquid-content {
   position: relative;
   z-index: 1;
+}
+
+/* Use on fixed/absolute positioned elements where position:relative would conflict */
+.liquid-glass-fixed {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06)),
+    rgba(2,39,71,0.66);
+  border: 1px solid rgba(198,235,255,0.32);
+  box-shadow:
+    0 8px 32px rgba(1,22,41,0.34),
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    inset 0 -1px 0 rgba(86,187,240,0.12);
+  backdrop-filter: blur(24px) saturate(1.65);
+  -webkit-backdrop-filter: blur(24px) saturate(1.65);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.liquid-glass-fixed:hover, a.liquid-glass-fixed:hover {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.10)),
+    rgba(2,39,71,0.80);
+}
+
+button.liquid-glass-fixed:active, a.liquid-glass-fixed:active {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)),
+    rgba(2,39,71,0.85);
 }
 
 .glass-float {
@@ -92,16 +118,47 @@
 }
 
 [data-theme="dark"] .audience-ticker {
-  background: rgba(1,22,41,0.88) !important;
-  border-color: rgba(36,153,214,0.22) !important;
+  background: rgba(2,39,71,0.95) !important;
+  border-color: rgba(86,187,240,0.3) !important;
 }
 
 [data-theme="dark"] .audience-ticker-fade-left {
-  background: linear-gradient(to right, #011629, transparent) !important;
+  background: linear-gradient(to right, #022747, transparent) !important;
 }
 
 [data-theme="dark"] .audience-ticker-fade-right {
-  background: linear-gradient(to left, #011629, transparent) !important;
+  background: linear-gradient(to left, #022747, transparent) !important;
+}
+
+/* Ticker pills in dark mode */
+[data-theme="dark"] .ticker-pill {
+  background: rgba(3,52,96,0.85) !important;
+  border-color: rgba(86,187,240,0.25) !important;
+}
+
+[data-theme="dark"] .ticker-pill:hover {
+  background: rgba(4,64,105,0.95) !important;
+  border-color: rgba(86,187,240,0.55) !important;
+  box-shadow: 0 4px 16px rgba(86,187,240,0.12) !important;
+}
+
+[data-theme="dark"] .ticker-icon {
+  background: rgba(4,64,105,0.7) !important;
+  border-color: rgba(86,187,240,0.35) !important;
+  color: #90D4F7 !important;
+}
+
+[data-theme="dark"] .ticker-pill:hover .ticker-icon {
+  background: rgba(14,165,233,0.85) !important;
+  color: #fff !important;
+}
+
+[data-theme="dark"] .ticker-label {
+  color: #C6EBFF !important;
+}
+
+[data-theme="dark"] .ticker-note {
+  color: #90D4F7 !important;
 }
 
 [data-theme="dark"] .note-card {
@@ -443,13 +500,18 @@
   font-size: 1.3rem !important;
 }
 
-[data-large-cursor] {
-  cursor: zoom-in !important;
+/* Large cursor — oversized arrow pointer (32px) */
+[data-large-cursor="true"],
+[data-large-cursor="true"] * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 4 L6 34 L14 26 L20 38 L25 35 L19 23 L31 23 Z' fill='black' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 4, auto !important;
 }
 
-[data-large-cursor] button,
-[data-large-cursor] [role="button"] {
-  cursor: pointer !important;
+[data-large-cursor="true"] button,
+[data-large-cursor="true"] a,
+[data-large-cursor="true"] [role="button"],
+[data-large-cursor="true"] [type="submit"],
+[data-large-cursor="true"] [type="button"] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M6 4 L6 34 L14 26 L20 38 L25 35 L19 23 L31 23 Z' fill='%230ea5e9' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 4, pointer !important;
 }
 
 * {
@@ -678,5 +740,350 @@ html {
   .section {
     padding: 48px 0;
   }
+}
+
+/* ── LocationEvents light/dark theme classes ───────────────────────────────── */
+
+.lev-section {
+  background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.lev-heading {
+  color: #022747;
+}
+
+.lev-subtext {
+  color: rgba(2, 39, 71, 0.55);
+}
+
+.lev-btn {
+  background: rgba(36, 153, 214, 0.05);
+  border: 1px solid rgba(36, 153, 214, 0.1);
+  color: rgba(2, 39, 71, 0.5);
+}
+
+.lev-btn-active {
+  background: rgba(36, 153, 214, 0.14);
+  border: 1px solid rgba(36, 153, 214, 0.3);
+  color: #085D8A;
+}
+
+.lev-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(36, 153, 214, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.lev-icon {
+  background: rgba(36, 153, 214, 0.08);
+  border: 1px solid rgba(36, 153, 214, 0.14);
+}
+
+.lev-card-title {
+  color: #022747;
+}
+
+.lev-date {
+  color: #2499D6;
+}
+
+.lev-meta {
+  color: rgba(2, 39, 71, 0.45);
+}
+
+.lev-cta-text {
+  color: rgba(2, 39, 71, 0.5);
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .lev-section {
+  background: linear-gradient(180deg, #010f1f 0%, #022040 100%) !important;
+}
+
+[data-theme="dark"] .lev-heading {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .lev-subtext {
+  color: rgba(198, 235, 255, 0.5) !important;
+}
+
+[data-theme="dark"] .lev-btn {
+  background: rgba(86, 187, 240, 0.05) !important;
+  border: 1px solid rgba(86, 187, 240, 0.1) !important;
+  color: rgba(198, 235, 255, 0.45) !important;
+}
+
+[data-theme="dark"] .lev-btn-active {
+  background: rgba(36, 153, 214, 0.22) !important;
+  border: 1px solid rgba(86, 187, 240, 0.38) !important;
+  color: #90D4F7 !important;
+}
+
+[data-theme="dark"] .lev-card {
+  background: rgba(2, 39, 71, 0.6) !important;
+  border: 1px solid rgba(86, 187, 240, 0.1) !important;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .lev-icon {
+  background: rgba(86, 187, 240, 0.08) !important;
+  border: 1px solid rgba(86, 187, 240, 0.14) !important;
+}
+
+[data-theme="dark"] .lev-card-title {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .lev-date {
+  color: #56BBF0 !important;
+}
+
+[data-theme="dark"] .lev-meta {
+  color: rgba(198, 235, 255, 0.38) !important;
+}
+
+[data-theme="dark"] .lev-cta-text {
+  color: rgba(198, 235, 255, 0.4) !important;
+}
+
+/* ── Testimonial card dark mode ─────────────────────────────────────────────── */
+
+[data-theme="dark"] .testimonial-card {
+  background: rgba(2, 39, 71, 0.88) !important;
+  border-color: rgba(86, 187, 240, 0.18) !important;
+  box-shadow: 0 20px 60px rgba(1, 22, 41, 0.5) !important;
+}
+
+[data-theme="dark"] .testimonial-name {
+  color: #e0f2fe !important;
+}
+
+[data-theme="dark"] .testimonial-role {
+  color: #56BBF0 !important;
+}
+
+[data-theme="dark"] .testimonial-desc {
+  color: rgba(198, 235, 255, 0.78) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   ACCESSIBILITY SETTINGS CSS
+═══════════════════════════════════════════════════ */
+
+/* Dyslexia-friendly font (Lexend) */
+[data-dyslexia-font="true"], [data-dyslexia-font="true"] * {
+  font-family: 'Lexend', sans-serif !important;
+}
+
+/* Increased line height */
+[data-increased-line-height="true"] p,
+[data-increased-line-height="true"] li,
+[data-increased-line-height="true"] span,
+[data-increased-line-height="true"] div {
+  line-height: 1.95 !important;
+}
+
+/* Increased word spacing */
+[data-increased-word-spacing="true"] p,
+[data-increased-word-spacing="true"] span,
+[data-increased-word-spacing="true"] li {
+  word-spacing: 0.2em !important;
+}
+
+/* Increased letter spacing */
+[data-increased-letter-spacing="true"] p,
+[data-increased-letter-spacing="true"] span,
+[data-increased-letter-spacing="true"] li {
+  letter-spacing: 0.07em !important;
+}
+
+/* Always underline links */
+[data-underline-links="true"] a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+}
+
+/* High contrast */
+[data-high-contrast="true"] body { background: #ffffff !important; color: #000000 !important; }
+[data-high-contrast="true"] .bg-white { background: #ffffff !important; }
+[data-high-contrast="true"] .text-sky-400,
+[data-high-contrast="true"] .text-sky-500,
+[data-high-contrast="true"] .text-sky-600 { color: #0040cc !important; }
+[data-high-contrast="true"] .border-sky-100,
+[data-high-contrast="true"] .border-sky-200 { border-color: #000000 !important; }
+
+/* Focus indicators — amber outlines */
+[data-focus-indicators="true"] *:focus-visible {
+  outline: 3px solid #f59e0b !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+}
+
+/* Always show focus ring */
+[data-always-focus-ring="true"] *:focus {
+  outline: 2px solid #0ea5e9 !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+/* Larger click targets */
+[data-larger-click-targets="true"] button,
+[data-larger-click-targets="true"] a,
+[data-larger-click-targets="true"] [role="button"],
+[data-larger-click-targets="true"] input[type="checkbox"],
+[data-larger-click-targets="true"] input[type="radio"] {
+  min-height: 44px !important;
+  min-width: 44px !important;
+}
+
+/* Reduced transparency */
+[data-reduced-transparency="true"] .liquid-glass,
+[data-reduced-transparency="true"] .liquid-glass-fixed {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(2, 39, 71, 0.92) !important;
+}
+[data-reduced-transparency="true"] [style*="backdrop-filter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Screen reader enhancements — skip link */
+[data-screen-reader="true"] body::before {
+  content: 'Skip to main content';
+  position: fixed;
+  top: -100px;
+  left: 0;
+  z-index: 99999;
+  padding: 8px 16px;
+  background: #022747;
+  color: white;
+  font-family: sans-serif;
+  font-size: 14px;
+  border-bottom-right-radius: 8px;
+  transition: top 0.2s;
+}
+[data-screen-reader="true"] body:focus-within::before { top: 0; }
+
+/* ADHD mode — reduce distractions */
+[data-adhd-mode="true"] * {
+  animation-duration: 0.15ms !important;
+  transition-duration: 0.15ms !important;
+}
+[data-adhd-mode="true"] body { background: #f8fcff !important; }
+
+/* Epilepsy / photosensitivity safe */
+[data-epilepsy-mode="true"] *,
+[data-epilepsy-mode="true"] *::before,
+[data-epilepsy-mode="true"] *::after {
+  animation: none !important;
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Autism-friendly — reduce saturation */
+[data-autism-mode="true"] body { filter: saturate(0.65) !important; }
+
+/* Low vision mode */
+[data-low-vision-mode="true"] { font-size: 1.25rem !important; }
+[data-low-vision-mode="true"] *:focus-visible {
+  outline: 4px solid #f59e0b !important;
+  outline-offset: 4px !important;
+}
+
+/* Parkinson's + motor impairment — larger targets */
+[data-parkinson-mode="true"] button,
+[data-parkinson-mode="true"] a,
+[data-parkinson-mode="true"] [role="button"],
+[data-motor-mode="true"] button,
+[data-motor-mode="true"] a,
+[data-motor-mode="true"] [role="button"],
+[data-motor-mode="true"] input {
+  min-height: 52px !important;
+  min-width: 52px !important;
+}
+[data-parkinson-mode="true"] * {
+  transition-duration: 0.05ms !important;
+}
+
+/* Focus spotlight overlay */
+[data-focus-spotlight="true"] {
+  position: relative;
+}
+[data-focus-spotlight="true"]:has(*:focus-visible)::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 9998;
+  pointer-events: none;
+}
+[data-focus-spotlight="true"] *:focus-visible {
+  position: relative;
+  z-index: 9999;
+}
+
+/* Text-to-speech — highlight readable elements on hover */
+[data-text-to-speech="true"] p:hover,
+[data-text-to-speech="true"] h1:hover,
+[data-text-to-speech="true"] h2:hover,
+[data-text-to-speech="true"] h3:hover,
+[data-text-to-speech="true"] li:hover {
+  background: rgba(14,165,233,0.12) !important;
+  border-radius: 4px;
+  cursor: help !important;
+  outline: 1px dashed rgba(14,165,233,0.5);
+}
+
+/* ── ZoomParallax background (theme-aware) ── */
+.zoom-parallax-bg {
+  background: #dbeafe;
+}
+[data-theme="dark"] .zoom-parallax-bg {
+  background: #011629;
+}
+
+/* ── Events card hover effect ── */
+.lev-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.lev-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 40px rgba(36, 153, 214, 0.18);
+  border-color: rgba(36, 153, 214, 0.3) !important;
+}
+[data-theme="dark"] .lev-card:hover {
+  box-shadow: 0 14px 40px rgba(86, 187, 240, 0.14) !important;
+  border-color: rgba(86, 187, 240, 0.28) !important;
+}
+
+/* ── Location button hover ── */
+.lev-btn:hover {
+  background: rgba(36, 153, 214, 0.12) !important;
+  border-color: rgba(36, 153, 214, 0.28) !important;
+  color: #085D8A !important;
+}
+[data-theme="dark"] .lev-btn:hover {
+  background: rgba(86, 187, 240, 0.12) !important;
+  border-color: rgba(86, 187, 240, 0.28) !important;
+  color: #90D4F7 !important;
+}
+
+/* ── Footer explore/category link hover glow ── */
+.footer-nav-link:hover {
+  color: white !important;
+  text-shadow: 0 0 12px rgba(86, 187, 240, 0.6);
+}
+.footer-nav-link:hover span {
+  color: #56BBF0 !important;
+}
+
+/* ── Footer partner pill hover glow ── */
+.footer-partner-pill:hover {
+  background: rgba(36, 153, 214, 0.22) !important;
+  border-color: rgba(86, 187, 240, 0.45) !important;
+  box-shadow: 0 0 18px rgba(86, 187, 240, 0.18);
 }
 

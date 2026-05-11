@@ -1,10 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon } from 'lucide-react'
+import { Leaf, Laptop, ShoppingBag, Package, Sprout, HeartPulse, Sparkles, BookOpen, Clock, MapPin as MapPinIcon, PlusCircle, Pencil, Save, X as XIcon } from 'lucide-react'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { supabase } from '@/lib/supabaseClient'
+import { useSettings } from '@/context/SettingsContext'
+import { useAuth } from '@/context/AuthContext'
+import { useT } from '@/lib/useT'
+import Link from 'next/link'
 
 type SupabaseEvent = {
   id: string
@@ -22,38 +26,38 @@ const events = [
   {
     id: 'cleanup',
     title: 'Community Cleanup Drive',
-    date: 'April 25, 2026',
+    date: 'May 25, 2026',
     time: '10:00 AM - 1:00 PM',
     location: 'Bothell Landing Park, 9919 NE 180th St, Bothell WA',
     audience: 'All ages welcome',
     category: 'Volunteer',
     description: "Join neighbors for a city-wide cleanup. We'll provide gloves, bags, and light refreshments. Meet at the south entrance.",
     day: '25',
-    month: 'APR',
+    month: 'MAY',
     emoji: '🌿',
     color: '#085D8A',
     colorLight: '#EBF7FF',
     colorMid: '#C6EBFF',
-    gcalStart: '20260425T100000',
-    gcalEnd: '20260425T130000',
+    gcalStart: '20260525T100000',
+    gcalEnd: '20260525T130000',
   },
   {
     id: 'stem',
     title: 'STEM Mentorship Workshop',
-    date: 'May 2, 2026',
+    date: 'June 2, 2026',
     time: '4:00 PM - 6:30 PM',
     location: 'Bothell Regional Library, 18215 98th Ave NE, Bothell WA',
     audience: 'Students 12+',
     category: 'Education',
     description: 'Guest speakers from local universities and hands-on breakout sessions for aspiring STEM students. Hosted at Bothell Regional Library.',
     day: '02',
-    month: 'MAY',
+    month: 'JUN',
     emoji: '💻',
     color: '#044069',
     colorLight: '#EBF7FF',
     colorMid: '#90D4F7',
-    gcalStart: '20260502T160000',
-    gcalEnd: '20260502T183000',
+    gcalStart: '20260602T160000',
+    gcalEnd: '20260602T183000',
   },
   {
     id: 'food',
@@ -223,53 +227,160 @@ function EventIconDisplay({ id, dark = true, size = 'lg' }: { id: string; dark?:
   )
 }
 
-function PinnedCalendar({ events, selected, onSelect }: { events: EventType[]; selected: EventType | null; onSelect: (event: EventType | null) => void }) {
-  const pinnedDates = events.map(e => parseInt(e.day))
-  // April 2026: 30 days, starts on Wednesday (offset = 3)
-  const daysInMonth = 30
-  const startOffset = 3
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
-  const dayLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-  const getEventForDay = (day: number) => events.find(e => parseInt(e.day) === day)
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
+const MONTH_SHORT: Record<string, number> = { JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11 }
+const MONTH_SHORT_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
+
+function formatEventDate(raw: string): string {
+  // "2026-05-02" → "May 2, 2026"
+  const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (m) {
+    const [, y, mo, d] = m.map(Number)
+    return `${MONTH_NAMES[mo - 1]} ${d}, ${y}`
+  }
+  return raw
+}
+
+function extractDay(dateStr: string): string {
+  const m = dateStr.match(/\b(\d{1,2}),/)
+  return m ? m[1].padStart(2, '0') : '01'
+}
+
+function extractMonth(dateStr: string): string {
+  const months: Record<string, string> = {
+    January:'JAN',February:'FEB',March:'MAR',April:'APR',May:'MAY',June:'JUN',
+    July:'JUL',August:'AUG',September:'SEP',October:'OCT',November:'NOV',December:'DEC'
+  }
+  const m = dateStr.match(/^([A-Za-z]+)/)
+  return m ? (months[m[1]] || 'JAN') : 'JAN'
+}
+
+function formatEventTime(raw: string): string {
+  // "10:00:00" or "10:00" → "10:00 AM"
+  const m = raw.match(/^(\d{2}):(\d{2})/)
+  if (m) {
+    const h = parseInt(m[1]), min = parseInt(m[2])
+    const period = h >= 12 ? 'PM' : 'AM'
+    const displayH = h % 12 || 12
+    return `${displayH}:${String(min).padStart(2, '0')} ${period}`
+  }
+  return raw
+}
+
+function PinnedCalendar({
+  events, selected, onSelect, isDark,
+}: {
+  events: EventType[]
+  selected: EventType | null
+  onSelect: (e: EventType | null) => void
+  isDark: boolean
+}) {
+  const now = new Date()
+  const [viewYear, setViewYear] = useState(now.getFullYear())
+  const [viewMonth, setViewMonth] = useState(now.getMonth())
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+  const startOffset = new Date(viewYear, viewMonth, 1).getDay()
+  const dayLabels = ['SUN','MON','TUE','WED','THU','FRI','SAT']
+
+  const getEventYear = (e: EventType) => {
+    const m = e.date.match(/(\d{4})/)
+    return m ? parseInt(m[1]) : now.getFullYear()
+  }
+
+  const getEventForDay = (day: number) =>
+    events.find(e =>
+      MONTH_SHORT[e.month] === viewMonth &&
+      parseInt(e.day) === day &&
+      getEventYear(e) === viewYear
+    )
+
+  const changeMonth = (dir: 1 | -1) => {
+    let m = viewMonth + dir
+    let y = viewYear
+    if (m > 11) { m = 0; y++ }
+    if (m < 0) { m = 11; y-- }
+    setViewMonth(m)
+    setViewYear(y)
+    onSelect(null)
+  }
+
+  const headColor  = isDark ? '#90D4F7'                  : '#075985'
+  const labelColor = isDark ? 'rgba(198,235,255,0.45)'   : '#94a3b8'
+  const normalText = isDark ? 'rgba(198,235,255,0.5)'    : '#64748b'
+  const normalBorder = isDark ? 'rgba(86,187,240,0.1)'   : '#e2e8f0'
+  const pinnedBg   = isDark ? 'rgba(36,153,214,0.18)'    : 'rgba(56,189,248,0.12)'
+  const pinnedBor  = isDark ? 'rgba(86,187,240,0.45)'    : '#7dd3fc'
+  const pinnedText = isDark ? '#90D4F7'                  : '#0369a1'
+  const dotBg      = isDark ? '#56BBF0'                  : '#38bdf8'
+  const dotBorder  = isDark ? '#022747'                  : 'white'
+  const navBg      = isDark ? 'rgba(86,187,240,0.08)'    : 'white'
+  const navBorder  = isDark ? 'rgba(86,187,240,0.18)'    : '#e2e8f0'
+  const navColor   = isDark ? '#56BBF0'                  : '#64748b'
+
+  const navBtn = (dir: 1 | -1) => (
+    <button
+      onClick={() => changeMonth(dir)}
+      style={{
+        width: 32, height: 32, borderRadius: 8,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: navBg, border: `1px solid ${navBorder}`,
+        color: navColor, fontSize: 20, lineHeight: 1,
+        cursor: 'pointer', transition: 'all 0.15s',
+      }}
+    >{dir === -1 ? '‹' : '›'}</button>
+  )
 
   return (
     <div>
-      <div className="text-center mb-3 font-bold text-sky-800 text-sm" style={{ fontFamily: 'var(--font-syne)' }}>April 2026</div>
-      <div className="grid grid-cols-7 gap-1.5 text-center">
-        {dayLabels.map(day => (
-          <div key={day} className="py-2 text-xs font-bold uppercase text-slate-500 tracking-wider" style={{ fontFamily: 'var(--font-space)' }}>
-            {day}
+      {/* Month nav */}
+      <div className="flex items-center justify-between mb-4">
+        {navBtn(-1)}
+        <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '14px', color: headColor }}>
+          {MONTH_NAMES[viewMonth]} {viewYear}
+        </div>
+        {navBtn(1)}
+      </div>
+
+      {/* Day-of-week labels */}
+      <div className="grid grid-cols-7 gap-1.5 text-center mb-1">
+        {dayLabels.map(d => (
+          <div key={d} className="py-2 text-xs font-bold uppercase tracking-wider"
+            style={{ fontFamily: 'var(--font-space)', color: labelColor }}>
+            {d}
           </div>
         ))}
-        {Array.from({ length: startOffset }).map((_, i) => (
-          <div key={`empty-${i}`} />
-        ))}
-        {days.map(day => {
-          const isPinned = pinnedDates.includes(day)
-          const event = getEventForDay(day)
-          const isSelected = selected && event && selected.id === event.id
+      </div>
 
+      {/* Calendar grid */}
+      <div className="grid grid-cols-7 gap-1.5 text-center">
+        {Array.from({ length: startOffset }).map((_, i) => <div key={`e-${i}`} />)}
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+          const event = getEventForDay(day)
+          const isPinned = !!event
+          const isSelected = !!(selected && event && selected.id === event.id)
           return (
             <motion.div
               key={day}
-              className={`relative p-2 rounded-xl cursor-pointer transition-all duration-300 h-14 flex items-center justify-center font-semibold text-sm ${
-                isSelected ? 'border-2 shadow-lg' :
-                isPinned ? 'bg-gradient-to-br from-sky-400/30 to-sky-500/30 border-2 border-sky-300 shadow-lg hover:shadow-xl' :
-                'hover:bg-sky-50/50 border border-sky-100 hover:border-sky-200 hover:shadow-md'
-              }`}
+              className="relative h-14 flex items-center justify-center rounded-xl"
               style={{
-                fontFamily: 'var(--font-space)',
-                ...(isSelected ? { backgroundColor: event!.color, borderColor: event!.color } : {}),
+                fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600,
+                cursor: isPinned ? 'pointer' : 'default',
+                backgroundColor: isSelected ? event!.color : isPinned ? pinnedBg : 'transparent',
+                border: `${isSelected ? 2 : 1}px solid ${isSelected ? event!.color : isPinned ? pinnedBor : normalBorder}`,
+                color: isSelected ? 'white' : isPinned ? pinnedText : normalText,
+                boxShadow: isSelected ? `0 4px 16px ${event!.color}40` : 'none',
               }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isPinned ? 1.07 : 1.02 }}
+              whileTap={{ scale: isPinned ? 0.97 : 1 }}
               onClick={() => event ? onSelect(isSelected ? null : event) : undefined}
             >
-              <span className={`font-bold ${isSelected ? 'text-white' : isPinned ? 'text-sky-700' : 'text-slate-600'}`}>
-                {day}
-              </span>
+              {day}
               {isPinned && !isSelected && (
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full bg-sky-400 border-2 border-white shadow-sm" />
+                <div
+                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
+                  style={{ backgroundColor: dotBg, border: `2px solid ${dotBorder}` }}
+                />
               )}
             </motion.div>
           )
@@ -279,7 +390,104 @@ function PinnedCalendar({ events, selected, onSelect }: { events: EventType[]; s
   )
 }
 
-function EventModal({ event, onClose }: { event: EventType; onClose: () => void }) {
+const RSVP_BASE: Record<string, number> = {
+  cleanup: 34, stem: 22, food: 67, clothing: 18,
+  garden: 29, health: 41, block: 156, school: 38,
+}
+
+function useEventRsvp(eventId: string, userId: string | undefined) {
+  const KEY = 'cc-rsvps'
+  const base = RSVP_BASE[eventId] ?? 12
+
+  const [isGoing, setIsGoing] = useState(() => {
+    try { return !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId] } catch { return false }
+  })
+  const [count, setCount] = useState(() => {
+    try {
+      const going = !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId]
+      return base + (going ? 1 : 0)
+    } catch { return base }
+  })
+  const [friendsGoing, setFriendsGoing] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    if (!userId) return
+    ;(async () => {
+      try {
+        const connections: string[] = JSON.parse(localStorage.getItem('cc-connections') || '[]')
+        if (!connections.length) return
+        const { data: rsvpData } = await supabase
+          .from('event_rsvps')
+          .select('user_id')
+          .eq('event_id', eventId)
+          .in('user_id', connections)
+        if (!rsvpData?.length) return
+        const friendIds = rsvpData.map((r: any) => r.user_id)
+        const rsvpPublic = localStorage.getItem('cc-rsvp-public') !== 'false'
+        if (!rsvpPublic) return
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', friendIds)
+        setFriendsGoing((profileData || []).map((p: any) => ({ id: p.user_id, name: p.display_name || 'A friend' })))
+      } catch { /* table may not exist */ }
+    })()
+  }, [eventId, userId])
+
+  const toggle = useCallback(() => {
+    setIsGoing(prev => {
+      const next = !prev
+      try {
+        const store = JSON.parse(localStorage.getItem(KEY) || '{}')
+        store[eventId] = next
+        localStorage.setItem(KEY, JSON.stringify(store))
+      } catch { /* ignore */ }
+      setCount(c => Math.max(0, next ? c + 1 : c - 1))
+      if (userId) {
+        if (next) {
+          void supabase.from('event_rsvps')
+            .upsert({ event_id: eventId, user_id: userId }, { onConflict: 'event_id,user_id' })
+        } else {
+          void supabase.from('event_rsvps')
+            .delete().eq('event_id', eventId).eq('user_id', userId)
+        }
+      }
+      return next
+    })
+  }, [eventId, userId])
+
+  return { isGoing, toggle, count, friendsGoing }
+}
+
+type EventUpdates = { title: string; description: string; location: string; time: string }
+
+function EventModal({ event, onClose, isOwned, onDelete, deleting: isDeleting, onEdit }: {
+  event: EventType; onClose: () => void;
+  isOwned?: boolean; onDelete?: () => void; deleting?: boolean
+  onEdit?: (updates: EventUpdates) => Promise<void>
+}) {
+  const { user } = useAuth()
+  const { isGoing, toggle, count, friendsGoing } = useEventRsvp(event.id, user?.id)
+  const t = useT()
+  const [editing, setEditing] = useState(false)
+  const [editSaving, setEditSaving] = useState(false)
+  const [editForm, setEditForm] = useState<EventUpdates>({
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    time: event.time,
+  })
+
+  const saveEdit = async () => {
+    if (!onEdit) return
+    setEditSaving(true)
+    await onEdit(editForm)
+    setEditSaving(false)
+    setEditing(false)
+  }
+
+  const inp = "w-full px-3 py-2 rounded-xl font-outfit text-sm outline-none focus:ring-1 focus:ring-sky-400/30 transition-all"
+  const inpStyle = { background: '#f8fafc', border: '1px solid #e2e8f0', color: '#1e293b' }
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -325,16 +533,44 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
         </div>
 
         <div className="p-8 event-modal-body">
+          {editing ? (
+            <div className="space-y-3 mb-6">
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Title</label>
+                <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className={inp} style={inpStyle} />
+              </div>
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Description</label>
+                <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={3} className={`${inp} resize-none`} style={inpStyle} />
+              </div>
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Location</label>
+                <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className={inp} style={inpStyle} />
+              </div>
+              <div>
+                <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>Time</label>
+                <input value={editForm.time} onChange={e => setEditForm(f => ({ ...f, time: e.target.value }))} className={inp} style={inpStyle} placeholder="e.g. 10:00 AM - 1:00 PM" />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setEditing(false)} className="flex-1 px-4 py-2.5 rounded-xl font-outfit text-sm font-semibold" style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#64748b' }}>Cancel</button>
+                <button onClick={saveEdit} disabled={editSaving} className="flex-1 px-4 py-2.5 rounded-xl font-outfit text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
+                  {editSaving ? '…' : <><Save size={13} /> Save</>}
+                </button>
+              </div>
+            </div>
+          ) : (
           <p className="event-modal-desc" style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', color: '#64748b', lineHeight: 1.7, marginBottom: '24px' }}>
             {event.description}
           </p>
+          )}
 
+          {!editing && (
           <div className="grid grid-cols-2 gap-2 mb-6">
             {[
-              { label: 'Date', value: event.date },
-              { label: 'Time', value: event.time },
-              { label: 'Location', value: event.location.split(',')[0] },
-              { label: 'Who', value: event.audience },
+              { label: t('events.lbl_date'), value: event.date },
+              { label: t('events.lbl_time'), value: event.time },
+              { label: t('events.lbl_location'), value: event.location.split(',')[0] },
+              { label: t('events.lbl_who'), value: event.audience },
             ].map(item => (
               <div key={item.label} className="rounded-xl p-3 border border-slate-100 bg-slate-50 event-detail-item">
                 <div style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#008fb5', marginBottom: '4px' }}>
@@ -346,8 +582,47 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
               </div>
             ))}
           </div>
+          )}
+
+          {/* RSVP */}
+          {!editing && (
+          <div className="flex items-center justify-between mb-5 px-1">
+            <div>
+              <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+                {count} {count === 1 ? 'person' : 'people'} going
+              </p>
+              {friendsGoing.length > 0 && (
+                <p style={{ fontFamily: 'var(--font-outfit)', fontSize: '12px', color: '#0369a1', marginTop: '2px' }}>
+                  {friendsGoing.slice(0, 2).map(f => f.name).join(', ')}
+                  {friendsGoing.length > 2 ? ` +${friendsGoing.length - 2} more` : ''} from your connections
+                </p>
+              )}
+            </div>
+            <button
+              onClick={toggle}
+              style={{
+                fontFamily: 'var(--font-space)',
+                fontSize: '13px',
+                fontWeight: 700,
+                padding: '8px 18px',
+                borderRadius: '10px',
+                border: isGoing ? 'none' : '1px solid rgba(86,187,240,0.35)',
+                background: isGoing ? event.color : 'transparent',
+                color: isGoing ? 'white' : '#085D8A',
+                cursor: 'pointer',
+                transition: 'all 0.18s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {isGoing ? t('events.going') : t('events.rsvp')}
+            </button>
+          </div>
+          )}
 
           <div className="flex gap-2">
+            {!editing && (
             <a
               href={getMapsUrl(event.location)}
               target="_blank"
@@ -355,8 +630,10 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
               className="flex-1 px-4 py-3 rounded-xl text-white transition-all hover:opacity-90 text-center"
               style={{ backgroundColor: event.color, fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600 }}
             >
-              📍 Get Directions
+              {t('events.get_dir')}
             </a>
+            )}
+            {!editing && (
             <a
               href={getGCalUrl(event)}
               target="_blank"
@@ -364,8 +641,29 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
               className="flex-1 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all text-center"
               style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#64748b' }}
             >
-              📅 Add to Calendar
+              {t('events.add_cal')}
             </a>
+            )}
+            {isOwned && onEdit && !editing && (
+              <button
+                onClick={() => setEditing(true)}
+                className="px-4 py-3 rounded-xl border transition-all hover:bg-sky-50"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#0369a1', borderColor: 'rgba(86,187,240,0.35)' }}
+              >
+                <Pencil size={13} />
+              </button>
+            )}
+            {isOwned && !editing && (
+              <button
+                onClick={onDelete}
+                disabled={isDeleting}
+                className="px-4 py-3 rounded-xl border transition-all disabled:opacity-50 hover:bg-red-50"
+                style={{ fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600, color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}
+              >
+                {isDeleting ? '…' : '🗑'}
+              </button>
+            )}
+            {!editing && (
             <button
               onClick={onClose}
               className="px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
@@ -373,6 +671,7 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
             >
               ✕
             </button>
+            )}
           </div>
         </div>
       </motion.div>
@@ -381,11 +680,60 @@ function EventModal({ event, onClose }: { event: EventType; onClose: () => void 
 }
 
 export default function EventsPage() {
+  const { settings } = useSettings()
+  const dk = settings.dark
+  const t = useT()
   const [allEvents, setAllEvents] = useState<EventType[]>(events)
   const [selected, setSelected] = useState<EventType | null>(null)
   const [calendarSelected, setCalendarSelected] = useState<EventType | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
+  const [myEventIds, setMyEventIds] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    if (!user) { setMyEventIds(new Set()); return }
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('user_events').select('id').eq('user_id', user.id)
+        if (data) setMyEventIds(new Set(data.map((r: any) => `user-${r.id}`)))
+      } catch { /* ignore */ }
+    })()
+  }, [user])
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!user) return
+    const rawId = eventId.replace('user-', '')
+    setDeleting(true)
+    try {
+      const { error } = await supabase.from('user_events').delete().eq('id', rawId).eq('user_id', user.id)
+      if (!error) {
+        setAllEvents(prev => prev.filter(e => e.id !== eventId))
+        setMyEventIds(prev => { const s = new Set(prev); s.delete(eventId); return s })
+        setSelected(null)
+        setCalendarSelected(null)
+      }
+    } catch { /* ignore */ }
+    setDeleting(false)
+  }
+
+  const handleEditEvent = async (eventId: string, updates: EventUpdates) => {
+    if (!user) return
+    const rawId = eventId.replace('user-', '')
+    try {
+      const { error } = await supabase.from('user_events').update({
+        title: updates.title,
+        description: updates.description,
+        location: updates.location,
+        time: updates.time,
+      }).eq('id', rawId).eq('user_id', user.id)
+      if (!error) {
+        setAllEvents(prev => prev.map(e => e.id === eventId ? { ...e, ...updates } : e))
+        setSelected(prev => prev?.id === eventId ? { ...prev, ...updates } : prev)
+      }
+    } catch { /* ignore */ }
+  }
 
   // Fetch future events
   useEffect(() => {
@@ -405,14 +753,16 @@ export default function EventsPage() {
         const transformed: EventType[] = data?.map((e: SupabaseEvent) => ({
           id: e.id,
           title: e.title,
-          date: e.event_date,
-          time: `${e.start_time} - ${e.end_time || 'TBD'}`,
+          date: formatEventDate(e.event_date),
+          time: e.end_time
+            ? `${formatEventTime(e.start_time)} - ${formatEventTime(e.end_time)}`
+            : formatEventTime(e.start_time),
           location: e.location_name,
           audience: 'Public',
           category: e.event_type || 'Community',
           description: e.description || 'Community event',
           day: e.event_date.split('-')[2],
-          month: new Date(e.event_date).toLocaleString('default', { month: 'short' }).toUpperCase(),
+          month: MONTH_SHORT_NAMES[parseInt(e.event_date.split('-')[1]) - 1],
           emoji: '📅',
           color: '#085D8A',
           colorLight: '#EBF7FF',
@@ -421,11 +771,42 @@ export default function EventsPage() {
           gcalEnd: e.end_time ? `${e.event_date}T${e.end_time.replace(':', '')}00` : `${e.event_date}T${e.start_time.replace(':', '')}00`,
         }))
 
-        // Merge & sort by date
+        // Also fetch user-created public events
+        let userEvts: EventType[] = []
+        try {
+          const { data: ued } = await supabase
+            .from('user_events')
+            .select('*')
+            .eq('is_public', true)
+            .order('created_at', { ascending: false })
+          userEvts = (ued || []).map((e: any) => ({
+            id: `user-${e.id}`,
+            title: e.title,
+            date: e.date,
+            time: e.time || '',
+            location: e.location || 'Bothell, WA',
+            audience: 'Community',
+            category: e.category || 'Community',
+            description: e.description || '',
+            day: extractDay(e.date),
+            month: extractMonth(e.date),
+            emoji: e.emoji || '📅',
+            color: '#7C3AED',
+            colorLight: '#F5F3FF',
+            colorMid: '#DDD6FE',
+            gcalStart: '', gcalEnd: '',
+          }))
+        } catch { /* user_events table may not exist */ }
+
+        // Merge, filter past events, and sort by date
+        const today = new Date(); today.setHours(0, 0, 0, 0)
         const mergedAndSorted = [
-          ...events, 
-          ...transformed
-        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          ...events,
+          ...transformed,
+          ...userEvts,
+        ]
+          .filter(e => { const d = new Date(e.date); return isNaN(d.getTime()) || d >= today })
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
         setAllEvents(mergedAndSorted)
       // AFTER
@@ -450,14 +831,15 @@ export default function EventsPage() {
   return (
     <>
       <HeroDemo
-        badge="Always Something Happening"
-        staticTitle="Upcoming Events"
-        subtitle="Stay connected with what is happening in our community. From cleanups to workshops, there is a place for everyone."
+        badge={t('events.badge')}
+        staticTitle={t('events.title')}
+        subtitle={t('events.subtitle')}
         backgroundImage="/img/page-3.jpg"
       />
 
       {/* Calendar + Map */}
-      <section className="events-calendar-section py-16 lg:py-20 bg-gradient-to-br from-slate-50/50 to-sky-50/30 border-b border-sky-100/50">
+      <div className="relative z-10">
+      <section className="events-calendar-section py-16 lg:py-20 bg-gradient-to-br from-slate-50 to-sky-50 border-b border-sky-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -466,16 +848,16 @@ export default function EventsPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
-              April through August 2026
+            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '8px' }}>
+              {t('events.cal_nav')}
             </span>
-            <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: '#022747', lineHeight: 1.1 }}>
-              Next Events Pinned
+            <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#022747', lineHeight: 1.1 }}>
+              {t('events.cal_heading')}
             </h3>
           </motion.div>
 
-          <div className="max-w-3xl mx-auto backdrop-blur-xl bg-white rounded-3xl border border-sky-100 p-6 lg:p-8 shadow-card">
-            <PinnedCalendar events={events.slice(0, 4)} selected={calendarSelected} onSelect={setCalendarSelected} />
+          <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-sky-100 p-6 lg:p-8 shadow-card">
+            <PinnedCalendar events={allEvents} selected={calendarSelected} onSelect={setCalendarSelected} isDark={dk} />
           </div>
 
           {/* Calendar event detail panel */}
@@ -487,8 +869,11 @@ export default function EventsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                className="mt-6 rounded-3xl overflow-hidden border border-sky-100 shadow-card"
-                style={{ backgroundColor: 'white' }}
+                className="mt-6 rounded-3xl overflow-hidden shadow-card"
+                style={{
+                  backgroundColor: dk ? 'rgba(2,39,71,0.85)' : 'white',
+                  border: `1px solid ${dk ? 'rgba(86,187,240,0.15)' : '#e0f2fe'}`,
+                }}
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Color sidebar */}
@@ -517,22 +902,27 @@ export default function EventsPage() {
 
                   {/* Details */}
                   <div className="flex-1 p-8">
-                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', color: '#64748b', lineHeight: 1.8, marginBottom: '28px' }}>
+                    <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', color: dk ? 'rgba(198,235,255,0.8)' : '#64748b', lineHeight: 1.8, marginBottom: '28px' }}>
                       {calendarSelected.description}
                     </p>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
                       {[
-                        { label: 'Date', value: calendarSelected.date },
-                        { label: 'Time', value: calendarSelected.time },
-                        { label: 'Location', value: calendarSelected.location.split(',')[0] },
-                        { label: 'Audience', value: calendarSelected.audience },
+                        { label: t('events.lbl_date'), value: calendarSelected.date },
+                        { label: t('events.lbl_time'), value: calendarSelected.time },
+                        { label: t('events.lbl_location'), value: calendarSelected.location.split(',')[0] },
+                        { label: t('events.lbl_audience'), value: calendarSelected.audience },
                       ].map(item => (
-                        <div key={item.label} className="rounded-xl p-3 border border-slate-100 bg-slate-50">
-                          <div style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8', marginBottom: '4px' }}>
+                        <div key={item.label} className="event-detail-item rounded-xl p-3"
+                          style={{
+                            background: dk ? 'rgba(86,187,240,0.06)' : '#f8fafc',
+                            border: `1px solid ${dk ? 'rgba(86,187,240,0.12)' : '#e2e8f0'}`,
+                          }}
+                        >
+                          <div className="event-detail-label" style={{ fontFamily: 'var(--font-space)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px', color: dk ? '#56BBF0' : '#94a3b8' }}>
                             {item.label}
                           </div>
-                          <div style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>
+                          <div className="event-detail-value" style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 600, color: dk ? '#e0f2fe' : '#1e293b' }}>
                             {item.value}
                           </div>
                         </div>
@@ -547,23 +937,33 @@ export default function EventsPage() {
                         className="px-6 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90"
                         style={{ backgroundColor: calendarSelected.color, fontFamily: 'var(--font-space)' }}
                       >
-                        Get Directions
+                        {t('events.get_dir_plain')}
                       </a>
                       <a
                         href={getGCalUrl(calendarSelected)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition-all"
-                        style={{ fontFamily: 'var(--font-space)', color: '#64748b' }}
+                        className="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                        style={{
+                          fontFamily: 'var(--font-space)',
+                          color: dk ? 'rgba(198,235,255,0.7)' : '#64748b',
+                          border: `1px solid ${dk ? 'rgba(86,187,240,0.18)' : '#e2e8f0'}`,
+                          background: dk ? 'rgba(86,187,240,0.06)' : 'transparent',
+                        }}
                       >
-                        Add to Calendar
+                        {t('events.add_cal_plain')}
                       </a>
                       <button
                         onClick={() => setCalendarSelected(null)}
-                        className="px-6 py-3 rounded-xl border border-slate-200 text-sm font-semibold hover:bg-slate-50 transition-all"
-                        style={{ fontFamily: 'var(--font-space)', color: '#94a3b8' }}
+                        className="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                        style={{
+                          fontFamily: 'var(--font-space)',
+                          color: dk ? 'rgba(198,235,255,0.45)' : '#94a3b8',
+                          border: `1px solid ${dk ? 'rgba(86,187,240,0.12)' : '#e2e8f0'}`,
+                          background: dk ? 'rgba(86,187,240,0.04)' : 'transparent',
+                        }}
                       >
-                        Dismiss
+                        {t('events.dismiss')}
                       </button>
                     </div>
                   </div>
@@ -585,16 +985,24 @@ export default function EventsPage() {
             transition={{ duration: 0.5 }}
             className="mb-16"
           >
-            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#085D8A', display: 'inline-block', marginBottom: '12px' }}>
-              What's Coming Up
+            <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dk ? '#56BBF0' : '#085D8A', display: 'inline-block', marginBottom: '12px' }}>
+              {t('events.coming_up')}
             </span>
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mt-1">
-              <h2 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, color: '#19619f', lineHeight: 1, letterSpacing: '-1px' }}>
-                Mark Your<br />Calendar.
+              <h2 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, color: dk ? '#e0f2fe' : '#19619f', lineHeight: 1, letterSpacing: '-1px' }}>
+                {t('events.heading')}
               </h2>
-              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
-                All events are free and open to the public. Click any card for full details.
-              </p>
+              <div className="flex flex-col items-start lg:items-end gap-3">
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '15px', fontWeight: 300, color: dk ? 'rgba(198,235,255,0.65)' : '#19619f', maxWidth: '280px', lineHeight: 1.7 }} className="lg:text-right">
+                  {t('events.free_note')}
+                </p>
+                <Link href="/dashboard/create-event"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 active:scale-95"
+                  style={{ fontFamily: 'var(--font-outfit)', background: dk ? 'linear-gradient(135deg,#0857A0,#2499D6)' : 'linear-gradient(135deg,#085D8A,#0E9ECC)', boxShadow: '0 2px 12px rgba(8,87,160,0.35)' }}>
+                  <PlusCircle size={15} />
+                  {t('events.create')}
+                </Link>
+              </div>
             </div>
           </motion.div>
 
@@ -782,15 +1190,25 @@ export default function EventsPage() {
               className="flex items-center gap-2 px-8 py-4 rounded-2xl border-2 border-sky-300 text-sky-700 font-bold hover:bg-sky-50 transition-all"
               style={{ fontFamily: 'var(--font-syne)', fontSize: '14px' }}
             >
-              {showAll ? '↑ Show Less' : `See All ${events.length} Events →`}
+              {showAll ? t('events.show_less') : t('events.see_all').replace('{n}', String(events.length))}
             </motion.button>
           </div>
 
         </div>
       </section>
 
+      </div>
       <AnimatePresence>
-        {selected && <EventModal event={selected} onClose={() => setSelected(null)} />}
+        {selected && (
+          <EventModal
+            event={selected}
+            onClose={() => setSelected(null)}
+            isOwned={myEventIds.has(selected.id)}
+            onDelete={() => handleDeleteEvent(selected.id)}
+            deleting={deleting}
+            onEdit={myEventIds.has(selected.id) ? (updates) => handleEditEvent(selected.id, updates) : undefined}
+          />
+        )}
       </AnimatePresence>
     </>
   )

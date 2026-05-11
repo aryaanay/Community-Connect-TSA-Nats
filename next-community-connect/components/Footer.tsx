@@ -15,13 +15,6 @@ const footerLinks = {
   ],
 }
 
-const socialIcons = [
-  { name: 'Facebook', icon: 'f' },
-  { name: 'Instagram', icon: 'ig' },
-  { name: 'Twitter', icon: 'X' },
-  { name: 'LinkedIn', icon: 'in' },
-]
-
 const partners: { icon: React.ElementType; label: string }[] = [
   { icon: Handshake, label: 'United Way' },
   { icon: GraduationCap, label: 'Local Schools' },
@@ -56,22 +49,9 @@ export function Footer() {
                 Community<strong className="font-bold">Connect</strong>
               </span>
             </Link>
-            <p className="font-dm-sans text-sm leading-relaxed mb-5 max-w-[280px]" style={{ color: 'rgba(198,235,255,0.85)' }}>
+            <p className="font-dm-sans text-sm leading-relaxed max-w-[280px]" style={{ color: 'rgba(198,235,255,0.85)' }}>
               Building stronger communities through collaboration, service, and shared resources.
             </p>
-            <div className="flex gap-2.5">
-              {socialIcons.map((social, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label={social.name}
-                  className="w-9 h-9 rounded-full border border-sky-400/30 flex items-center justify-center text-xs font-bold hover:bg-sky-500 hover:border-sky-400 hover:text-white transition-all hover:-translate-y-0.5 backdrop-blur-sm"
-                  style={{ backgroundColor: 'rgba(36,153,214,0.15)', color: 'rgba(198,235,255,0.8)' }}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Categories */}
@@ -82,7 +62,7 @@ export function Footer() {
                 <li key={link.href + link.label}>
                   <Link
                     href={link.href}
-                    className="font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-colors"
+                    className="footer-nav-link font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-all"
                     style={{ color: 'rgba(198,235,255,0.8)' }}
                   >
                     <span className="text-[9px] text-sky-400 group-hover:translate-x-1 transition-transform">›</span>
@@ -136,7 +116,7 @@ export function Footer() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="rounded-full px-3.5 py-1.5 flex items-center gap-1.5 cursor-default backdrop-blur-sm hover:-translate-y-0.5 transition-transform"
+                className="footer-partner-pill rounded-full px-3.5 py-1.5 flex items-center gap-1.5 cursor-default backdrop-blur-sm hover:-translate-y-0.5 transition-all duration-200"
                 style={{ border: '1px solid rgba(86,187,240,0.2)', backgroundColor: 'rgba(36,153,214,0.1)', fontFamily: 'var(--font-space)', fontSize: '12px', color: 'rgba(198,235,255,0.9)' }}
               >
                 <partner.icon size={12} className="text-sky-300" />
@@ -149,11 +129,11 @@ export function Footer() {
         {/* Bottom */}
         <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="font-dm-sans text-sm" style={{ color: 'rgba(144,212,247,0.7)' }}>
-            © 2025 CommunityConnect | Bothell, WA
+            © 2026 CommunityConnect
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/copyright" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>
-              Copyright
+            <Link href="/references" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>
+              References
             </Link>
             <span style={{ color: 'rgba(86,187,240,0.3)' }}>|</span>
             <Link href="/settings" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>

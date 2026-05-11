@@ -3,68 +3,74 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
+import { Menu, X, Settings, Sun, Moon } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useSettings } from '@/context/SettingsContext'
+import { useT } from '@/lib/useT'
 
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/events', label: 'Events' },
-{ href: '/resources', label: 'Resources' },
-  { href: '/wishlist', label: 'Wishlist' },
-  { href: '/submit', label: 'Submit' },
-  { href: '/about', label: 'About' },
+
+const SCROLL_IDS = [
+  { key: 'nav.mission',      id: 'mission' },
+  { key: 'nav.story',        id: 'story' },
+  { key: 'nav.testimonials', id: 'testimonials' },
+  { key: 'nav.how',          id: 'how-it-works' },
+  { key: 'nav.features',     id: 'features' },
+  { key: 'nav.events',       id: 'events' },
 ]
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 export function Navbar() {
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [expanded, setExpanded] = useState(false)   // user manually re-opened pill
+  const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
-  const { isSignedIn, user, signOut } = useAuth()
+  const { isSignedIn, signOut } = useAuth()
+  const { settings, dispatch } = useSettings()
+  const isDark = settings.dark
+  const isHome = pathname === '/'
+  const t = useT()
+
+  const SCROLL_LINKS = SCROLL_IDS.map(({ key, id }) => ({ label: t(key), id }))
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 80)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    const handle = () => {
+      // Collapse only once the hero image is fully scrolled past
+      const scrolled = window.scrollY > window.innerHeight * 0.88
+      setIsScrolled(scrolled)
+      if (scrolled) setExpanded(false)
+    }
+    window.addEventListener('scroll', handle, { passive: true })
+    return () => window.removeEventListener('scroll', handle)
   }, [])
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.setAttribute('data-theme', 'dark')
-    } else {
-      document.documentElement.removeAttribute('data-theme')
-    }
-  }, [isDark])
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setExpanded(false)
+    setMobileOpen(false)
+  }
+
+  // Show the full link pill when: at top of page, OR user manually expanded
+  const showPill = isHome && (!isScrolled || expanded)
 
   return (
-    <div
-      className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
-      style={{
-        top: 0,
-        paddingTop: isScrolled ? '0px' : '24px',
-        transition: 'padding 0.4s cubic-bezier(0.4,0,0.2,1)',
-      }}
-    >
-      <motion.nav
-        animate={{
-          borderRadius: isScrolled ? '0px' : '20px',
-          maxWidth: isScrolled ? '100vw' : '90vw',
-          backgroundColor: isScrolled ? 'rgba(2,39,71,0.97)' : 'rgba(255,255,255,0.10)',
-          borderColor: isScrolled ? 'rgba(36,153,214,0.3)' : 'rgba(255,255,255,0.20)',
-          boxShadow: isScrolled
-            ? '0 4px 32px rgba(2,39,71,0.5), 0 1px 0 rgba(36,153,214,0.25)'
-            : '0 8px 32px rgba(4,64,105,0.18)',
-          paddingLeft: isScrolled ? '2.5rem' : '2rem',
-          paddingRight: isScrolled ? '2.5rem' : '2rem',
-        }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        className={`w-full border backdrop-blur-xl pointer-events-auto overflow-hidden ${isSignedIn ? 'py-5' : 'py-4'}`}
-      >
-        <div className="flex items-center justify-between w-full">
+    <LayoutGroup>
+      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none select-none">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-5 gap-3">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 hover:scale-105 transition-transform">
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* ─── Logo pill ───────────────────────────────────────────────── */}
+          <Link
+            href="/"
+            onClick={(e) => {
+              if (pathname === '/') {
+                e.preventDefault()
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
+            className="liquid-glass pointer-events-auto flex h-14 items-center gap-2.5 px-5 rounded-full hover:scale-[1.03] transition-transform flex-shrink-0"
+          >
+            <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
               <circle cx="17" cy="17" r="15.5" stroke="#2499D6" strokeWidth="1.5"/>
               <circle cx="17" cy="17" r="3.5" fill="#2499D6"/>
               <circle cx="17" cy="7" r="2.5" fill="#56BBF0"/>
@@ -74,162 +80,158 @@ export function Navbar() {
               <line x1="19.8" y1="18.5" x2="23.8" y2="20.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
               <line x1="14.2" y1="18.5" x2="10.2" y2="20.5" stroke="#56BBF0" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
-            <span className="font-syne text-lg font-light text-white tracking-tight whitespace-nowrap drop-shadow-sm">
+            <span className="font-syne text-sm font-light text-white whitespace-nowrap">
               Community<strong className="font-bold">Connect</strong>
             </span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <motion.div
-                key={link.href}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
-                <Link
-                  href={link.href}
-                  className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative block ${
-                    pathname === link.href
-                      ? 'text-white bg-white/20'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {link.label}
-                  {pathname === link.href && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-sky-300 rounded-full" />
-                  )}
-                </Link>
-              </motion.div>
-            ))}
+          {/* ─── Center — collapsing pill (desktop only) ─────────────────── */}
+          <div className="hidden lg:flex flex-1 justify-center pointer-events-auto">
+            <motion.div
+              layout
+              className="liquid-glass h-14 flex items-center"
+              style={{ overflow: 'hidden' }}
+              animate={{ borderRadius: 9999 }}
+              transition={{ layout: { duration: 0.38, ease: EASE }, borderRadius: { duration: 0.38, ease: EASE } }}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {showPill ? (
+                  <motion.div
+                    key="pill"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.14 }}
+                    className="flex h-full items-center gap-0.5 px-3"
+                  >
+                    {SCROLL_LINKS.map(({ label, id }) => (
+                      <button
+                        key={id}
+                        onClick={() => scrollTo(id)}
+                        className="inline-flex h-10 items-center px-3 rounded-full font-outfit text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.button
+                    key="hamburger"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.14 }}
+                    onClick={() => setExpanded(true)}
+                    className="w-14 h-14 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                  >
+                    <Menu size={15} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </motion.div>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-2.5 flex-shrink-0">
+          {/* ─── Mobile hamburger (always visible on small screens) ───────── */}
+          <div className="lg:hidden flex-1 flex justify-center pointer-events-auto">
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              className="liquid-glass w-14 h-14 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+            >
+              {mobileOpen ? <X size={15} /> : <Menu size={15} />}
+            </button>
+          </div>
 
-            {/* Settings / Accessibility */}
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/settings"
-                className="w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all"
-                aria-label="Accessibility settings"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </Link>
-            </motion.div>
-
-            {/* Dark mode toggle */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsDark(!isDark)}
-              className="w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all"
+          {/* ─── Right: dark mode + lang + settings + auth ──────────────── */}
+          <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
+              className="liquid-glass w-14 h-14 rounded-full flex items-center justify-center text-white transition-colors"
               aria-label="Toggle dark mode"
             >
-              {isDark ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                </svg>
-              )}
-            </motion.button>
+              {isDark ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
 
-            {/* Auth */}
-            <div className="hidden sm:flex items-center gap-1">
-              {isSignedIn ? (
-                <>
-                  <span className="font-outfit text-xs text-white/60 px-2">{user?.email ?? 'User'}</span>
-                  <button
-                    onClick={signOut}
-                    className="text-white/75 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/signin"
-                  className="bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5"
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-
-            {/* CTA Links */}
-            <div className="hidden sm:flex items-center gap-1">
-              <Link
-                href="/copyright"
-                className="text-white/75 hover:text-white font-medium text-sm px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
-              >
-                Copyright
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 hover:bg-white/10 rounded-full p-2 transition-all"
-              aria-label="Menu"
+            <Link
+              href="/settings"
+              className="liquid-glass w-14 h-14 rounded-full flex items-center justify-center text-white transition-colors"
+              aria-label="Settings"
             >
-              <span className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center block ${isMobileOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-              <span className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 block ${isMobileOpen ? 'opacity-0' : ''}`} />
-              <span className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center block ${isMobileOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-            </motion.button>
+              <Settings size={14} />
+            </Link>
+
+            <Link
+              href="/references"
+              className="liquid-glass hidden h-14 sm:flex items-center font-outfit text-sm px-5 rounded-full text-white transition-all whitespace-nowrap"
+            >
+              {t('nav.references')}
+            </Link>
+
+            {isSignedIn ? (
+              <Link
+                href="/dashboard"
+                className="liquid-glass hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-full text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
+              >
+                {t('nav.dashboard')}
+              </Link>
+            ) : (
+              <Link
+                href="/signin"
+                className="hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-full text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(14,165,233,0.35)' }}
+              >
+                {t('nav.signin')}
+              </Link>
+            )}
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* ─── Mobile dropdown ──────────────────────────────────────────── */}
         <AnimatePresence>
-          {isMobileOpen && (
+          {mobileOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden overflow-hidden"
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: EASE }}
+              className="liquid-glass pointer-events-auto mx-4 mt-2 rounded-2xl overflow-hidden lg:hidden"
             >
-              <div className="pt-4 pb-2 border-t border-white/10 mt-4">
-                {navLinks.map((link) => (
+              <div className="p-3">
+                {isHome && (
+                  <div className="grid grid-cols-2 gap-1 mb-3">
+                    {SCROLL_LINKS.map(({ label, id }) => (
+                      <button
+                        key={id}
+                        onClick={() => scrollTo(id)}
+                        className="text-left px-4 py-2.5 rounded-xl font-outfit text-sm font-medium text-white/80 hover:text-white hover:bg-white/8 transition-all"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="border-t border-white/10 pt-3 flex flex-wrap gap-2">
                   <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className={`block py-3 px-4 rounded-xl text-base font-medium text-white/90 hover:text-white hover:bg-white/20 transition-all mb-1 ${
-                      pathname === link.href ? 'bg-white/20' : ''
-                    }`}
+                    href="/references"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex-1 min-w-[100px] text-center py-2.5 rounded-xl font-outfit text-sm text-white/60 hover:text-white hover:bg-white/8 transition-all"
                   >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="flex gap-2 mt-3">
-                  <Link
-                    href="/copyright"
-                    onClick={() => setIsMobileOpen(false)}
-                    className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
-                  >
-                    Copyright
+                    {t('nav.references')}
                   </Link>
                   {isSignedIn ? (
-                    <button
-                      onClick={() => { signOut(); setIsMobileOpen(false) }}
-                      className="flex-1 flex items-center justify-center bg-white/10 border border-white/20 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-white/20 transition-all text-sm"
-                    >
-                      Sign Out
-                    </button>
+                    <>
+                      <Link href="/dashboard" onClick={() => setMobileOpen(false)}
+                        className="flex-1 min-w-[100px] text-center py-2.5 rounded-xl font-outfit text-sm font-semibold text-sky-300 hover:bg-sky-500/15 transition-all">
+                        {t('nav.dashboard')}
+                      </Link>
+                      <button onClick={() => { signOut(); setMobileOpen(false) }}
+                        className="flex-1 min-w-[100px] py-2.5 rounded-xl font-outfit text-sm text-white/50 hover:text-white hover:bg-white/8 transition-all">
+                        {t('nav.signout')}
+                      </button>
+                    </>
                   ) : (
-                    <Link
-                      href="/signin"
-                      onClick={() => setIsMobileOpen(false)}
-                      className="flex-1 flex items-center justify-center bg-sky-500 text-white font-semibold px-4 py-3 rounded-2xl hover:bg-sky-400 transition-all text-sm"
-                    >
-                      Sign In
+                    <Link href="/signin" onClick={() => setMobileOpen(false)}
+                      className="flex-1 min-w-[100px] text-center py-2.5 rounded-xl font-outfit text-sm font-semibold text-white bg-sky-500/80 hover:bg-sky-500 transition-all">
+                      {t('nav.signin')}
                     </Link>
                   )}
                 </div>
@@ -237,7 +239,7 @@ export function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.nav>
-    </div>
+      </div>
+    </LayoutGroup>
   )
 }

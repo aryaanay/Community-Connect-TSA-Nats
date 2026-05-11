@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
+import { useSettings } from '@/context/SettingsContext'
+import Link from 'next/link'
 
 const checklistItems = [
   'All text content was written originally by team members',
@@ -12,7 +14,8 @@ const checklistItems = [
   'Hero background images sourced from Unsplash (free license) and team-provided photos',
   'All community organization names and contact data reference real Bothell-area nonprofits (publicly available)',
   'No copyrighted logos, trademarks, or branded content are reproduced',
-  'No images from third-party sources are used without license verification',
+  'Profile photos for testimonials sourced from RandomUser.me (free for educational and non-commercial use)',
+  'Timeline and mission section photos sourced from Unsplash and Pexels (free license)',
   'All event data is fictional, created for competition demonstration purposes only',
 ]
 
@@ -27,17 +30,23 @@ const sources = [
   { resource: 'DM Sans (Google Fonts)', type: 'Typography', license: 'Open Font License', url: 'fonts.google.com' },
   { resource: 'Outfit (Google Fonts)', type: 'Typography', license: 'Open Font License', url: 'fonts.google.com' },
   { resource: 'Syne (Google Fonts)', type: 'Typography', license: 'Open Font License', url: 'fonts.google.com' },
-  { resource: 'Resources page – parallax (library3.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/NIJuEQw0RKg' },
-  { resource: 'Resources page – parallax (foodpantry5.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/Z8UgB80_46w' },
-  { resource: 'Site hero – page background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/Zyx1bK9mqmA' },
-  { resource: 'Resources page – parallax (heartwithhands6.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/cAtzHUz7Z8g' },
-  { resource: 'Resources page – parallax (community7.jpg)', type: 'Photography', license: 'Pexels License (free)', url: 'beginatbothell.com/wp-content/uploads/2023/09/pexels-kelly-2876511.jpg' },
-  { resource: 'Site hero – page background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/S5pFhDxUXyw' },
-  { resource: 'Resources page – parallax (playground1.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/8NymO2MErVI' },
-  { resource: 'Resources page – parallax (cleanup4.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/CIItgnBEOgw' },
-  { resource: 'Resources page – parallax (cleanup4.jpg alt)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/3k3l2brxmwQ' },
-  { resource: 'Resources page – parallax (library3.jpg alt)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/zeH-ljawHtg' },
-  { resource: 'Resources page – parallax (garden2.jpg)', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/bY_q4VodUc0' },
+  { resource: 'library3.jpg – 2019 timeline card & resources parallax', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/NIJuEQw0RKg' },
+  { resource: 'foodpantry5.jpg – 2020 timeline card & resources parallax', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/Z8UgB80_46w' },
+  { resource: 'Site hero – main page cloud background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/Zyx1bK9mqmA' },
+  { resource: 'heartwithhands6.jpg – 2022 timeline card & resources parallax', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/cAtzHUz7Z8g' },
+  { resource: 'community7.jpg – 2023 timeline card & resources parallax', type: 'Photography', license: 'Pexels License (free)', url: 'beginatbothell.com/wp-content/uploads/2023/09/pexels-kelly-2876511.jpg' },
+  { resource: 'page-2.jpg – About page hero background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/S5pFhDxUXyw' },
+  { resource: 'page-3.jpg – Events page hero background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/S5pFhDxUXyw' },
+  { resource: 'page-4.jpg – Resources page hero background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/S5pFhDxUXyw' },
+  { resource: 'page-5.jpg – Wishlist page hero background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/S5pFhDxUXyw' },
+  { resource: 'page-6.jpg – Submit page hero background', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/S5pFhDxUXyw' },
+  { resource: 'playground1.jpg – 2026 timeline card & resources parallax', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/8NymO2MErVI' },
+  { resource: 'cleanup4.jpg – 2025 timeline card & resources parallax', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/CIItgnBEOgw' },
+  { resource: 'cleanup4.jpg – alternate source', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/3k3l2brxmwQ' },
+  { resource: 'library3.jpg – alternate source', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/zeH-ljawHtg' },
+  { resource: 'garden2.jpg – mission section & resources parallax', type: 'Photography', license: 'Unsplash License (free)', url: 'unsplash.com/photos/bY_q4VodUc0' },
+  { resource: 'Testimonial profile photos (Maria, James, Aisha, Derek, Linda)', type: 'Photography', license: 'Free for educational use', url: 'randomuser.me' },
+  { resource: 'Leaflet color markers (map pin icon)', type: 'Icons', license: 'BSD-2 / MIT', url: 'github.com/pointhi/leaflet-color-markers' },
   { resource: 'Bothell, WA geographic and org data', type: 'Reference', license: 'Public domain', url: 'bothellwa.gov' },
   { resource: 'KCLS (King County Library System)', type: 'Reference', license: 'Public domain', url: 'kcls.org' },
   { resource: 'Northshore School District', type: 'Reference', license: 'Public domain', url: 'nsd.org' },
@@ -52,41 +61,51 @@ const sources = [
   { resource: 'Northshore Fire Department', type: 'Reference', license: 'Public domain', url: 'northshorefire.com' },
 ]
 
-const H = '#022747'
-const B = '#044069'
-const MUTED = '#085D8A'
-const LINK = '#2499D6'
-const BG = '#F0F9FF'
-const CARD = '#F0F9FF'
-const INNER = '#ffffff'
-const ROW_ALT = '#EBF7FF'
-const BORDER = '#BFDBFE'
-
-const h2Style = {
-  fontFamily: 'var(--font-syne)',
-  fontSize: 'clamp(22px, 3vw, 32px)',
-  fontWeight: 700 as const,
-  color: H,
-  letterSpacing: '0.02em',
-  lineHeight: 1.15,
-  marginBottom: '16px',
-}
-
-const hdStyle = { fontFamily: 'var(--font-syne)', fontWeight: 700 as const, fontSize: '13px', color: H }
-const bodyStyle = { fontFamily: 'var(--font-space)', fontSize: '13px', color: B, lineHeight: 1.7 }
-
 export default function DocumentationPage() {
+  const { settings } = useSettings()
+  const dk = settings.dark
+
+  const H     = dk ? '#e0f2fe'                    : '#022747'
+  const B     = dk ? 'rgba(198,235,255,0.85)'     : '#044069'
+  const MUTED = dk ? 'rgba(198,235,255,0.55)'     : '#085D8A'
+  const LINK  = dk ? '#56BBF0'                    : '#2499D6'
+  const BG    = dk ? '#010f1f'                    : '#F0F9FF'
+  const CARD  = dk ? 'rgba(2,39,71,0.6)'          : '#F0F9FF'
+  const INNER = dk ? 'rgba(2,39,71,0.5)'          : '#ffffff'
+  const ROW_ALT = dk ? 'rgba(3,52,96,0.5)'        : '#EBF7FF'
+  const BORDER  = dk ? 'rgba(86,187,240,0.15)'    : '#BFDBFE'
+  const TH_BG   = dk ? 'rgba(3,52,96,0.8)'        : '#DBEAFE'
+
+  const h2Style = {
+    fontFamily: 'var(--font-syne)',
+    fontSize: 'clamp(22px, 3vw, 32px)',
+    fontWeight: 700 as const,
+    color: H,
+    letterSpacing: '0.02em',
+    lineHeight: 1.15,
+    marginBottom: '16px',
+  }
+
+  const hdStyle = { fontFamily: 'var(--font-syne)', fontWeight: 700 as const, fontSize: '13px', color: H }
+  const bodyStyle = { fontFamily: 'var(--font-space)', fontSize: '13px', color: B, lineHeight: 1.7 }
+
   return (
     <>
+      <Link
+        href="/"
+        className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125"
+      >
+        ← Back to Home
+      </Link>
       <HeroDemo
         badge="TSA Webmaster - Required Documentation"
-        staticTitle="Copyright &amp; References"
-        subtitle="Student copyright checklist, work log, and all sources cited for Community Connect.
-        * Note: This page does not have dark mode functionality so as to maintain clarity"
+        staticTitle="References"
+        subtitle="Student copyright checklist, work log, and all sources cited for Community Connect."
         backgroundImage=""
       />
 
-      <section className="py-24" style={{ backgroundColor: BG }}>
+      <div className="relative z-10">
+      <section className="py-24" style={{ backgroundColor: BG, transition: 'background-color 0.3s' }}>
         <div className="max-w-4xl mx-auto px-4 space-y-14">
 
           {/* PROJECT INFO */}
@@ -96,10 +115,10 @@ export default function DocumentationPage() {
               <div className="grid md:grid-cols-2 gap-5">
                 {[
                   { label: 'Project Name', value: 'Community Connect' },
-                  { label: 'Competition', value: 'TSA Webmaster - State Conference 2026' },
+                  { label: 'Competition', value: 'TSA Webmaster - National Conference 2026' },
                   { label: 'Technology Stack', value: 'Next.js, React, TypeScript, Tailwind CSS, Framer Motion' },
                   { label: 'Location', value: 'Bothell, Washington' },
-                  { label: 'Chapter', value: 'North Creek High School - Chapter 1557-2' },
+                  { label: 'Team', value: 'Team 1557-1' },
                   { label: 'Team Size', value: '6 members' },
                 ].map(({ label, value }) => (
                   <div key={label}>
@@ -120,7 +139,7 @@ export default function DocumentationPage() {
                   TSA Webmaster - Student Copyright Verification
                 </p>
                 <p style={{ fontFamily: 'var(--font-space)', fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>
-                  Chapter 1557-2 - North Creek High School - State Conference 2026
+                  Team 1557-1 - National Conference 2026
                 </p>
               </div>
               <div className="px-8 py-6" style={{ backgroundColor: CARD }}>
@@ -142,7 +161,7 @@ export default function DocumentationPage() {
                 </div>
                 <div className="border-t pt-6" style={{ borderColor: BORDER }}>
                   <p style={{ ...bodyStyle, fontStyle: 'italic' }}>
-                    Submitted electronically by all team members. North Creek High School Chapter 1557-2, State Conference 2026.
+                    Submitted electronically by all team members. Team 1557-1, National Conference 2026.
                   </p>
                 </div>
               </div>
@@ -201,7 +220,7 @@ export default function DocumentationPage() {
             <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: BORDER }}>
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b" style={{ backgroundColor: '#DBEAFE', borderColor: BORDER }}>
+                  <tr className="border-b" style={{ backgroundColor: TH_BG, borderColor: BORDER }}>
                     <th className="text-left px-6 py-4" style={hdStyle}>Resource</th>
                     <th className="text-left px-6 py-4" style={hdStyle}>Type</th>
                     <th className="text-left px-6 py-4" style={hdStyle}>License</th>
@@ -278,6 +297,7 @@ export default function DocumentationPage() {
 
         </div>
       </section>
+      </div>
     </>
   )
 }
