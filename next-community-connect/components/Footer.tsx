@@ -6,14 +6,6 @@ import { Mail, Phone, MapPin, Clock, Handshake, GraduationCap, Heart, Leaf, Uten
 import React from 'react'
 
 const footerLinks = {
-  explore: [
-    { href: '/', label: 'Home' },
-    { href: '/events', label: 'Upcoming Events' },
-    { href: '/resources', label: 'Resource Hub' },
-    { href: '/submit', label: 'Submit a Resource' },
-    { href: '/about', label: 'About Us' },
-    { href: '/copyright', label: 'Copyright & References' },
-  ],
   categories: [
     { href: '/resources?cat=Education', label: 'Education' },
     { href: '/resources?cat=Health', label: 'Health & Wellness' },
@@ -45,7 +37,7 @@ export function Footer() {
       style={{ background: 'linear-gradient(160deg, #011629 0%, #022747 50%, #033460 100%)' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-sky-400/20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 pb-12 border-b border-sky-400/20">
 
           {/* Brand */}
           <div className="lg:col-span-1">
@@ -80,25 +72,6 @@ export function Footer() {
                 </a>
               ))}
             </div>
-          </div>
-
-          {/* Explore */}
-          <div>
-            <h4 className="font-syne text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#90D4F7' }}>Explore</h4>
-            <ul className="space-y-2.5">
-              {footerLinks.explore.map((link) => (
-                <li key={link.href + link.label}>
-                  <Link
-                    href={link.href}
-                    className="font-dm-sans text-sm flex items-center gap-2 group hover:text-white transition-colors"
-                    style={{ color: 'rgba(198,235,255,0.8)' }}
-                  >
-                    <span className="text-[9px] text-sky-400 group-hover:translate-x-1 transition-transform">›</span>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Categories */}
