@@ -57,7 +57,7 @@ export function Navbar() {
   return (
     <LayoutGroup>
       <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none select-none">
-        <div className="flex items-start justify-between px-4 sm:px-6 pt-5 gap-3">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-5 gap-3">
 
           {/* ─── Logo pill ───────────────────────────────────────────────── */}
           <Link
@@ -68,7 +68,7 @@ export function Navbar() {
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }
             }}
-            className="liquid-glass pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
+            className="liquid-glass pointer-events-auto flex h-14 items-center gap-2.5 px-5 rounded-2xl hover:scale-[1.03] transition-transform flex-shrink-0"
           >
             <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
               <circle cx="17" cy="17" r="15.5" stroke="#2499D6" strokeWidth="1.5"/>
@@ -89,7 +89,7 @@ export function Navbar() {
           <div className="hidden lg:flex flex-1 justify-center pointer-events-auto">
             <motion.div
               layout
-              className="liquid-glass"
+              className="liquid-glass h-14 flex items-center"
               style={{ overflow: 'hidden' }}
               animate={{ borderRadius: showPill ? 16 : 20 }}
               transition={{ layout: { duration: 0.38, ease: EASE }, borderRadius: { duration: 0.38, ease: EASE } }}
@@ -102,13 +102,13 @@ export function Navbar() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.14 }}
-                    className="flex items-center gap-0.5 px-3 py-2.5"
+                    className="flex h-full items-center gap-0.5 px-3"
                   >
                     {SCROLL_LINKS.map(({ label, id }) => (
                       <button
                         key={id}
                         onClick={() => scrollTo(id)}
-                        className="px-3 py-1.5 rounded-xl font-outfit text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
+                        className="inline-flex h-10 items-center px-3 rounded-xl font-outfit text-sm font-medium text-white/75 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap"
                       >
                         {label}
                       </button>
@@ -122,7 +122,7 @@ export function Navbar() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.14 }}
                     onClick={() => setExpanded(true)}
-                    className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                    className="w-14 h-14 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
                   >
                     <Menu size={15} />
                   </motion.button>
@@ -135,7 +135,7 @@ export function Navbar() {
           <div className="lg:hidden flex-1 flex justify-center pointer-events-auto">
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="liquid-glass w-14 h-14 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
             >
               {mobileOpen ? <X size={15} /> : <Menu size={15} />}
             </button>
@@ -145,7 +145,7 @@ export function Navbar() {
           <div className="pointer-events-auto flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
-              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
+              className="liquid-glass w-14 h-14 rounded-full flex items-center justify-center text-white transition-colors"
               aria-label="Toggle dark mode"
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
@@ -153,7 +153,7 @@ export function Navbar() {
 
             <Link
               href="/settings"
-              className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
+              className="liquid-glass w-14 h-14 rounded-full flex items-center justify-center text-white transition-colors"
               aria-label="Settings"
             >
               <Settings size={14} />
@@ -161,7 +161,7 @@ export function Navbar() {
 
             <Link
               href="/references"
-              className="liquid-glass hidden sm:flex font-outfit text-sm px-4 py-2.5 rounded-xl text-white transition-all whitespace-nowrap"
+              className="liquid-glass hidden h-14 sm:flex items-center font-outfit text-sm px-5 rounded-xl text-white transition-all whitespace-nowrap"
             >
               {t('nav.references')}
             </Link>
@@ -169,14 +169,14 @@ export function Navbar() {
             {isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="liquid-glass hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
+                className="liquid-glass hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-xl text-sky-300 hover:text-sky-200 transition-all whitespace-nowrap"
               >
                 {t('nav.dashboard')}
               </Link>
             ) : (
               <Link
                 href="/signin"
-                className="hidden sm:flex font-outfit font-semibold text-sm px-4 py-2.5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                className="hidden h-14 sm:flex items-center font-outfit font-semibold text-sm px-5 rounded-xl text-white hover:-translate-y-0.5 transition-all whitespace-nowrap"
                 style={{ background: 'rgba(14,165,233,0.85)', border: '1px solid rgba(86,187,240,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 20px rgba(14,165,233,0.35)' }}
               >
                 {t('nav.signin')}

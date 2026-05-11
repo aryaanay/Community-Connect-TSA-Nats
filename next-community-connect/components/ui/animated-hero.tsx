@@ -125,7 +125,7 @@ function Hero({
               />
             ) : (
               <h1 className="text-5xl md:text-6xl lg:text-7xl max-w-4xl w-full tracking-tighter text-center font-bold font-space text-white mx-auto">
-                <span className="text-white">Your Community is</span>
+                <span className="text-white">Our Community is</span>
                 <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-3 md:pt-1">
                   &nbsp;
                 {rotatingTitles.map((title: string, index: number) => (
