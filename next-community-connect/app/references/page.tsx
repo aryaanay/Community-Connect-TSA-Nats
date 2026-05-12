@@ -175,7 +175,6 @@ export default function DocumentationPage() {
 
           {/* STUDENT COPYRIGHT CHECKLISTS PDF */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 style={h2Style}>Student Copyright Checklists</h2>
             <div className="rounded-2xl overflow-hidden border" style={{ borderColor: BORDER }}>
               <iframe
                 src="/TSA_Student_Copyright_Checklists_Final.pdf"
