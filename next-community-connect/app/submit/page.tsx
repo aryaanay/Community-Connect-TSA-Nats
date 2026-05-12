@@ -623,6 +623,16 @@ export default function SubmitPage() {
               </div>
             </div>
 
+            {user?.email === 'judges@tsa.com' && (
+              <div className="bg-amber-50 border border-amber-200 rounded-[var(--radius-md)] p-4 mb-8 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="font-outfit text-sm text-amber-800">
+                  <strong className="text-amber-900">Judge Demo Account</strong><br />
+                  The judge account (judges@tsa.com) is a demo-only account and cannot create a resource. It is not linked to a real email. To fully test this feature, create a free account using any real email on the sign-in page.
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
 
               <div>

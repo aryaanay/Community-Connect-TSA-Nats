@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users2, Search, Mail, UserPlus, Check, Globe, Lock, Edit3, Save, X } from 'lucide-react'
+import { Users2, Search, Mail, UserPlus, Check, Globe, Lock, Edit3, Save, X, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { useT } from '@/lib/useT'
@@ -142,6 +142,17 @@ export default function SocialPage() {
                   <textarea rows={2} value={form.bio} onChange={e => setForm(p => ({ ...p, bio: e.target.value }))}
                     placeholder={t('social.bio_ph')} className="w-full px-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35 resize-none"
                     style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.2)' }} />
+                  {user?.email === 'judges@tsa.com' && (
+                    <div className="rounded-xl p-3" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
+                      <div className="flex items-start gap-2">
+                        <AlertCircle size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                        <div className="font-outfit text-xs" style={{ color: 'rgba(245,158,11,0.9)' }}>
+                          <strong>Demo Account</strong><br />
+                          The judge account cannot create a saved profile. To fully test this feature, create a free account using any real email on the sign-in page.
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <button type="button" onClick={() => setForm(p => ({ ...p, is_public: !p.is_public }))}
                       className="flex items-center gap-1.5 font-outfit text-xs transition-colors"
