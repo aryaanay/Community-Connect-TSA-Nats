@@ -160,7 +160,7 @@ export function ResourceDirectory({
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
           {filteredResources.map((resource, index) => {
             const Icon = categoryIcons[resource.category]
             const expanded = expandedId === resource.id
@@ -172,10 +172,10 @@ export function ResourceDirectory({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-80px' }}
                 transition={{ delay: Math.min(index * 0.06, 0.24), duration: 0.45 }}
-                className="glass-panel spotlight-border overflow-hidden"
+                className="glass-panel spotlight-border overflow-hidden flex h-full flex-col"
               >
                 <div className="h-1.5 bg-gradient-to-r from-[var(--accent)] via-[var(--accent-strong)] to-[var(--accent-hot)]" />
-                <div className="p-6">
+                <div className="p-6 flex-1 flex flex-col">
                   <div className="mb-5 flex items-start justify-between gap-4">
                     <div className="flex gap-3">
                       <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/[0.12] text-[var(--foreground)]">
