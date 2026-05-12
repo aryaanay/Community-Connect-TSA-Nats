@@ -90,6 +90,26 @@ const hardcodedResources: ResourceCard[] = [
   { title: 'Imagine Housing', category: 'Community Projects', resourceIcon: Building2, description: 'Nonprofit providing affordable rental housing and resident services to low-income individuals and families in Eastside King County, including Bothell and Kenmore.', phone: '(425) 576-7000', email: 'info@imaginehousing.org', hours: 'Mon-Fri 9AM-5PM', location: 'Imagine Housing, 1901 Lind Ave SW, Renton WA 98057' },
   { title: 'Kenmore-Bothell Volunteer Fire Dept.', category: 'Volunteering', resourceIcon: Flame, description: 'The Northshore Fire Department welcomes community volunteers for auxiliary support, fire safety education, neighborhood emergency preparedness, and CERT training.', phone: '(425) 354-2700', email: 'info@northshorefire.com', hours: 'Administrative Mon-Fri 8AM-5PM', location: 'Northshore Fire, 6604 228th St SW, Mountlake Terrace WA 98043' },
   { title: 'Sound Generations (Senior Services)', category: 'Health', resourceIcon: Bus, description: 'Transportation, Meals on Wheels, caregiver support, and connection programs for older adults. Hyde Shuttle provides free or low-cost rides to medical appointments and grocery stores.', phone: '(206) 448-3110', email: 'info@soundgenerations.org', hours: 'Mon-Fri 8AM-5PM', location: 'Sound Generations, 2208 2nd Ave, Seattle WA 98121 (serves Northshore area)' },
+  { title: 'Eastside Legal Assistance Program', category: 'Community Projects', resourceIcon: Shield, description: 'Free civil legal assistance for low-income individuals on matters including housing, family law, benefits, and immigration. Walk-in clinics and appointment-based services available.', phone: '(425) 747-7274', email: 'info@elap.org', hours: 'Mon-Fri 9AM-5PM', location: 'ELAP, 1400 112th Ave SE, Bellevue WA 98004' },
+  { title: 'Kenmore City Library (KCLS)', category: 'Education', resourceIcon: BookOpen, description: 'Branch of King County Library System serving Kenmore and north Bothell residents. Offers children and teen programming, digital literacy classes, job search support, and community meeting spaces.', phone: '(425) 486-7811', email: 'askus@kcls.org', hours: 'Mon-Thu 10AM-8PM, Fri-Sat 10AM-6PM', location: 'Kenmore Library, 6400 NE 181st St, Kenmore WA 98028' },
+  { title: 'King County Housing Authority', category: 'Community Projects', resourceIcon: Home, description: 'Administers housing choice vouchers and affordable housing programs in King County. KCHA assists low-income families, seniors, and individuals with disabilities in securing stable housing.', phone: '(206) 574-1100', email: 'info@kcha.org', hours: 'Mon-Fri 8AM-5PM', location: 'KCHA, 600 Andover Park W, Tukwila WA 98188' },
+  { title: 'Treehouse (Foster Youth Support)', category: 'Education', resourceIcon: Award, description: 'Ensures foster youth have the essentials to succeed in school and life. Provides free school supplies, clothing, tutoring, scholarships, and mentorship for young people in foster care.', phone: '(206) 767-7000', email: 'info@treehouseforyouth.org', hours: 'Mon-Fri 8:30AM-4:30PM', location: 'Treehouse, 2100 24th Ave S, Seattle WA 98144' },
+  { title: 'Friends of Youth', category: 'Volunteering', resourceIcon: Users, description: 'Provides shelter, housing, and supportive services for homeless and at-risk youth ages 12-24. Volunteer mentors and life-skills coaches help young people build a stable future.', phone: '(425) 869-2650', email: 'info@friendsofyouth.org', hours: 'Mon-Fri 8:30AM-5PM', location: 'Friends of Youth, 16225 NE 87th St, Redmond WA 98052' },
+  { title: 'NAMI Greater Seattle', category: 'Health', resourceIcon: Heart, description: 'National Alliance on Mental Illness chapter offering free support groups, education programs, and mental health advocacy. Family and peer support for anyone affected by mental illness.', phone: '(206) 783-1536', email: 'info@namigreaterseattle.org', hours: 'Mon-Fri 9AM-5PM | Helpline: Mon-Fri 10AM-6PM', location: 'NAMI Greater Seattle, 4110 Roosevelt Way NE, Seattle WA 98105' },
+  { title: 'Sea Mar Community Health Centers', category: 'Health', resourceIcon: Stethoscope, description: 'Federally qualified health center offering medical, dental, and behavioral health services on a sliding-scale fee. Committed to serving Latino and underserved communities throughout Washington.', phone: '(206) 764-4700', email: 'info@seamar.org', hours: 'Mon-Fri 8AM-6PM | Selected sites Sat 8AM-4PM', location: 'Sea Mar, 1040 S Henderson St, Seattle WA 98108 (multiple Eastside locations)' },
+  { title: 'Compass Health', category: 'Health', resourceIcon: PhoneCall, description: 'Behavioral health services across northwest Washington including outpatient therapy, crisis services, residential treatment, and school-based support. No one is turned away for inability to pay.', phone: '(800) 584-3578', email: 'info@compasshealth.org', hours: 'Mon-Fri 8AM-5PM | Crisis line 24/7', location: 'Compass Health, 1631 Michigan Ave, Everett WA 98201 (regional offices)' },
+  { title: 'Washington STEM', category: 'Education', resourceIcon: GraduationCap, description: 'Statewide nonprofit expanding STEM education access for underserved students. Partners with schools, educators, and employers to build science, tech, engineering, and math pathways.', phone: '(360) 534-2355', email: 'info@washingtonstem.org', hours: 'Mon-Fri 8AM-5PM', location: 'Washington STEM, 1215 4th Ave Suite 1200, Seattle WA 98161' },
+  { title: 'Workforce Development Council of Seattle-King County', category: 'Career', resourceIcon: Briefcase, description: 'Connects job seekers with training, certifications, and employment services. Funds programs in healthcare, tech, construction, and other in-demand industries across King County.', phone: '(206) 448-0474', email: 'contact@seakingwdc.org', hours: 'Mon-Fri 8AM-5PM', location: 'WDC, 2003 Western Ave, Seattle WA 98121' },
+  { title: 'Bellevue College Continuing Education', category: 'Education', resourceIcon: GraduationCap, description: 'Non-credit and professional development courses open to the public. Offerings include business skills, technology, healthcare, language learning, and personal enrichment programs.', phone: '(425) 564-2263', email: 'continuinged@bellevuecollege.edu', hours: 'Mon-Fri 8AM-5PM', location: 'Bellevue College, 3000 Landerholm Circle SE, Bellevue WA 98007' },
+  { title: 'YWCA of Seattle-King County', category: 'Community Projects', resourceIcon: HeartHandshake, description: 'Empowers women, children, and families through domestic violence services, affordable housing, childcare, employment training, and racial justice programming across the region.', phone: '(206) 461-4888', email: 'info@ywcaworks.org', hours: 'Mon-Fri 8AM-5PM | Crisis line 24/7', location: 'YWCA, 1118 5th Ave, Seattle WA 98101' },
+  { title: 'Habitat for Humanity Seattle-King County', category: 'Volunteering', resourceIcon: Home, description: 'Build and repair homes alongside families in need. Volunteer opportunities every weekend including framing, painting, landscaping, and ReStore donation center operations.', phone: '(206) 453-2037', email: 'volunteer@habitatskc.org', hours: 'Build sites: Sat-Sun 8AM-4PM | ReStore: Mon-Sat 9AM-6PM', location: 'Habitat SKC, 560 Naches Ave SW, Renton WA 98057' },
+  { title: 'Refugee & Immigrant Services Northwest', category: 'Community Projects', resourceIcon: Users, description: 'Provides case management, English language classes, employment support, and legal advocacy for refugees and immigrants resettling in Snohomish and King County.', phone: '(425) 347-9471', email: 'info@risn.org', hours: 'Mon-Fri 9AM-5PM', location: 'RISN, 3320 Lombard Ave, Everett WA 98201' },
+  { title: 'Denali Center Adult Day Program', category: 'Health', resourceIcon: Bus, description: 'Structured daytime support for seniors and adults with disabilities. Provides socialization, health monitoring, meals, and therapeutic activities to help participants live at home longer.', phone: '(425) 823-2700', email: 'info@denalicenter.org', hours: 'Mon-Fri 7:30AM-5:30PM', location: 'Denali Center, 15901 Bothell-Everett Hwy, Mill Creek WA 98012' },
+  { title: 'Eastside Baby Corner', category: 'Volunteering', resourceIcon: HeartHandshake, description: 'Provides infant and toddler essentials including clothing, diapers, and gear to families in need. Volunteers sort donations and host drives to keep the community stocked year-round.', phone: '(425) 746-5282', email: 'info@eastsidebabycorner.org', hours: 'Mon-Fri 9AM-3PM | Volunteer Thu-Fri only', location: 'Eastside Baby Corner, 515 116th Ave NE, Bellevue WA 98004' },
+  { title: 'Northshore Utility District', category: 'Community Projects', resourceIcon: Building2, description: 'Provides water and sewer services to the Northshore area. Offers water-saving rebates, free conservation kits, and low-income assistance programs for qualifying residents.', phone: '(425) 487-1234', email: 'info@nud.net', hours: 'Mon-Fri 7:30AM-5PM', location: 'Northshore Utility District, 6830 NE 185th St, Kenmore WA 98028' },
+  { title: 'Eastside Adult Day Health', category: 'Health', resourceIcon: Stethoscope, description: 'Medical adult day services providing nursing care, therapy, personal care, and social programs for adults with complex health needs. Supports family caregivers with respite.', phone: '(425) 455-1936', email: 'info@eastsideadultday.com', hours: 'Mon-Fri 7AM-5:30PM', location: 'Eastside Adult Day Health, 1400 164th Ave SE, Bellevue WA 98008' },
+  { title: 'King County Metro Transit', category: 'Community Projects', resourceIcon: Bus, description: 'Public bus service connecting Bothell, Kenmore, and Woodinville to the greater Seattle area. ORCA card access, reduced fares for seniors and low-income riders, and paratransit services.', phone: '(206) 553-3000', email: 'kcmetro@kingcounty.gov', hours: 'Service 24/7 | Customer service Mon-Fri 8AM-5PM', location: 'Metro Transit, 201 S Jackson St, Seattle WA 98104' },
+  { title: 'Northshore Churches Food Pantry', category: 'Community Projects', resourceIcon: Leaf, description: 'Collaborative food distribution by local faith communities providing fresh produce, canned goods, and pantry staples to families experiencing food insecurity in the Northshore area.', phone: '(425) 481-7653', email: 'pantry@northshorechurches.org', hours: 'Tue & Thu 10AM-12PM, Sat 9AM-11AM', location: 'Bothell United Methodist Church, 9915 NE 180th St, Bothell WA 98011' },
 ]
 
 // ─── DB → card mapper ─────────────────────────────────────────────────────────
@@ -270,6 +290,7 @@ export default function ResourcesPage() {
   const [sortBy, setSortBy]                 = useState('default')
   const [expandedCard, setExpandedCard]     = useState<number | null>(null)
   const [showBackToTop, setShowBackToTop]   = useState(false)
+  const [showAll, setShowAll]               = useState(false)
   const [allResources, setAllResources]     = useState<ResourceCard[]>(hardcodedResources)
   const [loading, setLoading]               = useState(true)
   const [error, setError]                   = useState<string | null>(null)
@@ -373,6 +394,10 @@ export default function ResourcesPage() {
       return 0
     })
 
+  const INITIAL_SHOW = 9
+  const visibleResources = showAll ? filtered : filtered.slice(0, INITIAL_SHOW)
+  const hasMore = !showAll && filtered.length > INITIAL_SHOW
+
   return (
     <>
       <AnimatePresence>
@@ -429,7 +454,7 @@ export default function ResourcesPage() {
                   type="text"
                   placeholder="Search by name, description, or category..."
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={e => { setSearchQuery(e.target.value); setShowAll(false) }}
                   className="w-full px-5 py-4 rounded-2xl border font-dm-sans text-sm outline-none focus:border-sky-400 transition-all shadow-sm focus:shadow-md"
                   style={{ backgroundColor: d.inputBg, color: d.textDark, borderColor: d.border }}
                 />
@@ -450,7 +475,7 @@ export default function ResourcesPage() {
 
             <div className="flex flex-wrap gap-3">
               {categoryFilters.map(cat => (
-                <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
+                <button key={cat.id} onClick={() => { setActiveCategory(cat.id); setShowAll(false) }}
                   className={`px-6 py-3 rounded-2xl text-sm font-semibold transition-all shadow-md ${
                     activeCategory === cat.id
                       ? 'bg-sky-500 text-white shadow-sky-500/25 border border-sky-400'
@@ -500,7 +525,7 @@ export default function ResourcesPage() {
             </motion.div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filtered.map((resource, i) => {
+              {visibleResources.map((resource, i) => {
                 const Icon = resource.resourceIcon
 
                 return (
@@ -653,6 +678,39 @@ export default function ResourcesPage() {
                   </motion.div>
                 )
               })}
+            </div>
+          )}
+
+          {/* View More */}
+          {!loading && hasMore && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center gap-3 mt-10"
+            >
+              <p className="font-dm-sans text-sm" style={{ color: d.textBody }}>
+                Showing {INITIAL_SHOW} of {filtered.length} resources
+              </p>
+              <button
+                onClick={() => setShowAll(true)}
+                className="flex items-center gap-2 px-8 py-3 rounded-2xl font-outfit font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 active:scale-95 shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: 'white', boxShadow: '0 8px 24px rgba(14,165,233,0.35)' }}
+              >
+                View All {filtered.length} Resources
+                <ChevronDown size={16} />
+              </button>
+            </motion.div>
+          )}
+
+          {!loading && showAll && filtered.length > INITIAL_SHOW && (
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={() => { setShowAll(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-2xl font-outfit font-semibold text-sm transition-all"
+                style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', color: '#0ea5e9' }}
+              >
+                Show Fewer
+              </button>
             </div>
           )}
         </div>

@@ -16,9 +16,8 @@ function Card3D({ achievement }: { achievement: Achievement }) {
   const cardRef     = useRef<HTMLDivElement>(null)
   const animRef     = useRef<number>()
   const swayOrigin  = useRef(Date.now())
-  const currentX    = useRef(0)
-  const targetX     = useRef(0)
-  const targetY     = useRef(0)
+  const rotXRef     = useRef(0)
+  const rotYRef     = useRef(0)
   const [rotX, setRotX] = useState(0)
   const [rotY, setRotY] = useState(0)
   const [glare, setGlare]           = useState({ x: 50, y: 50 })
@@ -31,10 +30,6 @@ function Card3D({ achievement }: { achievement: Achievement }) {
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = cardRef.current?.getBoundingClientRect()
     if (!rect) return
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top  + rect.height / 2
-    targetX.current = -((e.clientY - cy) / (rect.height / 2)) * 20
-    targetY.current =  ((e.clientX - cx) / (rect.width  / 2)) * 20
     const gx = ((e.clientX - rect.left) / rect.width)  * 100
     const gy = ((e.clientY - rect.top)  / rect.height) * 100
     setGlare({ x: gx, y: gy })
@@ -45,18 +40,19 @@ function Card3D({ achievement }: { achievement: Achievement }) {
     const tick = () => {
       if (!flipped) {
         if (hovered) {
-          // Smooth mouse-follow
-          currentX.current += (targetX.current - currentX.current) * 0.1
-          const interpY = rotY + (targetY.current - rotY) * 0.1
-          setRotX(currentX.current)
-          setRotY(interpY)
+          // Lerp rotX to 0, rotY to nearest front-facing angle
+          rotXRef.current += (0 - rotXRef.current) * 0.1
+          const nearest = Math.round(rotYRef.current / 360) * 360
+          rotYRef.current += (nearest - rotYRef.current) * 0.07
+          setRotX(rotXRef.current)
+          setRotY(rotYRef.current)
         } else {
-          // Full 360° continuous spin
+          // Full 360° continuous spin at 65°/s
           const elapsed = (Date.now() - swayOrigin.current) / 1000
-          const spin = elapsed * 90
-          currentX.current += (0 - currentX.current) * 0.05
-          setRotX(currentX.current)
-          setRotY(spin)
+          rotYRef.current = elapsed * 65
+          rotXRef.current += (0 - rotXRef.current) * 0.05
+          setRotX(rotXRef.current)
+          setRotY(rotYRef.current)
         }
       }
       animRef.current = requestAnimationFrame(tick)
@@ -79,8 +75,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
         setHovered(false)
         setGlare({ x: 50, y: 50 })
         setFlashlight(f => ({ ...f, active: false }))
-        // Resume spin from current angle for continuity
-        swayOrigin.current = Date.now() - (rotY / 90) * 1000
+        swayOrigin.current = Date.now() - (rotYRef.current / 65) * 1000
       }}
       onClick={() => setFlipped(f => !f)}
     >
@@ -165,7 +160,7 @@ function Card3D({ achievement }: { achievement: Achievement }) {
 
             <p style={{ fontSize: 8.5, fontFamily: 'outfit,sans-serif',
               color: 'rgba(255,255,255,0.40)', textAlign: 'center', marginTop: 14 }}>
-              Click to flip · Hover for tilt
+              Click to flip
             </p>
           </div>
         </div>
