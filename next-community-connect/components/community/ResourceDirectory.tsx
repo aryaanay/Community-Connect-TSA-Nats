@@ -160,7 +160,7 @@ export function ResourceDirectory({
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 auto-rows-[34rem]">
           {filteredResources.map((resource, index) => {
             const Icon = categoryIcons[resource.category]
             const expanded = expandedId === resource.id
