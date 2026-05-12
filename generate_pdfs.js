@@ -780,18 +780,9 @@ function buildChecklistHTML() {
   const wlSize = (fs.statSync(workLogPath).size / 1024).toFixed(0)
   console.log(`  → ${workLogPath} (${wlSize} KB)`)
 
-  // Copyright Checklist PDF
-  console.log('Generating copyright checklist PDF…')
-  await page.setContent(buildChecklistHTML(), { waitUntil: 'domcontentloaded' })
-  const checklistPath = path.join(publicDir, 'TSA_Student_Copyright_Checklists.pdf')
-  await page.pdf({
-    path: checklistPath,
-    format: 'Letter',
-    printBackground: true,
-    margin: { top: '0', right: '0', bottom: '0', left: '0' },
-  })
-  const clSize = (fs.statSync(checklistPath).size / 1024).toFixed(0)
-  console.log(`  → ${checklistPath} (${clSize} KB)`)
+  // NOTE: TSA_Student_Copyright_Checklists.pdf is the official TSA form (real PDF).
+  // Do NOT regenerate it here — it is committed directly to public/ and must not be overwritten.
+  console.log('Skipping copyright checklist PDF (using official TSA form in public/).')
 
   await browser.close()
   console.log('Done.')
