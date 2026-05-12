@@ -174,7 +174,7 @@ export default function DocumentationPage() {
             <h2 style={h2Style}>Student Copyright Checklists</h2>
             <div className="rounded-2xl overflow-hidden border" style={{ borderColor: BORDER }}>
               <iframe
-                src="/TSA_Student_Copyright_Checklists.pdf"
+                src="/TSA_Student_Copyright_Checklists_Final.pdf"
                 title="TSA Student Copyright Checklists"
                 className="w-full"
                 style={{ height: '860px', border: 'none' }}
