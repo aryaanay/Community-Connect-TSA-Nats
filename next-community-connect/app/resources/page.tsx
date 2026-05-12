@@ -32,10 +32,12 @@ type ResourceCard = {
   resourceIcon: React.ElementType
   dbId?: string
   contactEmail?: string
+  userId?: string
 }
 
 type DbResource = {
   id: string
+  user_id?: string
   name: string
   category: string
   description: string
@@ -127,6 +129,7 @@ function dbToCard(r: DbResource): ResourceCard {
     resourceIcon: getIcon(r.category ?? ''),
     dbId:         r.id,
     contactEmail: r.email       ?? undefined,
+    userId:       r.user_id     ?? undefined,
   }
 }
 
@@ -317,7 +320,7 @@ export default function ResourcesPage() {
   }, [user])
 
   const isOwned = (r: ResourceCard) =>
-    !!(r.dbId && (ownedIds.has(r.dbId) || (user && r.contactEmail && r.contactEmail === user.email)))
+    !!(user && r.dbId && r.userId === user.id)
 
   const handleDeleteResource = async (dbId: string) => {
     setDeletingId(dbId)
@@ -351,7 +354,7 @@ export default function ResourcesPage() {
       try {
         const { data, error: dbError } = await supabase
           .from('resources')
-          .select('*')
+          .select('id, user_id, name, category, description, address, phone, email, hours, website_url, is_verified, is_featured, created_at')
           .order('created_at', { ascending: false })
 
         const dbCards = data ? (data as DbResource[]).map(r => dbToCard(r)) : []

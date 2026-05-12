@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ approved })
       }
 
-      // Vision model unavailable — approve by default so upload still works
-      return NextResponse.json({ approved: true })
+      // Vision model unavailable — reject by default for safety
+      return NextResponse.json({ approved: false, reason: 'Image moderation temporarily unavailable. Please try again later.' })
     }
 
     return NextResponse.json({ result: null })

@@ -77,6 +77,12 @@ export default function SocialPage() {
 
   const saveProfile = async () => {
     if (!user || !form.display_name.trim()) return
+
+    // Prevent judge account from creating profiles
+    if (user.email === 'judges@tsa.com') {
+      return // Silently fail - the banner already explains this
+    }
+
     setSaving(true)
     const payload = { user_id: user.id, email: user.email!, ...form }
     if (myProfile) {

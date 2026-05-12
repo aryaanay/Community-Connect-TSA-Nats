@@ -65,10 +65,11 @@ async function saveToSubmissions(data: FormData) {
   if (error) throw error
 }
 
-async function addToResources(data: FormData): Promise<string | null> {
+async function addToResources(data: FormData, userId: string): Promise<string | null> {
   const { data: inserted, error } = await supabase
     .from('resources')
     .insert({
+      user_id:    userId,
       name:        data.name,
       category:    data.category,
       description: data.description,
@@ -508,6 +509,12 @@ export default function SubmitPage() {
     e.preventDefault()
     if (!isSignedIn || !user?.id) { setShowAuthModal(true); return }
 
+    // Prevent judge account from submitting resources
+    if (user?.email === 'judges@tsa.com') {
+      setSubmitError('The judge demo account cannot create resources. Please create a free account using a real email address.')
+      return
+    }
+
     setIsLoading(true)
     setSubmitError('')
     setReviewState('submitting')
@@ -536,7 +543,7 @@ export default function SubmitPage() {
         unlock('submit_resource')
         markPageVisited('submit')
         if (review.approved) {
-          const resourceId = await addToResources(formData)
+          const resourceId = await addToResources(formData, user.id)
           if (resourceId && user?.id) {
             try {
               const key = `cc-my-resources-${user.id}`
