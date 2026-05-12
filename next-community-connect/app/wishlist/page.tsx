@@ -744,13 +744,13 @@ export default function DonatePage() {
       </AnimatePresence>
 
       {/* ── STATS BAR ── */}
-      <section className="wishlist-stats bg-white border-b border-slate-100">
+      <section className="wishlist-stats border-b" style={{ backgroundColor: dark ? '#011629' : 'white', borderColor: dark ? 'rgba(36,153,214,0.15)' : '#f1f5f9' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x divide-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x" style={{ borderColor: dark ? 'rgba(36,153,214,0.15)' : '#f1f5f9' }}>
             {[
-              { value: totalRaised, prefix: '$', label: 'Total Raised', sub: `across ${STATIC_CAUSES.length} active causes`, icon: <TrendingUp size={18} />, color: '#008fb5' },
-              { value: totalSupporters, prefix: '', label: 'Community Donors', sub: 'and growing every day', icon: <Users size={18} />, color: '#008fb5' },
-              { value: overallPercent, prefix: '', suffix: '%', label: 'Overall Goal Progress', sub: `$${totalGoal.toLocaleString()} total target`, icon: <Heart size={18} />, color: '#008fb5' },
+              { value: totalRaised, prefix: '$', label: 'Total Raised', sub: `across ${STATIC_CAUSES.length} active causes`, icon: <TrendingUp size={18} /> },
+              { value: totalSupporters, prefix: '', label: 'Community Donors', sub: 'and growing every day', icon: <Users size={18} /> },
+              { value: overallPercent, prefix: '', suffix: '%', label: 'Overall Goal Progress', sub: `$${totalGoal.toLocaleString()} total target`, icon: <Heart size={18} /> },
             ].map((stat, i) => (
               <motion.div key={stat.label}
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
@@ -758,17 +758,17 @@ export default function DonatePage() {
                 className="px-8 flex items-center gap-5"
               >
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${stat.color}12`, color: stat.color }}>
+                  style={{ backgroundColor: dark ? 'rgba(36,153,214,0.12)' : '#EBF7FF', color: dark ? '#90D4F7' : '#044069' }}>
                   {dbLoading ? <Loader2 size={18} className="animate-spin opacity-50" /> : stat.icon}
                 </div>
                 <div>
-                  <div style={{ fontFamily: 'var(--font-space)', fontSize: '32px', fontWeight: 600, color: '#008fb5', lineHeight: 1, letterSpacing: '-1px' }}>
+                  <div style={{ fontFamily: 'var(--font-space)', fontSize: '32px', fontWeight: 700, color: dark ? '#90D4F7' : '#044069', lineHeight: 1, letterSpacing: '-1px' }}>
                     {stat.prefix}<AnimatedNumber value={stat.value} />{stat.suffix ?? ''}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-space)', fontSize: '14px', fontWeight: 600, color: stat.color, marginTop: '4px', letterSpacing: '-0.2px' }}>
+                  <div style={{ fontFamily: 'var(--font-space)', fontSize: '14px', fontWeight: 600, color: dark ? '#56BBF0' : '#085D8A', marginTop: '4px', letterSpacing: '-0.2px' }}>
                     {stat.label}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: tc.m, marginTop: '2px' }}>
+                  <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dark ? '#56BBF0' : '#64748b', marginTop: '2px' }}>
                     {dbLoading ? 'Loading live data…' : stat.sub}
                   </div>
                 </div>
@@ -779,22 +779,22 @@ export default function DonatePage() {
       </section>
 
       {/* ── CAUSE CARDS ── */}
-      <section className="wishlist-causes py-24 lg:py-32 bg-slate-50">
+      <section className="wishlist-causes py-24 lg:py-32" style={{ backgroundColor: dark ? '#010e1a' : '#f8fafc' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.5 }} className="mb-16">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={14} style={{ color: '#085D8A' }} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#085D8A' }}>
+              <Sparkles size={14} style={{ color: dark ? '#56BBF0' : '#085D8A' }} />
+              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: dark ? '#56BBF0' : '#085D8A' }}>
                 Active Causes
               </span>
             </div>
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-              <h2 style={{ fontFamily: 'var(--font-space)', fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 600, color: '#19619f', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
+              <h2 style={{ fontFamily: 'var(--font-space)', fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 600, color: dark ? '#C6EBFF' : '#044069', lineHeight: 1.05, letterSpacing: '-0.5px' }}>
                 Choose Where<br />to Give.
               </h2>
-              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', fontWeight: 300, color: '#19619f', maxWidth: '260px', lineHeight: 1.7 }} className="lg:text-right">
+              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', fontWeight: 400, color: dark ? '#90D4F7' : '#085D8A', maxWidth: '260px', lineHeight: 1.7 }} className="lg:text-right">
                 100% of donations go directly to local organizations. No platform fees.
               </p>
             </div>

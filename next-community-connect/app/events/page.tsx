@@ -1007,39 +1007,41 @@ export default function EventsPage() {
           </motion.div>
 
           {/* First 4 -bento */}
+          {allEvents.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
 
             {/* Card 1 -tall dark hero */}
+            {allEvents[0] && (
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: 0 }}
-              onClick={() => setSelected(events[0])}
+              onClick={() => setSelected(allEvents[0])}
               className="lg:col-span-5 lg:row-span-2 group relative rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between"
-              style={{ minHeight: '480px', backgroundColor: events[0].color, boxShadow: '0 4px 24px rgba(4,64,105,0.12)' }}
+              style={{ minHeight: '480px', backgroundColor: allEvents[0].color, boxShadow: '0 4px 24px rgba(4,64,105,0.12)' }}
             >
               <div className="p-8">
                 <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-full px-3 py-1.5 mb-6">
                   <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, color: 'white', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                    {events[0].month} {events[0].day}
+                    {allEvents[0].month} {allEvents[0].day}
                   </span>
                 </div>
                 <div className="mb-6 group-hover:scale-110 transition-transform duration-500 origin-left w-fit">
-                  <EventIconDisplay id={events[0].id} dark={true} size="lg" />
+                  <EventIconDisplay id={allEvents[0].id} dark={true} size="lg" />
                 </div>
                 <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '10px' }}>
-                  {events[0].category}
+                  {allEvents[0].category}
                 </span>
                 <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(22px, 2.5vw, 30px)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: '12px', letterSpacing: '-0.5px' }}>
-                  {events[0].title}
+                  {allEvents[0].title}
                 </h3>
                 <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                  {events[0].description}
+                  {allEvents[0].description}
                 </p>
               </div>
               <div className="border-t border-white/10 px-8 py-5 flex flex-col gap-2">
-                {[{ icon: '🕐', text: events[0].time }, { icon: '📍', text: events[0].location.split(',')[0] }, { icon: '👥', text: events[0].audience }].map(item => (
+                {[{ icon: '🕐', text: allEvents[0].time }, { icon: '📍', text: allEvents[0].location.split(',')[0] }, { icon: '👥', text: allEvents[0].audience }].map(item => (
                   <div key={item.text} className="flex items-center gap-2">
                     <span className="text-xs">{item.icon}</span>
                     <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', fontWeight: 400, color: 'rgba(255,255,255,0.45)' }}>{item.text}</span>
@@ -1047,97 +1049,105 @@ export default function EventsPage() {
                 ))}
               </div>
             </motion.div>
+            )}
 
             {/* Card 2 */}
+            {allEvents[1] && (
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: 0.1 }}
-              onClick={() => setSelected(events[1])}
+              onClick={() => setSelected(allEvents[1])}
               className="lg:col-span-7 event-light-bg group relative rounded-2xl overflow-hidden cursor-pointer border"
-              style={{ minHeight: '220px', backgroundColor: events[1].colorLight, borderColor: '#D4E8F4', boxShadow: '0 2px 12px rgba(4,64,105,0.06)' }}
+              style={{ minHeight: '220px', backgroundColor: allEvents[1].colorLight, borderColor: '#D4E8F4', boxShadow: '0 2px 12px rgba(4,64,105,0.06)' }}
             >
               <div className="p-7 flex h-full">
                 <div className="flex-1">
-                  <div className="inline-flex items-center gap-1.5 border rounded-full px-3 py-1.5 mb-4" style={{ borderColor: `${events[1].color}25`, backgroundColor: `${events[1].color}08` }}>
-                    <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: events[1].color }}>
-                      {events[1].month} {events[1].day}
+                  <div className="inline-flex items-center gap-1.5 border rounded-full px-3 py-1.5 mb-4" style={{ borderColor: `${allEvents[1].color}25`, backgroundColor: `${allEvents[1].color}08` }}>
+                    <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: allEvents[1].color }}>
+                      {allEvents[1].month} {allEvents[1].day}
                     </span>
                   </div>
-                  <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(18px, 2vw, 24px)', fontWeight: 800, color: events[1].color, lineHeight: 1.2, marginBottom: '10px' }}>
-                    {events[1].title}
+                  <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: 'clamp(18px, 2vw, 24px)', fontWeight: 800, color: allEvents[1].color, lineHeight: 1.2, marginBottom: '10px' }}>
+                    {allEvents[1].title}
                   </h3>
-                  <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', fontWeight: 300, color: `${events[1].color}90`, lineHeight: 1.7, marginBottom: '16px' }}>
-                    {events[1].description}
+                  <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', fontWeight: 300, color: `${allEvents[1].color}90`, lineHeight: 1.7, marginBottom: '16px' }}>
+                    {allEvents[1].description}
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    {[events[1].time, events[1].location.split(',')[0]].map(t => (
-                      <span key={t} style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: `${events[1].color}60` }}>{t}</span>
+                    {[allEvents[1].time, allEvents[1].location.split(',')[0]].map(t => (
+                      <span key={t} style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: `${allEvents[1].color}60` }}>{t}</span>
                     ))}
                   </div>
                 </div>
                 <div className="ml-6 flex-shrink-0 self-start group-hover:scale-110 transition-transform duration-500">
-                  <EventIconDisplay id={events[1].id} dark={false} size="lg" />
+                  <EventIconDisplay id={allEvents[1].id} dark={false} size="lg" />
                 </div>
               </div>
             </motion.div>
+            )}
 
             {/* Card 3 */}
+            {allEvents[2] && (
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: 0.15 }}
-              onClick={() => setSelected(events[2])}
+              onClick={() => setSelected(allEvents[2])}
               className="lg:col-span-4 group relative rounded-2xl overflow-hidden cursor-pointer"
-              style={{ minHeight: '220px', backgroundColor: events[2].color, boxShadow: '0 4px 20px rgba(4,64,105,0.15)' }}
+              style={{ minHeight: '220px', backgroundColor: allEvents[2].color, boxShadow: '0 4px 20px rgba(4,64,105,0.15)' }}
             >
               <div className="p-6 h-full flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between mb-4">
                     <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/20 rounded-full px-3 py-1">
                       <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'white' }}>
-                        {events[2].month} {events[2].day}
+                        {allEvents[2].month} {allEvents[2].day}
                       </span>
                     </div>
-                    <EventIconDisplay id={events[2].id} dark={true} size="sm" />
+                    <EventIconDisplay id={allEvents[2].id} dark={true} size="sm" />
                   </div>
-                  <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: '18px', fontWeight: 800, color: 'white', lineHeight: 1.2 }}>{events[2].title}</h3>
+                  <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: '18px', fontWeight: 800, color: 'white', lineHeight: 1.2 }}>{allEvents[2].title}</h3>
                 </div>
                 <div className="flex flex-col gap-1.5 mt-4">
-                  <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={10} /> {events[2].time}</span>
-                  <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPinIcon size={10} /> {events[2].location.split(',')[0]}</span>
+                  <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={10} /> {allEvents[2].time}</span>
+                  <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPinIcon size={10} /> {allEvents[2].location.split(',')[0]}</span>
                 </div>
               </div>
             </motion.div>
+            )}
 
             {/* Card 4 */}
+            {allEvents[3] && (
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: 0.2 }}
-              onClick={() => setSelected(events[3])}
+              onClick={() => setSelected(allEvents[3])}
               className="lg:col-span-3 event-light-bg group relative rounded-2xl overflow-hidden cursor-pointer border"
-              style={{ minHeight: '220px', backgroundColor: events[3].colorLight, borderColor: '#D4E8F4', boxShadow: '0 2px 12px rgba(4,64,105,0.06)' }}
+              style={{ minHeight: '220px', backgroundColor: allEvents[3].colorLight, borderColor: '#D4E8F4', boxShadow: '0 2px 12px rgba(4,64,105,0.06)' }}
             >
               <div className="p-6 h-full flex flex-col justify-between">
                 <div>
                   <div className="mb-4">
-                    <EventIconDisplay id={events[3].id} dark={false} size="sm" />
+                    <EventIconDisplay id={allEvents[3].id} dark={false} size="sm" />
                   </div>
-                  <div className="inline-flex items-center gap-1.5 border rounded-full px-3 py-1 mb-3" style={{ borderColor: `${events[3].color}25`, backgroundColor: `${events[3].color}08` }}>
-                    <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: events[3].color }}>
-                      {events[3].month} {events[3].day}
+                  <div className="inline-flex items-center gap-1.5 border rounded-full px-3 py-1 mb-3" style={{ borderColor: `${allEvents[3].color}25`, backgroundColor: `${allEvents[3].color}08` }}>
+                    <span style={{ fontFamily: 'var(--font-space)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: allEvents[3].color }}>
+                      {allEvents[3].month} {allEvents[3].day}
                     </span>
                   </div>
-                  <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: '16px', fontWeight: 800, color: events[3].color, lineHeight: 1.25 }}>{events[3].title}</h3>
+                  <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: '16px', fontWeight: 800, color: allEvents[3].color, lineHeight: 1.25 }}>{allEvents[3].title}</h3>
                 </div>
-                <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: `${events[3].color}55` }}>📍 {events[3].location.split(',')[0]}</span>
+                <span style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: `${allEvents[3].color}55` }}>📍 {allEvents[3].location.split(',')[0]}</span>
               </div>
             </motion.div>
+            )}
           </div>
+          )}
 
           {/* Extra events (shown when showAll) */}
           <AnimatePresence>
@@ -1150,7 +1160,7 @@ export default function EventsPage() {
                 className="overflow-hidden"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-                  {events.slice(4).map((event, i) => (
+                  {allEvents.slice(4).map((event, i) => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -1190,7 +1200,7 @@ export default function EventsPage() {
               className="flex items-center gap-2 px-8 py-4 rounded-2xl border-2 border-sky-300 text-sky-700 font-bold hover:bg-sky-50 transition-all"
               style={{ fontFamily: 'var(--font-syne)', fontSize: '14px' }}
             >
-              {showAll ? t('events.show_less') : t('events.see_all').replace('{n}', String(events.length))}
+              {showAll ? t('events.show_less') : t('events.see_all').replace('{n}', String(allEvents.length))}
             </motion.button>
           </div>
 

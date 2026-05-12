@@ -52,7 +52,7 @@ const TestimonialCarousel = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "min-h-[520px] w-full flex items-center justify-center py-8",
+          "min-h-[420px] w-full flex items-center justify-center py-2",
           className
         )}
         {...props}

@@ -44,6 +44,15 @@ const STEPS = [
     link: { label: 'Open Map', href: '/dashboard/map' },
   },
   {
+    emoji: '🙌',
+    badge: 'Community Favors',
+    title: 'Ask for Help or Offer a Hand',
+    body: 'Need a ride? Offering lawn care? Community Favors is a local bulletin board where neighbors post small tasks and requests. Browse open favors, mark yourself as helping, and post your own, with optional pay and contact details.',
+    accent: '#E85D26',
+    accentBg: 'rgba(232,93,38,0.12)',
+    link: { label: 'Browse Favors', href: '/dashboard/favors' },
+  },
+  {
     emoji: '🔍',
     badge: 'Lost & Found',
     title: 'Community Lost & Found',
@@ -69,6 +78,15 @@ const STEPS = [
     accent: '#A78BFA',
     accentBg: 'rgba(167,139,250,0.12)',
     link: { label: 'Browse Groups', href: '/dashboard/groups' },
+  },
+  {
+    emoji: '💛',
+    badge: 'Donate',
+    title: 'Support Local Causes',
+    body: 'Donate directly to curated Bothell causes: the food bank, youth mentorship, senior companions, park restoration, and more. Every dollar goes to the organization, with zero platform fees. See live totals and track your impact.',
+    accent: '#B83A6A',
+    accentBg: 'rgba(184,58,106,0.12)',
+    link: { label: 'Donate to a Cause', href: '/wishlist' },
   },
   {
     emoji: '🏆',

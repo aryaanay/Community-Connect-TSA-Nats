@@ -53,27 +53,7 @@ const workLogEntries = [
 ]
 
 // ─── Copyright Checklist Data ─────────────────────────────────────────────────
-
-const checklistItems = [
-  {
-    question: '1. Did you use any copyrighted images, photos, graphics, or artwork on your website?',
-    answer: 'YES',
-    note: 'However, all images used are either licensed under Creative Commons (CC0 / CC BY), sourced from royalty-free stock libraries (Unsplash, Pexels), or are original assets created by the team. No copyrighted images were used without proper authorization.',
-    initials: 'SP, AA, AK, NS, VM, GM',
-  },
-  {
-    question: '2. Did you use any copyrighted music, audio, or video on your website?',
-    answer: 'YES',
-    note: 'All audio/video elements used are either original recordings, royalty-free, or licensed for educational use. No commercially copyrighted media was incorporated without an applicable license.',
-    initials: 'SP, AA, AK, NS, VM, GM',
-  },
-  {
-    question: '3. Did you use any copyrighted text, written content, or literary works on your website?',
-    answer: 'NO',
-    note: 'All written content was authored by team members. Names, testimonials, and personas are fictional and created for competition demonstration purposes only.',
-    initials: 'SP, AA, AK, NS, VM, GM',
-  },
-]
+// Format matches the actual TSA Student Copyright Checklist form
 
 // ─── HTML Generators ──────────────────────────────────────────────────────────
 
@@ -381,341 +361,400 @@ function buildWorkLogHTML() {
 }
 
 function buildChecklistHTML() {
-  const items = checklistItems.map((item, i) => `
-    <div class="checklist-item">
-      <div class="q-header">
-        <span class="q-num">Q${i + 1}</span>
-        <span class="q-text">${item.question}</span>
-      </div>
-      <div class="answer-row">
-        <div class="answer-box ${item.answer === 'YES' ? 'yes' : 'no'}">
-          <div class="answer-check">${item.answer === 'YES' ? '✓' : '✗'}</div>
-          <div class="answer-label">${item.answer}</div>
-        </div>
-        <div class="answer-note">
-          <div class="note-label">Explanation</div>
-          <div class="note-text">${item.note}</div>
-        </div>
-      </div>
-      <div class="initials-row">
-        <span class="initials-label">Team Initials:</span>
-        <span class="initials-value">${item.initials}</span>
-      </div>
-    </div>
-  `).join('')
-
+  // Faithful reproduction of the TSA Student Copyright Checklist form
+  // Q1: Music — YES used, NO copyrighted → Provision 1B
+  // Q2: Graphics — YES used, NO copyrighted → Provision 2B
+  // Q3: Thoughts/Research — NO used
+  // Advisor: Smith
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Inter', Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background: #ffffff;
-    color: #1a202c;
-    font-size: 10px;
-    line-height: 1.5;
+    color: #000000;
+    font-size: 10pt;
+    line-height: 1.4;
   }
-  .cover {
-    background: linear-gradient(135deg, #0c1a2e 0%, #0e2a4a 100%);
-    color: white;
-    padding: 56px 60px 48px;
+  .page {
+    padding: 36px 48px 32px;
+    max-width: 760px;
+    margin: 0 auto;
   }
-  .cover-badge {
-    display: inline-block;
-    background: rgba(56,189,248,0.15);
-    border: 1px solid rgba(56,189,248,0.4);
-    color: #7dd3fc;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 20px;
-    margin-bottom: 22px;
-  }
-  .cover h1 {
-    font-size: 34px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 8px;
-  }
-  .cover h1 span { color: #38bdf8; }
-  .cover .subtitle {
-    font-size: 12px;
-    color: rgba(255,255,255,0.55);
-    max-width: 480px;
-    line-height: 1.6;
-  }
-  .cover-rule {
-    margin: 30px 0;
-    border: none;
-    border-top: 1px solid rgba(255,255,255,0.12);
-  }
-  .cover-info {
-    display: flex;
-    gap: 40px;
-    font-size: 9px;
-  }
-  .info-item .info-label {
-    color: rgba(255,255,255,0.4);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-    margin-bottom: 3px;
-  }
-  .info-item .info-val {
-    color: white;
-    font-weight: 600;
-    font-size: 11px;
-  }
-  .content {
-    padding: 36px 60px 48px;
-  }
-  .intro-box {
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-left: 4px solid #0ea5e9;
-    border-radius: 8px;
-    padding: 16px 18px;
-    margin-bottom: 32px;
-    font-size: 9.5px;
-    color: #0c4a6e;
-    line-height: 1.6;
-  }
-  .intro-box strong { color: #0369a1; }
-  .section-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #0c1a2e;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e2e8f0;
-  }
-  .checklist-item {
-    margin-bottom: 24px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .q-header {
-    background: #f8fafc;
-    padding: 14px 18px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .q-num {
-    flex-shrink: 0;
-    background: #0e2a4a;
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .q-text {
-    font-size: 10px;
-    font-weight: 600;
-    color: #1e293b;
-    line-height: 1.5;
-  }
-  .answer-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-  }
-  .answer-box {
-    flex-shrink: 0;
-    width: 90px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 0;
-    border-right: 1px solid #e2e8f0;
-  }
-  .answer-box.yes { background: #f0fdf4; }
-  .answer-box.no  { background: #fef2f2; }
-  .answer-check {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .answer-box.yes .answer-check { color: #16a34a; }
-  .answer-box.no  .answer-check { color: #dc2626; }
-  .answer-label {
-    font-size: 10px;
-    font-weight: 700;
+  /* ── Header ── */
+  .appendix-label {
+    font-size: 9pt;
+    font-weight: bold;
     letter-spacing: 0.08em;
-  }
-  .answer-box.yes .answer-label { color: #15803d; }
-  .answer-box.no  .answer-label { color: #b91c1c; }
-  .answer-note {
-    flex: 1;
-    padding: 16px 18px;
-  }
-  .note-label {
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #64748b;
+    color: #333;
+    border-bottom: 2px solid #000;
+    padding-bottom: 4px;
     margin-bottom: 6px;
   }
-  .note-text {
-    font-size: 9.5px;
-    color: #374151;
-    line-height: 1.6;
+  .form-title {
+    font-size: 16pt;
+    font-weight: bold;
+    margin-bottom: 2px;
   }
-  .initials-row {
-    padding: 10px 18px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
+  .form-subtitle {
+    font-size: 9pt;
+    color: #444;
+    margin-bottom: 14px;
+  }
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    font-size: 9pt;
+    margin-bottom: 14px;
+    border: 1px solid #bbb;
+    padding: 8px 12px;
+    background: #f9f9f9;
+  }
+  .header-meta .field { display: flex; flex-direction: column; }
+  .field-label { font-size: 7.5pt; color: #666; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1px; }
+  .field-value { font-weight: bold; font-size: 9.5pt; }
+  /* ── Instructions ── */
+  .instructions {
+    font-size: 8.5pt;
+    color: #333;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-left: 3px solid #555;
+    padding: 8px 12px;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  /* ── Section heading ── */
+  .section-head {
+    font-size: 10pt;
+    font-weight: bold;
+    background: #222;
+    color: white;
+    padding: 5px 10px;
+    margin-bottom: 0;
+  }
+  /* ── Question blocks ── */
+  .q-block {
+    border: 1px solid #bbb;
+    border-top: none;
+    margin-bottom: 0;
+  }
+  .q-block + .q-block { border-top: none; }
+  .q-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #ddd;
+  }
+  .q-row:last-child { border-bottom: none; }
+  .q-num-cell {
+    width: 30px;
+    min-width: 30px;
+    background: #444;
+    color: white;
+    font-weight: bold;
+    font-size: 10pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .q-content {
+    flex: 1;
+    padding: 10px 12px;
+  }
+  .q-text {
+    font-size: 9.5pt;
+    font-weight: bold;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .yn-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .cb-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9.5pt;
+  }
+  .cb {
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid #333;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10pt;
+    font-weight: bold;
+    flex-shrink: 0;
+    background: white;
+  }
+  .cb.checked { background: #000; color: white; font-size: 9pt; }
+  .sub-q {
+    font-size: 9pt;
+    color: #222;
+    margin-top: 6px;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+  .provision-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 8.5px;
+    margin-top: 6px;
+    font-size: 8.5pt;
   }
-  .initials-label {
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 8px;
+  .provision-label { color: #555; }
+  .provision-box {
+    border: 1px solid #888;
+    padding: 1px 8px;
+    font-weight: bold;
+    font-size: 9pt;
+    background: #f0f0f0;
+    min-width: 30px;
+    text-align: center;
   }
-  .initials-value {
-    color: #0369a1;
-    font-weight: 600;
+  /* ── Initials row ── */
+  .initials-row {
+    border-top: 1px solid #ddd;
+    background: #fafafa;
+    padding: 5px 12px;
+    font-size: 8pt;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
+  .initials-label { color: #555; font-style: italic; }
+  .initials-boxes { display: flex; gap: 6px; }
+  .initials-cell {
+    border: 1px solid #999;
+    width: 32px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8.5pt;
+    font-weight: bold;
+    background: white;
+    font-style: normal;
+  }
+  /* ── Advisor section ── */
   .advisor-section {
-    margin-top: 36px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid #bbb;
   }
-  .advisor-header {
-    background: #0e2a4a;
+  .advisor-head {
+    background: #222;
     color: white;
-    padding: 12px 18px;
-    font-size: 10px;
-    font-weight: 600;
+    font-weight: bold;
+    font-size: 9.5pt;
+    padding: 5px 10px;
   }
   .advisor-body {
-    padding: 20px 18px;
+    padding: 14px 12px 10px;
+  }
+  .sig-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: 2fr 1fr 1.5fr 1.5fr;
+    gap: 16px 20px;
+    margin-bottom: 8px;
   }
-  .sig-field {
-    border-bottom: 1px solid #94a3b8;
-    padding-bottom: 6px;
-    margin-bottom: 4px;
-    min-height: 30px;
+  .sig-item {}
+  .sig-line {
+    border-bottom: 1px solid #444;
+    height: 26px;
+    margin-bottom: 3px;
+    padding-left: 4px;
+    font-size: 9pt;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 2px;
   }
-  .sig-label {
-    font-size: 8px;
-    color: #64748b;
+  .sig-name { font-weight: bold; font-style: italic; font-size: 9.5pt; }
+  .sig-sublabel {
+    font-size: 7.5pt;
+    color: #666;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    margin-top: 4px;
+    letter-spacing: 0.05em;
   }
   .advisor-note {
-    padding: 12px 18px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
-    font-size: 8.5px;
-    color: #64748b;
+    font-size: 8pt;
+    color: #555;
     line-height: 1.5;
+    border-top: 1px solid #ddd;
+    padding-top: 8px;
+    margin-top: 8px;
   }
+  /* ── Footer ── */
   .footer {
-    text-align: center;
-    padding: 16px 60px;
-    border-top: 1px solid #e2e8f0;
-    font-size: 8px;
-    color: #94a3b8;
-    margin-top: 24px;
+    margin-top: 18px;
+    border-top: 1px solid #ccc;
+    padding-top: 6px;
+    font-size: 7.5pt;
+    color: #888;
+    display: flex;
+    justify-content: space-between;
   }
 </style>
 </head>
 <body>
+<div class="page">
 
-<div class="cover">
-  <div class="cover-badge">TSA Webmaster 2026 — Technology Student Association</div>
-  <h1>Student Copyright<br><span>Checklist</span></h1>
-  <div class="subtitle">
-    This checklist certifies that all digital media, text, and content used in the
-    Community Connect website was properly licensed, original, or used under applicable
-    educational exemptions in compliance with TSA competition requirements.
-  </div>
-  <hr class="cover-rule">
-  <div class="cover-info">
-    <div class="info-item">
-      <div class="info-label">Project</div>
-      <div class="info-val">Community Connect</div>
-    </div>
-    <div class="info-item">
-      <div class="info-label">Competition</div>
-      <div class="info-val">TSA Webmaster 2026</div>
-    </div>
-    <div class="info-item">
-      <div class="info-label">Team Members</div>
-      <div class="info-val">SP · AA · AK · NS · VM · GM</div>
-    </div>
-    <div class="info-item">
-      <div class="info-label">Date Completed</div>
-      <div class="info-val">May 12, 2026</div>
-    </div>
-  </div>
-</div>
+  <div class="appendix-label">Forms Appendix</div>
+  <div class="form-title">TSA Student Copyright Checklist</div>
+  <div class="form-subtitle">Technology Student Association — Webmaster Event</div>
 
-<div class="content">
-  <div class="intro-box">
-    <strong>Instructions:</strong> For each question, the team has indicated whether copyrighted material of that type was used on the website. Where the answer is <strong>YES</strong>, an explanation of the applicable license or exemption is provided. All team members have reviewed and initialed each response to confirm accuracy.
+  <div class="header-meta">
+    <div class="field"><span class="field-label">Project / Website</span><span class="field-value">Community Connect</span></div>
+    <div class="field"><span class="field-label">Competition Year</span><span class="field-value">2026</span></div>
+    <div class="field"><span class="field-label">Team Members (Initials)</span><span class="field-value">SP &nbsp;AA &nbsp;AK &nbsp;NS &nbsp;VM &nbsp;GM</span></div>
+    <div class="field"><span class="field-label">Date Completed</span><span class="field-value">May 12, 2026</span></div>
   </div>
 
-  <div class="section-title">Copyright Compliance Questions</div>
+  <div class="instructions">
+    <strong>Instructions:</strong> For each type of media listed below, check YES or NO to indicate whether that type of content was used on the website.
+    If YES, answer the follow-up question and identify the applicable copyright provision. All team members must initial each completed row. The faculty advisor must sign at the bottom.
+  </div>
 
-  ${items}
+  <!-- ── Section header ── -->
+  <div class="section-head">Section 1 — Copyrighted Media Inventory</div>
 
+  <!-- ── Q1: Music / Audio ── -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num-cell">1</div>
+      <div class="q-content">
+        <div class="q-text">Did your website include any music, audio recordings, or sound effects?</div>
+        <div class="yn-row">
+          <div class="cb-group"><div class="cb checked">✓</div> YES</div>
+          <div class="cb-group"><div class="cb"></div> NO</div>
+        </div>
+        <div class="sub-q">If YES — Was any of the music/audio copyrighted material not owned by the team?</div>
+        <div class="yn-row">
+          <div class="cb-group"><div class="cb"></div> YES</div>
+          <div class="cb-group"><div class="cb checked">✓</div> NO — All audio was royalty-free or original</div>
+        </div>
+        <div class="provision-row">
+          <span class="provision-label">Applicable provision:</span>
+          <div class="provision-box">1B</div>
+          <span style="font-size:8pt;color:#555;">(Royalty-free / license-clear media — no copyrighted audio used)</span>
+        </div>
+      </div>
+    </div>
+    <div class="initials-row">
+      <span class="initials-label">Team initials:</span>
+      <div class="initials-boxes">
+        <div class="initials-cell">SP</div>
+        <div class="initials-cell">AA</div>
+        <div class="initials-cell">AK</div>
+        <div class="initials-cell">NS</div>
+        <div class="initials-cell">VM</div>
+        <div class="initials-cell">GM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Q2: Graphics / Images ── -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num-cell">2</div>
+      <div class="q-content">
+        <div class="q-text">Did your website include any photographs, graphics, illustrations, or visual artwork?</div>
+        <div class="yn-row">
+          <div class="cb-group"><div class="cb checked">✓</div> YES</div>
+          <div class="cb-group"><div class="cb"></div> NO</div>
+        </div>
+        <div class="sub-q">If YES — Was any of the graphics/imagery copyrighted material not owned by the team?</div>
+        <div class="yn-row">
+          <div class="cb-group"><div class="cb"></div> YES</div>
+          <div class="cb-group"><div class="cb checked">✓</div> NO — All images are CC0, royalty-free stock, or team-created</div>
+        </div>
+        <div class="provision-row">
+          <span class="provision-label">Applicable provision:</span>
+          <div class="provision-box">2B</div>
+          <span style="font-size:8pt;color:#555;">(Public domain / CC0 / team-original graphics — no copyrighted images used)</span>
+        </div>
+      </div>
+    </div>
+    <div class="initials-row">
+      <span class="initials-label">Team initials:</span>
+      <div class="initials-boxes">
+        <div class="initials-cell">SP</div>
+        <div class="initials-cell">AA</div>
+        <div class="initials-cell">AK</div>
+        <div class="initials-cell">NS</div>
+        <div class="initials-cell">VM</div>
+        <div class="initials-cell">GM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Q3: Thoughts / Research / Literary ── -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num-cell">3</div>
+      <div class="q-content">
+        <div class="q-text">Did your website reproduce any copyrighted written content, research, or intellectual property authored by others (e.g., excerpts, quotes, published articles)?</div>
+        <div class="yn-row">
+          <div class="cb-group"><div class="cb"></div> YES</div>
+          <div class="cb-group"><div class="cb checked">✓</div> NO — All written content is original team work; testimonials and personas are fictional</div>
+        </div>
+      </div>
+    </div>
+    <div class="initials-row">
+      <span class="initials-label">Team initials:</span>
+      <div class="initials-boxes">
+        <div class="initials-cell">SP</div>
+        <div class="initials-cell">AA</div>
+        <div class="initials-cell">AK</div>
+        <div class="initials-cell">NS</div>
+        <div class="initials-cell">VM</div>
+        <div class="initials-cell">GM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Advisor ── -->
   <div class="advisor-section">
-    <div class="advisor-header">Advisor Verification &amp; Signature</div>
+    <div class="advisor-head">Faculty Advisor Verification &amp; Signature</div>
     <div class="advisor-body">
-      <div>
-        <div class="sig-field"></div>
-        <div class="sig-label">Advisor Signature</div>
+      <div class="sig-grid">
+        <div class="sig-item">
+          <div class="sig-line"><span class="sig-name">Smith</span></div>
+          <div class="sig-sublabel">Advisor Signature</div>
+        </div>
+        <div class="sig-item">
+          <div class="sig-line"></div>
+          <div class="sig-sublabel">Date</div>
+        </div>
+        <div class="sig-item">
+          <div class="sig-line"><span style="font-size:9pt;">Smith</span></div>
+          <div class="sig-sublabel">Advisor Printed Name</div>
+        </div>
+        <div class="sig-item">
+          <div class="sig-line"></div>
+          <div class="sig-sublabel">Chapter / School</div>
+        </div>
       </div>
-      <div>
-        <div class="sig-field"></div>
-        <div class="sig-label">Date</div>
+      <div class="advisor-note">
+        By signing above, the faculty advisor confirms that they have reviewed this checklist with the student team and that, to the best of their knowledge, all content used in the submitted website complies with applicable copyright law and TSA Webmaster event guidelines.
       </div>
-      <div>
-        <div class="sig-field"></div>
-        <div class="sig-label">Advisor Printed Name</div>
-      </div>
-      <div>
-        <div class="sig-field"></div>
-        <div class="sig-label">Chapter / School</div>
-      </div>
-    </div>
-    <div class="advisor-note">
-      By signing above, the advisor confirms that they have reviewed this checklist with the student team and that, to the best of their knowledge, all content used on the submitted website complies with applicable copyright law and TSA competition guidelines.
     </div>
   </div>
-</div>
 
-<div class="footer">
-  Community Connect · TSA Webmaster 2026 · Student Copyright Checklist · Page 1 of 1
-</div>
+  <div class="footer">
+    <span>Community Connect · TSA Webmaster 2026</span>
+    <span>Student Copyright Checklist — Page 1 of 1</span>
+  </div>
 
+</div>
 </body>
 </html>`
 }

@@ -22,7 +22,7 @@ export function JudgeNotice({ action = 'post or interact' }: { action?: string }
           Judge Demo Account
         </p>
         <p className="font-outfit text-sm leading-relaxed" style={{ color: 'rgba(252,211,77,0.75)' }}>
-          The judge account (<span style={{ color: '#FCD34D' }}>judges@tsa.com</span>) is a demo-only account and cannot {action} — it is not linked to a real email.
+          The judge account (<span style={{ color: '#FCD34D' }}>judges@tsa.com</span>) is a demo-only account and cannot {action}. It is not linked to a real email.
           To fully test this feature, <strong style={{ color: '#FCD34D' }}>create a free account</strong> using any real email on the{' '}
           <a href="/signin" className="underline" style={{ color: '#FCD34D' }}>sign-in page</a>.
         </p>
