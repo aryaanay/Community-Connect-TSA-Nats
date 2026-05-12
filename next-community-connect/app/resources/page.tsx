@@ -514,7 +514,7 @@ export default function ResourcesPage() {
                   >
                     <TiltCard className="h-full" intensity={12} glareOpacity={0.16}>
                       <div
-                        className="group rounded-3xl overflow-hidden h-full transition-all duration-500 shadow-2xl resource-card-outer"
+                        className="group rounded-3xl overflow-hidden h-full min-h-[380px] flex flex-col transition-all duration-500 shadow-2xl resource-card-outer"
                         style={{
                           backdropFilter: 'blur(12px)',
                           backgroundColor: 'rgba(255,255,255,0.82)',
@@ -523,12 +523,13 @@ export default function ResourcesPage() {
                       >
                         {/* Accent strip */}
                         <div
-                          className="h-2 opacity-80 group-hover:opacity-100 transition-opacity"
+                          className="h-2 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity"
                           style={{ background: 'linear-gradient(to right, #38BDF8, #0EA5E9)' }}
                         />
 
                         {/* Body */}
-                        <div className="p-8 resource-card-body">
+                        <div className="p-8 resource-card-body flex flex-col flex-1">
+                      <div className="flex-1">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-5 -mt-7 border-2 border-white"
                         style={{ background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)' }}>
                         <Icon className="w-7 h-7 text-white" strokeWidth={1.5} />
@@ -540,6 +541,7 @@ export default function ResourcesPage() {
                       <p className="font-dm-sans text-base leading-relaxed mb-6 line-clamp-3" style={{ color: DARK_CARD.textSecondary }}>
                         {resource.description}
                       </p>
+                      </div>
 
                       {/* Expandable details */}
                       <div className={`overflow-hidden transition-all duration-500 ${expandedCard === i ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>

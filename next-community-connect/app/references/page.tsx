@@ -287,10 +287,10 @@ export default function DocumentationPage() {
             <h2 style={h2Style}>Privacy and Terms</h2>
             <div className="rounded-2xl overflow-hidden border p-6" style={{ backgroundColor: CARD, borderColor: BORDER }}>
               <p style={bodyStyle}>
-                This website was created for educational purposes as part of the TSA Webmaster competition. All events,
-                donation causes, submitted resource data, names are fictional and created for demonstration purposes only.
-                Organization names and contact information reference publicly available data for real Bothell-area nonprofits.
-                Supabase is used for secure data storage.
+                This website was created for educational purposes as part of the TSA Webmaster competition. All persons,
+                events, donation causes, and submitted resource data are fictional and created for practical demonstration
+                purposes only. Organization names and contact information reference publicly available data for real nonprofits.
+                User data is stored securely on Supabase.
               </p>
             </div>
           </motion.div>

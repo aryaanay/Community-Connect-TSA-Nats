@@ -79,7 +79,7 @@ export default function TiltCard({
       className={`relative cursor-pointer ${className}`}
     >
       {/* The actual card content */}
-      <div style={{ transform: "translateZ(0px)" }}>{children}</div>
+      <div className="h-full" style={{ transform: "translateZ(0px)" }}>{children}</div>
 
       {/* Glare overlay */}
       {isHovered && (

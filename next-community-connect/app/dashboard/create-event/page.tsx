@@ -48,6 +48,7 @@ export default function CreateEventPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!isSignedIn || !user) { setError('You must be signed in to create an event.'); return }
+    if (user.id === 'demo-judge-001') { setError('The judge demo account cannot create events. Please sign in with a real account to use this feature.'); return }
     if (!form.title || !form.date) { setError('Title and date are required.'); return }
     setError('')
     startTransition(async () => {
@@ -75,7 +76,7 @@ export default function CreateEventPage() {
       })
 
       if (dbErr) {
-        setError('Failed to save event. Make sure the user_events table exists (see supabase/community_features.sql).')
+        setError('Failed to save event. Please try again or contact support.')
         return
       }
 

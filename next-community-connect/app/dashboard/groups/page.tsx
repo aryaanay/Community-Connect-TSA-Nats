@@ -86,6 +86,7 @@ export default function GroupsPage() {
 
   const createGroup = async () => {
     if (!user || !form.name.trim()) { setError('Group name is required.'); return }
+    if (user.id === 'demo-judge-001') { setError('The judge demo account cannot create groups. Please sign in with a real account to use this feature.'); setSaving(false); return }
     setSaving(true)
     setError('')
 
@@ -96,7 +97,7 @@ export default function GroupsPage() {
       .single()
 
     if (groupErr || !newGroup) {
-      setError('Failed to create group. Make sure the community_groups table exists (see supabase/community_features.sql).')
+      setError('Failed to create group. Please try again or contact support.')
       setSaving(false)
       return
     }
