@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { PackageSearch, Plus, MapPin, Phone, Mail, Calendar, Check, X, Search, Camera, Upload, Sparkles, MessageCircle } from 'lucide-react'
+import { PackageSearch, Plus, MapPin, Phone, Mail, Calendar, Check, X, Search, Upload, Sparkles, MessageCircle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
@@ -344,18 +344,11 @@ export default function LostFoundPage() {
                       )}
                     </div>
                   ) : (
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => { if (fileInputRef.current) { fileInputRef.current.setAttribute('capture', 'environment'); fileInputRef.current.click() } }}
-                        className="flex-1 py-3 rounded-xl font-outfit text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5"
-                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,158,11,0.18)', color: 'rgba(198,235,255,0.5)' }}>
-                        <Camera size={14} /> Camera
-                      </button>
+                    <div>
                       <button
                         type="button"
                         onClick={() => { if (fileInputRef.current) { fileInputRef.current.removeAttribute('capture'); fileInputRef.current.click() } }}
-                        className="flex-1 py-3 rounded-xl font-outfit text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5"
+                        className="w-full py-3 rounded-xl font-outfit text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5"
                         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,158,11,0.18)', color: 'rgba(198,235,255,0.5)' }}>
                         <Upload size={14} /> Upload File
                       </button>

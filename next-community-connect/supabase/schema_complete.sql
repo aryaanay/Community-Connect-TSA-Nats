@@ -180,6 +180,7 @@ CREATE POLICY "Users can remove own RSVP"
 -- ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS resources (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   name        TEXT NOT NULL,
   category    TEXT NOT NULL,
   description TEXT,
@@ -203,9 +204,9 @@ CREATE POLICY "Resources viewable by everyone"
 CREATE POLICY "Authenticated users can submit resources"
   ON resources FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 CREATE POLICY "Admins can update resources"
-  ON resources FOR UPDATE USING (auth.uid() IS NOT NULL);
+  ON resources FOR UPDATE USING (auth.uid() IS NOT NULL AND auth.jwt() ->> 'role' = 'admin');
 CREATE POLICY "Admins can delete resources"
-  ON resources FOR DELETE USING (auth.uid() IS NOT NULL);
+  ON resources FOR DELETE USING (auth.uid() IS NOT NULL AND auth.jwt() ->> 'role' = 'admin');
 
 -- ──────────────────────────────────────────────
 -- SUBMISSIONS

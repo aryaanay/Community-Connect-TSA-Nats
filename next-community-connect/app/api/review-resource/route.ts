@@ -72,9 +72,10 @@ Respond with ONLY valid JSON in this exact format: {"approved": true, "reason": 
     })
   } catch (err) {
     console.error('Review API error:', err)
+    // Don't approve by default on error - require manual review
     return NextResponse.json({
-      approved: true,
-      reason: 'Your resource has been reviewed and added to the directory.',
+      approved: false,
+      reason: 'Unable to complete AI review. Your submission has been saved and will be reviewed manually.',
     })
   }
 }
