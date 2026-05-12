@@ -182,7 +182,7 @@ export default function DocumentationPage() {
             </div>
             <div className="mt-3 flex justify-end">
               <a
-                href="/TSA_Student_Copyright_Checklists.pdf"
+                href="/TSA_Student_Copyright_Checklists_Final.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ fontFamily: 'var(--font-space)', fontSize: '12px', color: LINK }}
