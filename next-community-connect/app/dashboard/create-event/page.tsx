@@ -53,11 +53,15 @@ export default function CreateEventPage() {
   const set = (k: keyof FormState, v: string | boolean) =>
     setForm(prev => ({ ...prev, [k]: v }))
 
+  const todayIso = new Date().toISOString().split('T')[0]
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!isSignedIn || !user) { setError('You must be signed in to create an event.'); return }
     if (user.id === 'demo-judge-001') { setError('The judge demo account cannot create events. Please sign in with a real account to use this feature.'); return }
     if (!form.title || !form.date) { setError('Title and date are required.'); return }
+    // Prevent creating events in the past
+    if (form.date < todayIso) { setError('Event date cannot be in the past. Please choose a future date.'); return }
     setError('')
     startTransition(async () => {
       const { error: dbErr } = await supabase.from('user_events').insert({
@@ -238,6 +242,7 @@ export default function CreateEventPage() {
                   <Field label={t('event.date')} className="sm:col-span-1">
                     <input
                       type="date" required value={form.date} onChange={e => set('date', e.target.value)}
+                      min={todayIso}
                       className="w-full px-4 py-3 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-sky-400/35"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(86,187,240,0.18)', colorScheme: 'dark' }}
                     />

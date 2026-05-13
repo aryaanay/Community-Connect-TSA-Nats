@@ -845,7 +845,7 @@ export default function DonatePage() {
                         />
                       </div>
 
-                      <div className="p-6">
+                      <div className="p-6 flex flex-col h-full">
                         <div className="flex items-start justify-between mb-5">
                           <div className="relative group/img">
                             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl overflow-hidden"
@@ -911,7 +911,7 @@ export default function DonatePage() {
                         </div>
 
                         <button
-                          className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                          className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-auto"
                           style={{
                             fontFamily: 'var(--font-space)', fontSize: '13px', fontWeight: 600,
                             letterSpacing: '-0.1px', backgroundColor: '#2499D6', color: 'white', border: 'none',

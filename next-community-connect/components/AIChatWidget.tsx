@@ -49,6 +49,7 @@ export function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [activeTab, setActiveTab] = useState<'chat' | 'contact'>('chat')
+  const [hiddenByFooter, setHiddenByFooter] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -84,6 +85,50 @@ export function AIChatWidget() {
       el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
     })
   }, [messages.length, isLoading, isOpen, isMinimized, activeTab])
+
+  // Hide/fade the floating button when the footer is near the viewport.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const footer = document.querySelector('footer')
+    if (!footer) return
+
+    const scrollTarget: any = document.querySelector('main') ?? window
+    let raf = 0
+    const HIDE_DISTANCE = 260 // px before footer top reaches viewport bottom
+
+    const check = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const rect = footer.getBoundingClientRect()
+        const viewportHeight = window.innerHeight
+        const distance = rect.top - viewportHeight
+        const shouldHide = distance < HIDE_DISTANCE
+        setHiddenByFooter(shouldHide)
+      })
+    }
+
+    // initial check
+    check()
+
+    // Attach to the scroll container and window resize
+    try {
+      scrollTarget.addEventListener('scroll', check, { passive: true })
+    } catch (e) {
+      window.addEventListener('scroll', check, { passive: true })
+    }
+    window.addEventListener('resize', check)
+
+    return () => {
+      try { scrollTarget.removeEventListener('scroll', check) } catch (e) { window.removeEventListener('scroll', check) }
+      window.removeEventListener('resize', check)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  // If we decide to hide because of the footer, close any open chat window.
+  useEffect(() => {
+    if (hiddenByFooter && isOpen) setIsOpen(false)
+  }, [hiddenByFooter, isOpen])
 
   const sendMessage = async (override?: string) => {
     const text = (override ?? input).trim()
@@ -193,11 +238,13 @@ export function AIChatWidget() {
     <>
       {/* Floating Button */}
       <motion.button
-        initial={{ scale: 0, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        whileHover={{ scale: 1.08, y: -3 }}
-        whileTap={{ scale: 0.95 }}
+        initial={{ scale: 0, y: 20, opacity: 0 }}
+        animate={hiddenByFooter ? { scale: 0.8, y: -40, opacity: 0 } : { scale: 1, y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22, duration: 0.28 }}
+        whileHover={hiddenByFooter ? {} : { scale: 1.08, y: -3 }}
+        whileTap={hiddenByFooter ? {} : { scale: 0.95 }}
         onClick={() => {
+          if (hiddenByFooter) return
           if (isOpen) {
             setIsOpen(false)
             setIsMinimized(false)
@@ -209,7 +256,9 @@ export function AIChatWidget() {
           }
         }}
         className="fixed bottom-6 right-6 z-50 group"
+        aria-hidden={hiddenByFooter}
         aria-label={isOpen ? 'Close community assistant' : 'Open community assistant'}
+        style={{ pointerEvents: hiddenByFooter ? 'none' : undefined }}
       >
         <span className="absolute inset-[-8px] rounded-full bg-sky-300/25 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
         <span className="absolute inset-[-3px] rounded-full border border-sky-200/40 animate-ping" />
