@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import {
   BookOpen, CalendarDays, PlusCircle, Heart, Users, Zap,
   ArrowUpRight, MapPin, Clock, CheckCircle2, Star, TrendingUp,
+  Info,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
@@ -147,7 +148,7 @@ export default function DashboardPage() {
 
   if (!isSignedIn) return null
 
-  const firstName = user?.email?.split('@')[0] ?? 'there'
+  const firstName = user?.displayName?.trim() || user?.email?.split('@')[0] || 'there'
 
   return (
     <div
@@ -164,6 +165,24 @@ export default function DashboardPage() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         >
           <Card className="p-6 sm:p-8 relative overflow-hidden">
+            <div className="absolute right-4 top-4 z-20 group">
+              <button
+                type="button"
+                aria-label="Dashboard theme info"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-sky-400/15 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
+                style={{ color: 'rgba(198,235,255,0.7)', border: '1px solid rgba(86,187,240,0.22)', background: 'rgba(2,39,71,0.38)' }}
+              >
+                <Info size={15} />
+              </button>
+              <div
+                className="pointer-events-none absolute right-0 top-10 w-56 rounded-xl px-3 py-2 opacity-0 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0"
+                style={{ background: 'rgba(1,15,31,0.94)', border: '1px solid rgba(86,187,240,0.2)', color: 'rgba(198,235,255,0.82)' }}
+              >
+                <p className="font-outfit text-xs leading-relaxed">
+                  The dashboard theme changes with the time of day.
+                </p>
+              </div>
+            </div>
             {/* Parallax orbs — colors follow time of day */}
             <motion.div
               className="pointer-events-none absolute w-64 h-64 rounded-full"
