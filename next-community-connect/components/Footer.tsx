@@ -125,9 +125,10 @@ export function Footer() {
 
         {/* Bottom */}
           <div className={"pt-5 flex flex-col sm:flex-row items-center " + (isHome ? 'justify-center' : 'justify-between') + ' gap-3'}>
-          <p className="font-dm-sans text-sm" style={{ color: 'rgba(144,212,247,0.7)' }}>
+          <p className="font-dm-sans text-xs" style={{ color: 'rgba(144,212,247,0.7)' }}>
             © 2026 CommunityConnect
           </p>
+          <span className="hidden sm:inline-block" style={{ color: 'rgba(86,187,240,0.45)', margin: '0 8px' }}>|</span>
           <div className="flex items-center gap-4">
             <Link href="/help" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>
               Q&A
