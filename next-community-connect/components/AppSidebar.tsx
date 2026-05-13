@@ -132,10 +132,10 @@ function SidebarInner({
         {isMobile && (
           <button
             onClick={onNavClick}
-            className="ml-auto flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl text-sky-300/60 hover:text-sky-200 hover:bg-sky-400/10 transition-all"
-            aria-label="Close menu"
+            className="ml-auto flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full border border-sky-400/25 bg-slate-900/70 text-sky-300 hover:text-sky-100 hover:border-sky-300/60 hover:bg-sky-500/15 transition-all"
+            aria-label="Close sidebar"
           >
-            <X size={16} />
+            <ChevronLeft size={16} />
           </button>
         )}
       </div>
