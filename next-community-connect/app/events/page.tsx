@@ -397,7 +397,7 @@ const RSVP_BASE: Record<string, number> = {
 
 function useEventRsvp(eventId: string, userId: string | undefined) {
   const KEY = 'cc-rsvps'
-  const base = RSVP_BASE[eventId] ?? 0
+  const base = eventId.startsWith('user-') ? 0 : RSVP_BASE[eventId] ?? 0
 
   const [isGoing, setIsGoing] = useState(() => {
     try { return !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId] } catch { return false }
@@ -409,6 +409,18 @@ function useEventRsvp(eventId: string, userId: string | undefined) {
     } catch { return base }
   })
   const [friendsGoing, setFriendsGoing] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    try {
+      const going = !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId]
+      setIsGoing(going)
+      setCount(base + (going ? 1 : 0))
+    } catch {
+      setIsGoing(false)
+      setCount(base)
+    }
+    setFriendsGoing([])
+  }, [base, eventId])
 
   useEffect(() => {
     if (!userId) return
