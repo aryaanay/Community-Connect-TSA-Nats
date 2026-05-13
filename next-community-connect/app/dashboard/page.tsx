@@ -7,10 +7,13 @@ import { useRouter } from 'next/navigation'
 import {
   BookOpen, CalendarDays, PlusCircle, Heart, Users, Zap,
   ArrowUpRight, MapPin, Clock, CheckCircle2, Star, TrendingUp,
+  Info,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useSettings } from '@/context/SettingsContext'
 import { getT } from '@/lib/translations'
+import { supabase } from '@/lib/supabaseClient'
+import { staticEvents } from '@/lib/event-data'
 
 const STATS = [
   { label: 'Local Resources', value: '30+', icon: BookOpen, color: '#2499D6' },
@@ -47,13 +50,14 @@ const FEATURED_RESOURCES = [
   { name: 'Northshore Senior Center', category: 'Senior Care', location: 'Bothell, WA', icon: '🌿' },
 ]
 
-const UPCOMING_EVENTS = [
-  { emoji: '🥫', name: 'Northshore Food Drive',        date: 'May 16',  time: '9am–4pm',  location: 'Kenmore Community Center'    },
-  { emoji: '🌿', name: 'Community Garden Volunteer Day', date: 'May 24', time: '10am–2pm', location: 'Bothell Landing Park'         },
-  { emoji: '📚', name: 'Youth STEM Mentorship Fair',    date: 'Jun 7',   time: '1–4pm',    location: 'Northshore Library'           },
-  { emoji: '🏘️', name: 'Neighborhood Resource Fair',   date: 'Jun 21',  time: '11am–3pm', location: 'Bothell City Hall Plaza'      },
-  { emoji: '🤝', name: 'Hopelink Fundraiser Walk',      date: 'Jul 12',  time: '8am',      location: 'Kirkland Marina Park'         },
-]
+type DashboardEvent = {
+  id: string
+  emoji: string
+  name: string
+  date: string
+  time: string
+  location: string
+}
 
 // ── Time-of-day theming ──────────────────────────────────────────────────────
 type Phase = 'night' | 'dawn' | 'morning' | 'afternoon' | 'dusk' | 'evening'
@@ -87,6 +91,25 @@ const IMPACT_FACTS = [
   { icon: Zap, text: 'Real-time updates keep listings always current' },
 ]
 
+function formatEventDate(raw: string): string {
+  const [y, mo, d] = raw.split('-').map(Number)
+  if (!y || !mo || !d) return raw
+  return new Date(y, mo - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function formatEventTime(raw: string): string {
+  const m = raw?.match(/^(\d{2}):(\d{2})/)
+  if (!m) return raw || ''
+  const h = parseInt(m[1], 10)
+  const period = h >= 12 ? 'PM' : 'AM'
+  return `${h % 12 || 12}:${m[2]} ${period}`
+}
+
+function eventTimeValue(event: DashboardEvent) {
+  const parsed = new Date(event.date)
+  return Number.isNaN(parsed.getTime()) ? Number.MAX_SAFE_INTEGER : parsed.getTime()
+}
+
 function Card({ children, className = '', style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
     <div
@@ -110,6 +133,7 @@ export default function DashboardPage() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const [upcomingEvents, setUpcomingEvents] = useState<DashboardEvent[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { setMounted(true) }, [])
@@ -130,6 +154,78 @@ export default function DashboardPage() {
     return () => mainEl.removeEventListener('scroll', onScroll)
   }, [mounted])
 
+  useEffect(() => {
+    async function loadUpcomingEvents() {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const baseEvents: DashboardEvent[] = staticEvents.map(event => ({
+        id: event.id,
+        emoji: event.emoji,
+        name: event.title,
+        date: event.date,
+        time: event.time,
+        location: event.location,
+      }))
+
+      let liveEvents: DashboardEvent[] = []
+      try {
+        const { data } = await supabase
+          .from('events')
+          .select('id, title, event_date, start_time, end_time, location_name')
+          .gte('event_date', new Date().toISOString().split('T')[0])
+          .order('event_date', { ascending: true })
+          .order('start_time', { ascending: true })
+
+        liveEvents = (data || []).map((event: any) => ({
+          id: `live-${event.id}`,
+          emoji: '📅',
+          name: event.title,
+          date: formatEventDate(event.event_date),
+          time: event.end_time
+            ? `${formatEventTime(event.start_time)} - ${formatEventTime(event.end_time)}`
+            : formatEventTime(event.start_time),
+          location: event.location_name || 'Bothell, WA',
+        }))
+      } catch { /* keep static and user-created events */ }
+
+      let userEvents: DashboardEvent[] = []
+      try {
+        let query = supabase.from('user_events').select('id, user_id, title, date, time, location, emoji, is_public')
+        const { data } = await query
+        userEvents = (data || [])
+          .filter((event: any) => event.is_public || event.user_id === user?.id)
+          .map((event: any) => ({
+            id: `user-${event.id}`,
+            emoji: event.emoji || '📅',
+            name: event.title,
+            date: event.date,
+            time: event.time || '',
+            location: event.location || 'Bothell, WA',
+          }))
+      } catch { /* user_events may be unavailable */ }
+
+      const seen = new Set<string>()
+      const merged = [...baseEvents, ...liveEvents, ...userEvents]
+        .filter(event => {
+          const parsed = new Date(event.date)
+          return Number.isNaN(parsed.getTime()) || parsed >= today
+        })
+        .sort((a, b) => eventTimeValue(a) - eventTimeValue(b))
+        .filter(event => {
+          const key = event.name.toLowerCase()
+          if (seen.has(key)) return false
+          seen.add(key)
+          return true
+        })
+        .slice(0, 5)
+
+      setUpcomingEvents(merged)
+    }
+
+    loadUpcomingEvents()
+  }, [user?.id])
+
   const h = new Date().getHours()
   const greeting = h < 12 ? t('dash.morning') : h < 17 ? t('dash.afternoon') : t('dash.evening')
   const phase = getPhase(h)
@@ -147,7 +243,7 @@ export default function DashboardPage() {
 
   if (!isSignedIn) return null
 
-  const firstName = user?.email?.split('@')[0] ?? 'there'
+  const firstName = user?.displayName?.trim() || user?.email?.split('@')[0] || 'there'
 
   return (
     <div
@@ -164,6 +260,24 @@ export default function DashboardPage() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         >
           <Card className="p-6 sm:p-8 relative overflow-hidden">
+            <div className="absolute right-4 top-4 z-20 group">
+              <button
+                type="button"
+                aria-label="Dashboard theme info"
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-sky-400/15 focus:outline-none focus:ring-2 focus:ring-sky-300/40"
+                style={{ color: 'rgba(198,235,255,0.7)', border: '1px solid rgba(86,187,240,0.22)', background: 'rgba(2,39,71,0.38)' }}
+              >
+                <Info size={15} />
+              </button>
+              <div
+                className="pointer-events-none absolute right-0 top-10 w-56 rounded-xl px-3 py-2 opacity-0 translate-y-1 transition-all group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0"
+                style={{ background: 'rgba(1,15,31,0.94)', border: '1px solid rgba(86,187,240,0.2)', color: 'rgba(198,235,255,0.82)' }}
+              >
+                <p className="font-outfit text-xs leading-relaxed">
+                  The dashboard theme changes with the time of day.
+                </p>
+              </div>
+            </div>
             {/* Parallax orbs — colors follow time of day */}
             <motion.div
               className="pointer-events-none absolute w-64 h-64 rounded-full"
@@ -430,9 +544,9 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div className="space-y-2.5">
-                {UPCOMING_EVENTS.map((ev) => (
+                {upcomingEvents.map((ev) => (
                   <div
-                    key={ev.name}
+                    key={ev.id}
                     className="flex gap-3 p-3 rounded-xl hover:bg-white/4 transition-colors"
                     style={{ border: '1px solid rgba(86,187,240,0.08)' }}
                   >

@@ -246,12 +246,14 @@ function SignInForm() {
     { Icon: Users, label: t('pill.community') },
   ]
   const [tab, setTab] = useState<Tab>('signin')
+  const [profileName, setProfileName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomeName, setWelcomeName] = useState('')
   const [isPending, startTransition] = useTransition()
 
   const mouseRef = useRef<{ x: number; y: number } | null>(null)
@@ -275,10 +277,14 @@ function SignInForm() {
     e.preventDefault()
     if (!email || !password) return
     if (tab === 'signup' && !allMet) return
+    if (tab === 'signup' && !profileName.trim()) return
     setLoading(true); setError(null)
     startTransition(async () => {
       try {
-        tab === 'signup' ? await signUp(email, password) : await signIn(email, password)
+        const authUser = tab === 'signup'
+          ? await signUp(email, password, profileName)
+          : await signIn(email, password)
+        setWelcomeName(authUser.displayName || '')
         try { sessionStorage.setItem('cc-just-signed-in', '1') } catch { /* ignore */ }
         setShowWelcome(true)
       } catch (err: any) {
@@ -307,7 +313,7 @@ function SignInForm() {
 
   return (
     <>
-      <WelcomeAnimation show={showWelcome} email={email} onComplete={() => router.push(redirect)} />
+      <WelcomeAnimation show={showWelcome} email={email} displayName={welcomeName} onComplete={() => router.push(redirect)} />
 
       <Link
         href="/"
@@ -460,6 +466,29 @@ function SignInForm() {
                 ))}
               </div>
 
+              {/* Profile name */}
+              <AnimatePresence>
+                {tab === 'signup' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.22 }}
+                    className="overflow-hidden"
+                  >
+                    <div>
+                      <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>Profile name</label>
+                      <input
+                        type="text" value={profileName} onChange={e => setProfileName(e.target.value)}
+                        placeholder="What should we call you?" disabled={isDisabled}
+                        className="w-full px-4 py-3 rounded-xl font-outfit text-sm outline-none transition-all disabled:opacity-50 focus:ring-1 focus:ring-sky-400/35"
+                        style={inputStyle}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Email */}
               <div>
                 <label className="block font-outfit text-[10px] uppercase tracking-wider mb-1.5" style={{ color: 'rgba(198,235,255,0.45)' }}>{t('signin.lbl.email')}</label>
@@ -469,6 +498,27 @@ function SignInForm() {
                   className="w-full px-4 py-3 rounded-xl font-outfit text-sm outline-none transition-all disabled:opacity-50 focus:ring-1 focus:ring-sky-400/35"
                   style={inputStyle}
                 />
+                <AnimatePresence>
+                  {tab === 'signup' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.22 }}
+                      className="overflow-hidden"
+                    >
+                      <div
+                        className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5"
+                        style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.18)' }}
+                      >
+                        <AlertCircle size={14} className="flex-shrink-0 mt-0.5 text-sky-300" />
+                        <p className="font-outfit text-xs leading-relaxed" style={{ color: 'rgba(198,235,255,0.68)' }}>
+                          Please use an actual email for full functionality. After creating an account, check for a verification email from Supabase in your inbox and verify your account.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Password */}
@@ -515,7 +565,7 @@ function SignInForm() {
               {/* CTA */}
               <button
                 onClick={handleAuth}
-                disabled={isDisabled || (tab === 'signup' && !allMet)}
+                disabled={isDisabled || (tab === 'signup' && (!allMet || !profileName.trim()))}
                 className="w-full py-3 rounded-xl font-outfit font-bold text-sm text-white transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 style={{ background: 'linear-gradient(135deg, #0857A0 0%, #2499D6 100%)' }}
               >

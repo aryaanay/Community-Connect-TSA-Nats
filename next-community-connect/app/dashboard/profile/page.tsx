@@ -197,6 +197,7 @@ export default function ProfilePage() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   const isJudge = user?.email === JUDGE_EMAIL
+  const fallbackDisplayName = user?.displayName?.trim() || user?.email?.split('@')[0] || 'User'
 
   useEffect(() => { markPageVisited('profile') }, [markPageVisited])
 
@@ -225,13 +226,13 @@ export default function ProfilePage() {
           setBio(data.bio || '')
           setIsPublic(data.is_public ?? true)
         } else {
-          setDisplayName(user.email?.split('@')[0] ?? '')
+          setDisplayName(fallbackDisplayName)
         }
       } catch {
-        setDisplayName(user.email?.split('@')[0] ?? '')
+        setDisplayName(fallbackDisplayName)
       }
     })()
-  }, [user?.id, user?.email])
+  }, [fallbackDisplayName, user?.id])
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -253,7 +254,7 @@ export default function ProfilePage() {
       await supabase.from('profiles').upsert({
         user_id: user.id,
         email: user.email ?? '',
-        display_name: displayName.trim() || (user.email?.split('@')[0] ?? 'User'),
+        display_name: displayName.trim() || fallbackDisplayName,
         bio: bio.trim(),
         is_public: isPublic,
       }, { onConflict: 'user_id' })
@@ -270,7 +271,7 @@ export default function ProfilePage() {
   const xpForLevel  = nextLevel ? nextLevel.min - levelInfo.min : totalXp - levelInfo.min || 1
   const levelPct    = nextLevel ? Math.min(100, (xpIntoLevel / xpForLevel) * 100) : 100
 
-  const initials = (displayName || user?.email?.split('@')[0] || 'U').slice(0, 2).toUpperCase()
+  const initials = (displayName || fallbackDisplayName || 'U').slice(0, 2).toUpperCase()
   const sortedAchievements = [...ACHIEVEMENTS].sort(
     (a, b) => RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity]
   )
@@ -446,7 +447,7 @@ export default function ProfilePage() {
                 <>
                   <div className="flex flex-wrap items-center gap-3 mb-1">
                     <h1 className="font-syne text-2xl font-black text-white truncate">
-                      {displayName || user?.email?.split('@')[0] || 'User'}
+                      {displayName || fallbackDisplayName}
                     </h1>
                     <span
                       className="font-outfit text-xs font-bold px-3 py-1 rounded-full"

@@ -397,7 +397,7 @@ const RSVP_BASE: Record<string, number> = {
 
 function useEventRsvp(eventId: string, userId: string | undefined) {
   const KEY = 'cc-rsvps'
-  const base = RSVP_BASE[eventId] ?? 12
+  const base = RSVP_BASE[eventId] ?? 0
 
   const [isGoing, setIsGoing] = useState(() => {
     try { return !!JSON.parse(localStorage.getItem(KEY) || '{}')[eventId] } catch { return false }

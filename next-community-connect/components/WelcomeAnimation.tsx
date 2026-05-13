@@ -6,17 +6,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 interface Props {
   show: boolean
   email: string
+  displayName?: string
   onComplete: () => void
 }
 
-export function WelcomeAnimation({ show, email, onComplete }: Props) {
+export function WelcomeAnimation({ show, email, displayName, onComplete }: Props) {
   useEffect(() => {
     if (!show) return
     const t = setTimeout(onComplete, 2500)
     return () => clearTimeout(t)
   }, [show, onComplete])
 
-  const firstName = email.split('@')[0] || 'there'
+  const firstName = displayName?.trim() || email.split('@')[0] || 'there'
 
   return (
     <AnimatePresence>

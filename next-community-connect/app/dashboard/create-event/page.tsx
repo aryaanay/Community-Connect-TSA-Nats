@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CalendarDays, MapPin, Clock, Lock, Globe, Mail, X, CheckCircle, AlertCircle, Plus, ArrowLeft } from 'lucide-react'
+import { CalendarDays, MapPin, Clock, Lock, Globe, Mail, X, CheckCircle, AlertCircle, Plus, ArrowLeft, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { useT } from '@/lib/useT'
@@ -41,6 +41,14 @@ export default function CreateEventPage() {
   const [isPending, startTransition] = useTransition()
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
+  const invites = form.inviteEmails
+    .split(/[,\n]+/)
+    .map(e => e.trim())
+    .filter(Boolean)
+  const timeStr = form.time && form.endTime
+    ? `${fmt12(form.time)} - ${fmt12(form.endTime)}`
+    : form.time ? fmt12(form.time) : ''
+  const calendarUrl = getGoogleCalendarUrl(form, invites, timeStr)
 
   const set = (k: keyof FormState, v: string | boolean) =>
     setForm(prev => ({ ...prev, [k]: v }))
@@ -52,15 +60,6 @@ export default function CreateEventPage() {
     if (!form.title || !form.date) { setError('Title and date are required.'); return }
     setError('')
     startTransition(async () => {
-      const timeStr = form.time && form.endTime
-        ? `${fmt12(form.time)} - ${fmt12(form.endTime)}`
-        : form.time ? fmt12(form.time) : ''
-
-      const invites = form.inviteEmails
-        .split(/[,\n]+/)
-        .map(e => e.trim())
-        .filter(Boolean)
-
       const { error: dbErr } = await supabase.from('user_events').insert({
         user_id:       user.id,
         creator_email: user.email,
@@ -88,7 +87,7 @@ export default function CreateEventPage() {
       if (!form.isPublic && invites.length) {
         const subject = encodeURIComponent(`You're invited: ${form.title}`)
         const body = encodeURIComponent(
-          `Hi!\n\nYou're invited to a private event: ${form.title}\n\nDate: ${formatDateDisplay(form.date)}\nTime: ${timeStr}\nLocation: ${form.location || 'TBD'}\n\n${form.description}\n\nSee you there!`
+          `Hi!\n\nYou're invited to a private event: ${form.title}\n\nDate: ${formatDateDisplay(form.date)}\nTime: ${timeStr || 'TBD'}\nLocation: ${form.location || 'TBD'}\nAttendees: ${invites.join(', ')}\n\nNotes:\n${form.description || 'No additional notes.'}\n\nYou can also add this event to Google Calendar from Community Connect.\n\nSee you there!`
         )
         window.open(`mailto:${invites.join(',')}?subject=${subject}&body=${body}`)
       }
@@ -123,6 +122,27 @@ export default function CreateEventPage() {
               <p className="font-outfit text-sm mb-6" style={{ color: 'rgba(198,235,255,0.6)' }}>
                 {form.isPublic ? t('event.success_public') : t('event.success_private')}
               </p>
+              {!form.isPublic && (
+                <div className="text-left rounded-2xl p-4 mb-5" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                  <p className="font-syne text-sm font-bold text-white mb-3">Save this private event to Google Calendar</p>
+                  <div className="space-y-1.5 font-outfit text-xs" style={{ color: 'rgba(198,235,255,0.7)' }}>
+                    <p><strong className="text-sky-200">Date:</strong> {formatDateDisplay(form.date)}</p>
+                    <p><strong className="text-sky-200">Time:</strong> {timeStr || 'TBD'}</p>
+                    <p><strong className="text-sky-200">Location:</strong> {form.location || 'TBD'}</p>
+                    <p><strong className="text-sky-200">Attendees:</strong> {invites.length ? invites.join(', ') : 'None added'}</p>
+                    <p><strong className="text-sky-200">Notes:</strong> {form.description || 'No additional notes.'}</p>
+                  </div>
+                  <a
+                    href={calendarUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl font-outfit text-sm text-white font-semibold transition-all hover:-translate-y-0.5"
+                    style={{ background: 'linear-gradient(135deg,#7C3AED,#2499D6)' }}
+                  >
+                    <CalendarDays size={15} /> Add to Google Calendar <ExternalLink size={13} />
+                  </a>
+                </div>
+              )}
               <div className="flex gap-3 justify-center">
                 <button onClick={() => router.push('/dashboard/events')} className="px-5 py-2.5 rounded-xl font-outfit text-sm text-white font-semibold" style={{ background: 'linear-gradient(135deg,#0857A0,#2499D6)' }}>
                   {t('event.view_events')}
@@ -334,4 +354,27 @@ function formatDateDisplay(iso: string) {
   const [y, mo, d] = iso.split('-').map(Number)
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
   return `${months[mo - 1]} ${d}, ${y}`
+}
+
+function toCalendarStamp(date: string, time: string, fallbackHour: string) {
+  const cleanTime = time || fallbackHour
+  return `${date.replace(/-/g, '')}T${cleanTime.replace(':', '')}00`
+}
+
+function getGoogleCalendarUrl(form: FormState, invites: string[], timeStr: string) {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: form.title || 'Community Connect Event',
+    dates: `${toCalendarStamp(form.date, form.time, '09:00')}/${toCalendarStamp(form.date, form.endTime || form.time, form.endTime ? '10:00' : '10:00')}`,
+    details: [
+      form.description || 'No additional notes.',
+      '',
+      `Visibility: ${form.isPublic ? 'Public' : 'Private'}`,
+      `Attendees: ${invites.length ? invites.join(', ') : 'None added'}`,
+      `Time: ${timeStr || 'TBD'}`,
+    ].join('\n'),
+    location: form.location || 'TBD',
+  })
+  invites.forEach(email => params.append('add', email))
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
 }

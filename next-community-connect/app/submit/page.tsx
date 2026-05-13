@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
 import { JudgeNotice } from '@/components/JudgeNotice'
+import { saveLocalSubmission } from '@/lib/community-submissions'
 import Link from 'next/link'
 
 type FormData = {
@@ -87,6 +88,24 @@ async function addToResources(data: FormData, userId: string): Promise<string | 
     .single()
   if (error) console.warn('Resources insert failed:', error)
   return (inserted as { id: string } | null)?.id ?? null
+}
+
+function saveApprovedResourceLocally(data: FormData, userId: string) {
+  saveLocalSubmission({
+    name: data.name.trim(),
+    organization: data.organization.trim(),
+    category: data.category as any,
+    description: data.description.trim(),
+    audience: 'Community members',
+    address: data.address.trim(),
+    hours: data.hours.trim(),
+    phone: data.phone.trim(),
+    email: data.email.trim(),
+    website: data.website.trim(),
+    tags: [],
+    submittedAt: new Date().toISOString(),
+    userId,
+  })
 }
 
 // ─── AI Review Modal ──────────────────────────────────────────────────────────
@@ -423,7 +442,7 @@ function PlaneSuccess() {
               style={{ backgroundColor: 'rgba(255,255,255,0.95)', color: '#022747' }}>
               Return Home
             </Link>
-            <Link href="/resources" className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
+            <Link href="/dashboard/resources" className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
               style={{ border: '2px solid rgba(255,255,255,0.3)' }}>
               <span className="inline-flex items-center gap-2">Browse Resources <ArrowRight className="w-4 h-4" /></span>
             </Link>
@@ -523,7 +542,11 @@ export default function SubmitPage() {
     startTransition(async () => {
       try {
         // Step 1: Save submission record
-        await saveToSubmissions(formData)
+        try {
+          await saveToSubmissions(formData)
+        } catch (err) {
+          console.warn('Submission audit insert failed; continuing with review:', err)
+        }
 
         // Step 2: Call AI review
         setReviewState('reviewing')
@@ -544,6 +567,7 @@ export default function SubmitPage() {
         unlock('submit_resource')
         markPageVisited('submit')
         if (review.approved) {
+          saveApprovedResourceLocally(formData, user.id)
           const resourceId = await addToResources(formData, user.id)
           if (resourceId && user?.id) {
             try {

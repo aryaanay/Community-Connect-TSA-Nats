@@ -15,6 +15,8 @@ import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import TiltCard from '@/components/TiltCard'
 import { supabase } from '@/lib/supabaseClient'
 import { useT } from '@/lib/useT'
+import { deleteLocalSubmission, loadLocalSubmissions } from '@/lib/community-submissions'
+import type { CommunityResource } from '@/data/community-data'
 
 // ─── Images ───────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ type ResourceCard = {
   dbId?: string
   contactEmail?: string
   userId?: string
+  localId?: string
 }
 
 type DbResource = {
@@ -130,6 +133,23 @@ function dbToCard(r: DbResource): ResourceCard {
     dbId:         r.id,
     contactEmail: r.email       ?? undefined,
     userId:       r.user_id     ?? undefined,
+  }
+}
+
+function localToCard(r: CommunityResource): ResourceCard {
+  return {
+    title:        r.name        ?? 'Untitled Resource',
+    category:     r.category    ?? 'Other',
+    description:  r.description ?? '',
+    phone:        r.phone       ?? undefined,
+    email:        r.email       ?? undefined,
+    hours:        r.hours       ?? undefined,
+    location:     r.address     ?? undefined,
+    website:      r.website     ?? undefined,
+    resourceIcon: getIcon(r.category ?? ''),
+    contactEmail: r.email       ?? undefined,
+    userId:       (r as any).userId ?? undefined,
+    localId:      r.id,
   }
 }
 
@@ -320,19 +340,26 @@ export default function ResourcesPage() {
   }, [user])
 
   const isOwned = (r: ResourceCard) =>
-    !!(user && r.dbId && r.userId === user.id)
+    !!(user && r.userId === user.id && (r.dbId || r.localId))
 
-  const handleDeleteResource = async (dbId: string) => {
-    setDeletingId(dbId)
-    const { error: delErr } = await supabase.from('resources').delete().eq('id', dbId)
+  const handleDeleteResource = async (resource: ResourceCard) => {
+    const deleteId = resource.dbId || resource.localId
+    if (!deleteId) return
+    setDeletingId(deleteId)
+    const { error: delErr } = resource.dbId
+      ? await supabase.from('resources').delete().eq('id', resource.dbId)
+      : { error: null }
     if (!delErr) {
-      setAllResources(prev => prev.filter(r => r.dbId !== dbId))
+      if (resource.localId) deleteLocalSubmission(resource.localId)
+      setAllResources(prev => prev.filter(r => r.dbId !== resource.dbId || r.localId !== resource.localId))
       if (user) {
         try {
           const key = `cc-my-resources-${user.id}`
           const ids: string[] = JSON.parse(localStorage.getItem(key) || '[]')
-          localStorage.setItem(key, JSON.stringify(ids.filter(id => id !== dbId)))
-          setOwnedIds(prev => { const s = new Set(prev); s.delete(dbId); return s })
+          if (resource.dbId) {
+            localStorage.setItem(key, JSON.stringify(ids.filter(id => id !== resource.dbId)))
+            setOwnedIds(prev => { const s = new Set(prev); s.delete(resource.dbId!); return s })
+          }
         } catch { /* ignore */ }
       }
     }
@@ -351,6 +378,7 @@ export default function ResourcesPage() {
     async function load() {
       setLoading(true)
       setError(null)
+      const localCards = loadLocalSubmissions().map(localToCard)
       try {
         const { data, error: dbError } = await supabase
           .from('resources')
@@ -358,13 +386,12 @@ export default function ResourcesPage() {
           .order('created_at', { ascending: false })
 
         const dbCards = data ? (data as DbResource[]).map(r => dbToCard(r)) : []
-        setAllResources(mergeAll(dbCards))
+        setAllResources(mergeAll([...localCards, ...dbCards]))
 
-        if (dbError) setError('Some live data could not be loaded.')
+        if (dbError) console.warn('Resources live data could not be loaded:', dbError)
       } catch (err: unknown) {
-        console.error('Resources load error:', JSON.stringify(err, null, 2))
-        setError('Could not load live resources. Showing static content.')
-        setAllResources(hardcodedResources)
+        console.warn('Resources load error. Showing local and static content:', err)
+        setAllResources(mergeAll(localCards))
       } finally {
         setLoading(false)
       }
@@ -381,7 +408,7 @@ export default function ResourcesPage() {
         const card = dbToCard(r)
         setAllResources(prev => {
           if (prev.some(p => p.title.toLowerCase() === card.title.toLowerCase())) return prev
-          return [...prev, card]
+          return [card, ...prev]
         })
       })
       .subscribe()
@@ -654,23 +681,25 @@ export default function ResourcesPage() {
                       </div>
 
                       {/* Owner actions */}
-                      {isOwned(resource) && resource.dbId && expandedCard === i && (
+                      {isOwned(resource) && expandedCard === i && (
                         <div className="flex gap-2 mb-4">
+                          {resource.dbId && (
+                            <button
+                              onClick={e => { e.stopPropagation(); setEditingResource(resource as ResourceCard & { dbId: string }) }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all"
+                              style={{ background: 'rgba(86,187,240,0.1)', border: '1px solid rgba(86,187,240,0.25)', color: '#56BBF0' }}
+                            >
+                              <Pencil size={11} /> Edit
+                            </button>
+                          )}
                           <button
-                            onClick={e => { e.stopPropagation(); setEditingResource(resource as ResourceCard & { dbId: string }) }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all"
-                            style={{ background: 'rgba(86,187,240,0.1)', border: '1px solid rgba(86,187,240,0.25)', color: '#56BBF0' }}
-                          >
-                            <Pencil size={11} /> Edit
-                          </button>
-                          <button
-                            onClick={e => { e.stopPropagation(); if (resource.dbId) handleDeleteResource(resource.dbId) }}
-                            disabled={deletingId === resource.dbId}
+                            onClick={e => { e.stopPropagation(); handleDeleteResource(resource) }}
+                            disabled={deletingId === (resource.dbId || resource.localId)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-outfit text-xs font-semibold transition-all disabled:opacity-50"
                             style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
                           >
-                            {deletingId === resource.dbId ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
-                            {deletingId === resource.dbId ? 'Deleting…' : 'Delete'}
+                            {deletingId === (resource.dbId || resource.localId) ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                            {deletingId === (resource.dbId || resource.localId) ? 'Deleting...' : 'Delete'}
                           </button>
                         </div>
                       )}
@@ -741,3 +770,4 @@ export default function ResourcesPage() {
     </>
   )
 }
+

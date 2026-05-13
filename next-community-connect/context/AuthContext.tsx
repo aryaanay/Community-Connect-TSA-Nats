@@ -6,21 +6,35 @@ import { supabase } from '@/lib/supabaseClient'
 type User = {
   id: string
   email?: string
+  displayName?: string
 }
 
 type AuthContextType = {
   user: User | null
   isSignedIn: boolean
   loading: boolean
-  signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<User>
+  signUp: (email: string, password: string, displayName: string) => Promise<User>
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const DEMO_JUDGE_USER: User = { id: 'demo-judge-001', email: 'judges@tsa.com' }
+const DEMO_JUDGE_USER: User = { id: 'demo-judge-001', email: 'judges@tsa.com', displayName: 'TSA Judge' }
 const DEMO_JUDGE_STORAGE_KEY = 'community-connect-demo-judge'
+
+function mapSupabaseUser(sessionUser: { id: string; email?: string; user_metadata?: Record<string, any> }): User {
+  const displayName =
+    sessionUser.user_metadata?.display_name ||
+    sessionUser.user_metadata?.full_name ||
+    sessionUser.user_metadata?.name
+
+  return {
+    id: sessionUser.id,
+    email: sessionUser.email,
+    displayName: typeof displayName === 'string' ? displayName : undefined,
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -33,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (sessionUser) {
         localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
-        setUser({ id: sessionUser.id, email: sessionUser.email })
+        setUser(mapSupabaseUser(sessionUser))
       } else if (localStorage.getItem(DEMO_JUDGE_STORAGE_KEY) === 'true') {
         setUser(DEMO_JUDGE_USER)
       }
@@ -47,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const sessionUser = session?.user
       if (sessionUser) {
         localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
-        setUser({ id: sessionUser.id, email: sessionUser.email })
+        setUser(mapSupabaseUser(sessionUser))
       } else if (localStorage.getItem(DEMO_JUDGE_STORAGE_KEY) === 'true') {
         setUser(DEMO_JUDGE_USER)
       } else {
@@ -64,15 +78,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!error && data.user) {
       localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
-      setUser({ id: data.user.id, email: data.user.email })
-      return
+      const signedInUser = mapSupabaseUser(data.user)
+      setUser(signedInUser)
+      return signedInUser
     }
 
     // Judge fallback: if Supabase auth fails for any reason, use demo session
     if (email === 'judges@tsa.com' && password === 'judges!') {
       localStorage.setItem(DEMO_JUDGE_STORAGE_KEY, 'true')
       setUser(DEMO_JUDGE_USER)
-      return
+      return DEMO_JUDGE_USER
     }
 
     // Surface real errors for all other accounts
@@ -85,16 +100,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       throw new Error(error.message)
     }
+
+    throw new Error('Sign in failed. Please try again.')
   }
 
-  const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+  const signUp = async (email: string, password: string, displayName: string) => {
+    const cleanDisplayName = displayName.trim()
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: cleanDisplayName,
+          full_name: cleanDisplayName,
+        },
+      },
+    })
     if (error) throw new Error(error.message)
     const sessionUser = data.user
     if (sessionUser) {
       localStorage.removeItem(DEMO_JUDGE_STORAGE_KEY)
-      setUser({ id: sessionUser.id, email: sessionUser.email })
+      const newUser = mapSupabaseUser(sessionUser)
+      setUser(newUser)
+      return newUser
     }
+    return { id: 'pending-verification', email, displayName: cleanDisplayName }
   }
 
   const signOut = async () => {

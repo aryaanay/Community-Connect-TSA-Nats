@@ -4,9 +4,10 @@ export const LOCAL_SUBMISSIONS_KEY = 'community-connect-local-submissions'
 
 export type SubmissionDraft = Omit<CommunityResource, 'id' | 'featured'> & {
   submittedAt: string
+  userId?: string
 }
 
-export function loadLocalSubmissions(): CommunityResource[] {
+export function loadLocalSubmissions(): Array<CommunityResource & { userId?: string }> {
   if (typeof window === 'undefined') return []
 
   try {
@@ -28,6 +29,7 @@ export function loadLocalSubmissions(): CommunityResource[] {
       email: entry.email,
       website: entry.website,
       tags: entry.tags,
+      userId: entry.userId,
     }))
   } catch {
     return []
@@ -39,6 +41,17 @@ export function saveLocalSubmission(submission: SubmissionDraft) {
 
   const existing = loadLocalDrafts()
   const updated = [submission, ...existing]
+  window.localStorage.setItem(LOCAL_SUBMISSIONS_KEY, JSON.stringify(updated))
+}
+
+export function deleteLocalSubmission(id: string) {
+  if (typeof window === 'undefined') return
+
+  const existing = loadLocalDrafts()
+  const updated = existing.filter((entry, index) => {
+    const entryId = `local-${index}-${entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+    return entryId !== id
+  })
   window.localStorage.setItem(LOCAL_SUBMISSIONS_KEY, JSON.stringify(updated))
 }
 
