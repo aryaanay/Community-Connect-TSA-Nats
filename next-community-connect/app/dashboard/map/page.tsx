@@ -452,7 +452,7 @@ export default function DashboardMapPage() {
 
       {/* Map + side panel */}
       <div className="flex flex-1 overflow-hidden relative">
-        <div className="flex-1 relative isolate min-w-0">
+        <div className="flex-1 relative isolate">
           <MapView
             allEvents={allEvents}
             visibleIds={visibleIds}
@@ -469,7 +469,7 @@ export default function DashboardMapPage() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 320, opacity: 0 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-x-3 bottom-3 z-10 flex max-h-[46vh] flex-col overflow-y-auto rounded-2xl border shadow-2xl xl:relative xl:inset-auto xl:w-[300px] xl:max-h-none xl:flex-shrink-0 xl:rounded-none xl:border-l xl:border-y-0 xl:border-r-0 xl:shadow-none"
+              className="w-[300px] flex-shrink-0 flex flex-col border-l overflow-y-auto z-10"
               style={{ background: colors.panelBg, borderColor: colors.panelBorder }}
             >
               {/* Panel header */}

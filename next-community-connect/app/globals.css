@@ -5,23 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-* {
-  min-width: 0;
-}
-
-img,
-video,
-canvas,
-svg {
-  max-width: 100%;
-}
-
 
 @keyframes glass-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
@@ -1103,3 +1086,4 @@ html {
   border-color: rgba(86, 187, 240, 0.45) !important;
   box-shadow: 0 0 18px rgba(86, 187, 240, 0.18);
 }
+
