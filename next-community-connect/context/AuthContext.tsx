@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Surface real errors for all other accounts
     if (error) {
       if (error.message.toLowerCase().includes('email not confirmed')) {
-        throw new Error('Account exists but email is not confirmed. For this demo, please create a new account.')
+        throw new Error('Account exists but email is not confirmed. For this demo, please confirm your email or use the judges account.')
       }
       if (error.message.toLowerCase().includes('invalid login credentials')) {
         throw new Error('Invalid email or password.')
