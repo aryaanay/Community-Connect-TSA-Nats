@@ -12,6 +12,12 @@ type Message = {
   timestamp: Date
 }
 
+type PageContext = {
+  path: string
+  title: string
+  visibleText: string
+}
+
 const AI_PERSONA = {
   name: 'Community Connect AI',
   greeting: "Hi! I'm your Community Connect assistant. I can help you find local resources, events, volunteer opportunities, and more. What would you like to know?",
@@ -21,6 +27,22 @@ const AI_PERSONA = {
     'Health resources near Bothell',
     'Career & job help'
   ]
+}
+
+function getCurrentPageContext(): PageContext | null {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return null
+
+  const main = document.querySelector('main') ?? document.body
+  const text = (main.textContent ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 7000)
+
+  return {
+    path: window.location.pathname,
+    title: document.title,
+    visibleText: text,
+  }
 }
 
 export function AIChatWidget() {
@@ -85,7 +107,11 @@ export function AIChatWidget() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, history })
+        body: JSON.stringify({
+          message: text,
+          history,
+          pageContext: getCurrentPageContext(),
+        })
       })
 
       const data = await response.json()
