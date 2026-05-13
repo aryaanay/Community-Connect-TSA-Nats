@@ -90,7 +90,7 @@ async function addToResources(data: FormData, userId: string): Promise<string | 
   return (inserted as { id: string } | null)?.id ?? null
 }
 
-function saveApprovedResourceLocally(data: FormData) {
+function saveApprovedResourceLocally(data: FormData, userId: string) {
   saveLocalSubmission({
     name: data.name.trim(),
     organization: data.organization.trim(),
@@ -104,6 +104,7 @@ function saveApprovedResourceLocally(data: FormData) {
     website: data.website.trim(),
     tags: [],
     submittedAt: new Date().toISOString(),
+    userId,
   })
 }
 
@@ -441,7 +442,7 @@ function PlaneSuccess() {
               style={{ backgroundColor: 'rgba(255,255,255,0.95)', color: '#022747' }}>
               Return Home
             </Link>
-            <Link href="/resources" className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
+            <Link href="/dashboard/resources" className="px-6 py-3 rounded-xl font-outfit font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
               style={{ border: '2px solid rgba(255,255,255,0.3)' }}>
               <span className="inline-flex items-center gap-2">Browse Resources <ArrowRight className="w-4 h-4" /></span>
             </Link>
@@ -566,7 +567,7 @@ export default function SubmitPage() {
         unlock('submit_resource')
         markPageVisited('submit')
         if (review.approved) {
-          saveApprovedResourceLocally(formData)
+          saveApprovedResourceLocally(formData, user.id)
           const resourceId = await addToResources(formData, user.id)
           if (resourceId && user?.id) {
             try {
