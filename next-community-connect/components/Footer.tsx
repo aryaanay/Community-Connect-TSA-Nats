@@ -1,9 +1,10 @@
-'use client'
+ 'use client'
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Clock, Handshake, GraduationCap, Heart, Leaf, UtensilsCrossed } from 'lucide-react'
 import React from 'react'
+import { usePathname } from 'next/navigation'
 
 const footerLinks = {
   categories: [
@@ -24,6 +25,8 @@ const partners: { icon: React.ElementType; label: string }[] = [
 ]
 
 export function Footer() {
+  const pathname = usePathname()
+  const isHome = pathname === '/' || pathname === ''
   return (
     <footer
       className="relative text-white/85 transition-colors duration-500"
@@ -121,13 +124,13 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-          <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className={"pt-5 flex flex-col sm:flex-row items-center " + (isHome ? 'justify-center' : 'justify-between') + ' gap-3'}>
           <p className="font-dm-sans text-sm" style={{ color: 'rgba(144,212,247,0.7)' }}>
             © 2026 CommunityConnect
           </p>
           <div className="flex items-center gap-4">
             <Link href="/help" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>
-              Help
+              Q&A
             </Link>
             <span style={{ color: 'rgba(86,187,240,0.3)' }}>|</span>
             <Link href="/references" className="font-dm-sans text-xs hover:text-white transition-colors" style={{ color: 'rgba(198,235,255,0.75)' }}>

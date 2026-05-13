@@ -702,6 +702,7 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true)
   const { user } = useAuth()
   const [myEventIds, setMyEventIds] = useState<Set<string>>(new Set())
+  const [myPrivateEvents, setMyPrivateEvents] = useState<EventType[]>([])
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -810,6 +811,36 @@ export default function EventsPage() {
           }))
         } catch { /* user_events table may not exist */ }
 
+        // Also fetch user-created private events for the signed-in user
+        let userPrivateEvts: EventType[] = []
+        try {
+          if (user) {
+            const { data: upe } = await supabase
+              .from('user_events')
+              .select('*')
+              .eq('is_public', false)
+              .eq('user_id', user.id)
+              .order('date', { ascending: true })
+            userPrivateEvts = (upe || []).map((e: any) => ({
+              id: `user-${e.id}`,
+              title: e.title,
+              date: e.date,
+              time: e.time || '',
+              location: e.location || 'Bothell, WA',
+              audience: 'Private',
+              category: e.category || 'Community',
+              description: e.description || '',
+              day: extractDay(e.date),
+              month: extractMonth(e.date),
+              emoji: e.emoji || '📅',
+              color: '#7C3AED',
+              colorLight: '#F5F3FF',
+              colorMid: '#DDD6FE',
+              gcalStart: '', gcalEnd: '',
+            }))
+          }
+        } catch { /* ignore */ }
+
         // Merge, filter past events, and sort by date
         const today = new Date(); today.setHours(0, 0, 0, 0)
         const merged = [
@@ -833,6 +864,15 @@ export default function EventsPage() {
           .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
         setAllEvents(mergedAndSorted)
+        // keep user's private upcoming events in their own section
+        try {
+          const todayOnly = new Date(); todayOnly.setHours(0,0,0,0)
+          const upcomingPrivate = userPrivateEvts.filter(e => {
+            const d = new Date(e.date)
+            return isNaN(d.getTime()) || d >= todayOnly
+          }).sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          setMyPrivateEvents(upcomingPrivate)
+        } catch { setMyPrivateEvents([]) }
       // AFTER
 } catch (err: any) {
   console.error('Events fetch error:', err?.message ?? err ?? 'Unknown error');
@@ -860,6 +900,44 @@ export default function EventsPage() {
         subtitle={t('events.subtitle')}
         backgroundImage="/img/page-3.jpg"
       />
+
+      {/* User's Private Upcoming Events */}
+      {user && myPrivateEvents.length > 0 && (
+        <section className="py-10 lg:py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+            <div className="flex items-center justify-between">
+              <h3 style={{ fontFamily: 'var(--font-syne)', fontSize: '20px', fontWeight: 800, color: dk ? '#C6EBFF' : '#022747' }}>
+                Your Private Upcoming Events
+              </h3>
+              <p style={{ fontFamily: 'var(--font-dm-sans)', color: dk ? '#90D4F7' : '#64748b' }}>
+                These events are visible only to you.
+              </p>
+            </div>
+          </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myPrivateEvents.map(ev => (
+                <div key={ev.id} className="rounded-2xl p-4 border" style={{ background: dk ? 'rgba(2,39,71,0.6)' : 'white', borderColor: dk ? 'rgba(86,187,240,0.08)' : '#e6eef8' }}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 style={{ fontFamily: 'var(--font-space)', fontSize: '16px', fontWeight: 700, color: dk ? '#e0f2fe' : '#022747' }}>{ev.title}</h4>
+                      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: dk ? '#90D4F7' : '#64748b' }}>{ev.date} · {ev.time}</div>
+                      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: dk ? '#90D4F7' : '#94a3b8', marginTop: '6px' }}>{ev.location}</div>
+                    </div>
+                    <div className="flex flex-col gap-2 ml-3">
+                      <button onClick={() => { setSelected(ev); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="px-3 py-2 rounded-xl text-sm font-semibold" style={{ background: 'rgba(255,255,255,0.06)', color: dk ? '#C6EBFF' : '#044069' }}>View</button>
+                      <div className="flex gap-2">
+                        <button onClick={() => { setSelected(ev) }} className="px-3 py-2 rounded-xl text-sm font-semibold" style={{ background: ev.colorLight, color: ev.color }}>Edit</button>
+                        <button onClick={() => handleDeleteEvent(ev.id)} className="px-3 py-2 rounded-xl text-sm font-semibold" style={{ background: 'transparent', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444' }}>Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Calendar + Map */}
       <div className="relative z-10">
