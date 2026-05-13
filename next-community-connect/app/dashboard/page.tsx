@@ -318,20 +318,6 @@ export default function DashboardPage() {
               <p className="font-outfit text-sm leading-relaxed max-w-lg" style={{ color: 'rgba(198,235,255,0.65)' }}>
                 {t('dash.welcome')}
               </p>
-              <div className="flex flex-wrap gap-3 mt-5">
-                <Link
-                  href="/resources"
-                  className="inline-flex items-center gap-1.5 font-outfit text-sm font-semibold text-sky-300 hover:text-sky-200 transition-colors"
-                >
-                  {t('dash.browse')} <ArrowUpRight size={14} />
-                </Link>
-                <Link
-                  href="/submit"
-                  className="inline-flex items-center gap-1.5 font-outfit text-sm font-semibold text-sky-300 hover:text-sky-200 transition-colors"
-                >
-                  {t('dash.submit_res')} <ArrowUpRight size={14} />
-                </Link>
-              </div>
             </div>
           </Card>
         </motion.div>

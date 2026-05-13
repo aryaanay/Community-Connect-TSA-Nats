@@ -153,7 +153,7 @@ function SidebarInner({
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
                   className="font-outfit text-[9px] font-bold uppercase tracking-widest px-3 pt-3 pb-1"
-                  style={{ color: 'rgba(86,187,240,0.28)' }}
+                  style={{ color: 'rgba(86,187,240,0.65)' }}
                 >
                   {t(group.labelKey)}
                 </motion.p>

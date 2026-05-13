@@ -800,12 +800,24 @@ export default function EventsPage() {
 
         // Merge, filter past events, and sort by date
         const today = new Date(); today.setHours(0, 0, 0, 0)
-        const mergedAndSorted = [
+        const merged = [
           ...events,
           ...transformed,
           ...userEvts,
         ]
           .filter(e => { const d = new Date(e.date); return isNaN(d.getTime()) || d >= today })
+
+        // Deduplicate by title, keeping the first occurrence
+        const seenTitles = new Set<string>()
+        const deduplicated = merged.filter(e => {
+          if (seenTitles.has(e.title)) {
+            return false
+          }
+          seenTitles.add(e.title)
+          return true
+        })
+
+        const mergedAndSorted = deduplicated
           .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
         setAllEvents(mergedAndSorted)

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import { useSettings } from '@/context/SettingsContext'
+import { useAuth } from '@/context/AuthContext'
 import Link from 'next/link'
 
 const checklistItems = [
@@ -64,6 +65,7 @@ const sources = [
 
 export default function DocumentationPage() {
   const { settings } = useSettings()
+  const { isSignedIn } = useAuth()
   const dk = settings.dark
 
   const H     = dk ? '#e0f2fe'                    : '#022747'
@@ -92,12 +94,14 @@ export default function DocumentationPage() {
 
   return (
     <>
-      <Link
-        href="/"
-        className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125"
-      >
-        ← Back to Home
-      </Link>
+      {!isSignedIn && (
+        <Link
+          href="/"
+          className="liquid-glass-fixed fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-outfit text-sm text-white transition-all hover:brightness-125"
+        >
+          ← Back to Home
+        </Link>
+      )}
       <HeroDemo
         badge="TSA Webmaster - Required Documentation"
         staticTitle="References"
@@ -171,7 +175,6 @@ export default function DocumentationPage() {
 
           {/* STUDENT COPYRIGHT CHECKLISTS PDF */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 style={h2Style}>Student Copyright Checklists</h2>
             <div className="rounded-2xl overflow-hidden border" style={{ borderColor: BORDER }}>
               <iframe
                 src="/TSA_Student_Copyright_Checklists_Final.pdf"
