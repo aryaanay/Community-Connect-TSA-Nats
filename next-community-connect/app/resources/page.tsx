@@ -15,6 +15,8 @@ import { HeroDemo } from '@/components/ui/animated-hero-demo'
 import TiltCard from '@/components/TiltCard'
 import { supabase } from '@/lib/supabaseClient'
 import { useT } from '@/lib/useT'
+import { loadLocalSubmissions } from '@/lib/community-submissions'
+import type { CommunityResource } from '@/data/community-data'
 
 // ─── Images ───────────────────────────────────────────────────────────────────
 
@@ -130,6 +132,21 @@ function dbToCard(r: DbResource): ResourceCard {
     dbId:         r.id,
     contactEmail: r.email       ?? undefined,
     userId:       r.user_id     ?? undefined,
+  }
+}
+
+function localToCard(r: CommunityResource): ResourceCard {
+  return {
+    title:        r.name        ?? 'Untitled Resource',
+    category:     r.category    ?? 'Other',
+    description:  r.description ?? '',
+    phone:        r.phone       ?? undefined,
+    email:        r.email       ?? undefined,
+    hours:        r.hours       ?? undefined,
+    location:     r.address     ?? undefined,
+    website:      r.website     ?? undefined,
+    resourceIcon: getIcon(r.category ?? ''),
+    contactEmail: r.email       ?? undefined,
   }
 }
 
@@ -351,6 +368,7 @@ export default function ResourcesPage() {
     async function load() {
       setLoading(true)
       setError(null)
+      const localCards = loadLocalSubmissions().map(localToCard)
       try {
         const { data, error: dbError } = await supabase
           .from('resources')
@@ -358,13 +376,12 @@ export default function ResourcesPage() {
           .order('created_at', { ascending: false })
 
         const dbCards = data ? (data as DbResource[]).map(r => dbToCard(r)) : []
-        setAllResources(mergeAll(dbCards))
+        setAllResources(mergeAll([...localCards, ...dbCards]))
 
-        if (dbError) setError('Some live data could not be loaded.')
+        if (dbError) console.warn('Resources live data could not be loaded:', dbError)
       } catch (err: unknown) {
-        console.error('Resources load error:', JSON.stringify(err, null, 2))
-        setError('Could not load live resources. Showing static content.')
-        setAllResources(hardcodedResources)
+        console.warn('Resources load error. Showing local and static content:', err)
+        setAllResources(mergeAll(localCards))
       } finally {
         setLoading(false)
       }
@@ -381,7 +398,7 @@ export default function ResourcesPage() {
         const card = dbToCard(r)
         setAllResources(prev => {
           if (prev.some(p => p.title.toLowerCase() === card.title.toLowerCase())) return prev
-          return [...prev, card]
+          return [card, ...prev]
         })
       })
       .subscribe()

@@ -484,15 +484,6 @@ function SignInForm() {
                         className="w-full px-4 py-3 rounded-xl font-outfit text-sm outline-none transition-all disabled:opacity-50 focus:ring-1 focus:ring-sky-400/35"
                         style={inputStyle}
                       />
-                      <div
-                        className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5"
-                        style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.18)' }}
-                      >
-                        <AlertCircle size={14} className="flex-shrink-0 mt-0.5 text-sky-300" />
-                        <p className="font-outfit text-xs leading-relaxed" style={{ color: 'rgba(198,235,255,0.68)' }}>
-                          Please use an actual email for full functionality. After creating an account, check for a verification email from Supabase in your inbox and verify your account.
-                        </p>
-                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -507,6 +498,27 @@ function SignInForm() {
                   className="w-full px-4 py-3 rounded-xl font-outfit text-sm outline-none transition-all disabled:opacity-50 focus:ring-1 focus:ring-sky-400/35"
                   style={inputStyle}
                 />
+                <AnimatePresence>
+                  {tab === 'signup' && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.22 }}
+                      className="overflow-hidden"
+                    >
+                      <div
+                        className="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5"
+                        style={{ background: 'rgba(86,187,240,0.08)', border: '1px solid rgba(86,187,240,0.18)' }}
+                      >
+                        <AlertCircle size={14} className="flex-shrink-0 mt-0.5 text-sky-300" />
+                        <p className="font-outfit text-xs leading-relaxed" style={{ color: 'rgba(198,235,255,0.68)' }}>
+                          Please use an actual email for full functionality. After creating an account, check for a verification email from Supabase in your inbox and verify your account.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Password */}

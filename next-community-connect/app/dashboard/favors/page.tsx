@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { HandHeart, Plus, MapPin, Phone, Mail, DollarSign, Check, X, Search, Star } from 'lucide-react'
+import { HandHeart, Plus, MapPin, Phone, Mail, DollarSign, Check, X, Search } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAchievements } from '@/context/AchievementsContext'
 import { supabase } from '@/lib/supabaseClient'
@@ -40,7 +40,6 @@ export default function FavorsPage() {
   const [error, setError]       = useState('')
   const [saving, setSaving]     = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [helpedIds, setHelpedIds]   = useState<Set<string>>(new Set())
 
   useEffect(() => { markPageVisited('favors') }, [markPageVisited])
 
@@ -57,19 +56,7 @@ export default function FavorsPage() {
     }
   }, [])
 
-  // Load which favors this user has already helped with
-  const fetchHelpedIds = useCallback(async () => {
-    if (!user || user.id === 'demo-judge-001') return
-    await supabase.auth.getSession()
-    const { data } = await supabase
-      .from('favor_helps')
-      .select('favor_id')
-      .eq('helper_id', user.id)
-    if (data) setHelpedIds(new Set(data.map((r: { favor_id: string }) => r.favor_id)))
-  }, [user])
-
   useEffect(() => { fetchFavors() }, [fetchFavors])
-  useEffect(() => { fetchHelpedIds() }, [fetchHelpedIds])
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,35 +79,6 @@ export default function FavorsPage() {
     setForm(EMPTY_FORM)
     setPosting(false)
     fetchFavors()
-  }
-
-  const handleHelp = async (favor: Favor) => {
-    if (!isSignedIn) { setError('Sign in to help.'); return }
-    if (user!.id === 'demo-judge-001') return
-    if (favor.user_id === user!.id) return
-    if (helpedIds.has(favor.id)) return
-
-    await supabase.auth.getSession()
-    const { error: dbErr } = await supabase.from('favor_helps').insert({
-      favor_id: favor.id,
-      helper_id: user!.id,
-    })
-    if (dbErr) return
-
-    const newIds = new Set(helpedIds).add(favor.id)
-    setHelpedIds(newIds)
-
-    // Count total helps and unlock achievements
-    const { count } = await supabase
-      .from('favor_helps')
-      .select('*', { count: 'exact', head: true })
-      .eq('helper_id', user!.id)
-
-    const total = count ?? newIds.size
-    unlock('first_helper')
-    if (total >= 3)  unlock('helper_3')
-    if (total >= 10) unlock('helper_10')
-    if (total >= 25) unlock('super_helper')
   }
 
   const markDone = async (id: string) => {
@@ -261,10 +219,8 @@ export default function FavorsPage() {
                 key={favor.id}
                 favor={favor}
                 isOwner={favor.user_id === user?.id}
-                hasHelped={helpedIds.has(favor.id)}
                 expanded={expandedId === favor.id}
                 onToggle={() => setExpandedId(expandedId === favor.id ? null : favor.id)}
-                onHelp={() => handleHelp(favor)}
                 onDone={() => markDone(favor.id)}
                 isSignedIn={isSignedIn}
               />
@@ -276,9 +232,9 @@ export default function FavorsPage() {
   )
 }
 
-function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDone, isSignedIn }: {
-  favor: Favor; isOwner: boolean; hasHelped: boolean; expanded: boolean
-  onToggle: () => void; onHelp: () => void; onDone: () => void; isSignedIn: boolean
+function FavorCard({ favor, isOwner, expanded, onToggle, onDone, isSignedIn }: {
+  favor: Favor; isOwner: boolean; expanded: boolean
+  onToggle: () => void; onDone: () => void; isSignedIn: boolean
 }) {
   const t = useT()
   const done = favor.status === 'done'
@@ -319,16 +275,12 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
             )}
           </div>
         </div>
-        {!isOwner && !done && isSignedIn && (
-          <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center"
-            style={{
-              background: hasHelped ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.08)',
-              border: `1px solid ${hasHelped ? 'rgba(16,185,129,0.5)' : 'rgba(16,185,129,0.2)'}`,
-            }}>
-            {hasHelped
-              ? <Check size={12} style={{ color: '#6EE7B7' }} />
-              : <Star size={12} style={{ color: '#6EE7B7' }} />}
-          </div>
+        {!isOwner && !done && isSignedIn && favor.contact_email && (
+          <a href={`mailto:${favor.contact_email}`} onClick={e => e.stopPropagation()}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-emerald-300 hover:bg-emerald-400/10 transition-colors"
+            style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}>
+            <Mail size={12} /> Email
+          </a>
         )}
       </button>
 
@@ -347,24 +299,10 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
               {/* Contact / Help section for non-owners */}
               {!isOwner && hasContact && !done && (
                 <div className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)' }}>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <p className="font-outfit text-[10px] font-bold uppercase tracking-wider" style={{ color: 'rgba(16,185,129,0.7)' }}>
                       {t('fav.card.contact')}
                     </p>
-                    {isSignedIn && !hasHelped && (
-                      <button onClick={onHelp}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg font-outfit text-[11px] font-bold transition-all hover:-translate-y-0.5"
-                        style={{ background: 'linear-gradient(135deg,#059669,#10B981)', color: '#fff' }}>
-                        <Star size={10} /> {t('fav.card.help')}
-                      </button>
-                    )}
-                    {hasHelped && (
-                      <span className="flex items-center gap-1 font-outfit text-[11px] font-bold" style={{ color: '#6EE7B7' }}>
-                        <Check size={11} /> {t('fav.card.helping')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
                     {favor.contact_email && (
                       <a href={`mailto:${favor.contact_email}`}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-emerald-300 hover:bg-emerald-400/10 transition-colors"
@@ -372,6 +310,8 @@ function FavorCard({ favor, isOwner, hasHelped, expanded, onToggle, onHelp, onDo
                         <Mail size={12} /> {favor.contact_email}
                       </a>
                     )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
                     {favor.contact_phone && (
                       <a href={`tel:${favor.contact_phone}`}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-outfit text-xs font-semibold text-emerald-300 hover:bg-emerald-400/10 transition-colors"
