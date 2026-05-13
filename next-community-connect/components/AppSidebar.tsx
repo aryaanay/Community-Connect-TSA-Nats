@@ -277,7 +277,7 @@ function SidebarInner({
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed((v) => !v)}
-        className="absolute -right-3 top-[76px] hidden lg:flex items-center justify-center w-6 h-6 rounded-full border border-sky-400/25 text-sky-400 hover:text-white hover:border-sky-300/50 transition-all z-10"
+        className="absolute -right-3 top-[76px] hidden xl:flex items-center justify-center w-6 h-6 rounded-full border border-sky-400/25 text-sky-400 hover:text-white hover:border-sky-300/50 transition-all z-10"
         style={{ background: 'linear-gradient(135deg, #022747, #033460)' }}
       >
         {collapsed ? <ChevronRight size={11} /> : <ChevronLeft size={11} />}
@@ -341,14 +341,14 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className="flex h-screen overflow-hidden"
+      className="flex h-screen h-[100dvh] overflow-hidden"
       style={{ background: 'linear-gradient(150deg, #011629 0%, #022747 100%)' }}
     >
       {/* Mobile backdrop */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm xl:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -361,7 +361,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       <motion.aside
         animate={{ width: collapsed ? 72 : 252 }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="hidden lg:flex flex-col flex-shrink-0 relative border-r border-sky-400/12"
+        className="hidden xl:flex flex-col flex-shrink-0 relative border-r border-sky-400/12"
         style={{
           background:
             'linear-gradient(180deg, rgba(2,39,71,0.98) 0%, rgba(3,52,96,0.96) 100%)',
@@ -383,7 +383,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
             animate={{ x: 0 }}
             exit={{ x: -260 }}
             transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed left-0 top-0 bottom-0 z-50 w-[252px] flex flex-col lg:hidden border-r border-sky-400/15"
+            className="fixed left-0 top-0 bottom-0 z-50 w-[min(20rem,88vw)] flex flex-col xl:hidden border-r border-sky-400/15"
             style={{ background: 'linear-gradient(180deg, #022747 0%, #033460 100%)' }}
           >
             <SidebarInner
@@ -401,7 +401,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Mobile topbar */}
         <header
-          className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-sky-400/12 flex-shrink-0"
+          className="xl:hidden flex items-center justify-between px-4 h-14 border-b border-sky-400/12 flex-shrink-0"
           style={{ background: 'rgba(2,39,71,0.97)' }}
         >
           <button

@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Plus_Jakarta_Sans, Nunito, DM_Sans } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/Providers"
@@ -29,6 +29,12 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Community Connect - Local Community Resource Hub",
   description: "Community Connect is your local hub for finding volunteers, community events, support services, and non-profits in your area.",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
