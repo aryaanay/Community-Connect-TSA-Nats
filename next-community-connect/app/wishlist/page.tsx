@@ -798,6 +798,14 @@ export default function DonatePage() {
                 100% of donations go directly to local organizations. No platform fees.
               </p>
             </div>
+            <div className="mt-6 max-w-2xl">
+              <div className="rounded-xl p-4" style={{ background: dark ? 'rgba(2,39,71,0.6)' : '#F8FAFC', border: `1px solid ${dark ? 'rgba(86,187,240,0.08)' : '#E6EEF8'}` }}>
+                <p style={{ fontFamily: 'var(--font-space)', fontSize: '14px', fontWeight: 600, color: dark ? '#C6EBFF' : '#044069', marginBottom: '6px' }}>Want to add a new cause?</p>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: dark ? '#90D4F7' : '#475569', lineHeight: 1.6 }}>
+                  If you represent a local organization or would like to propose a new fundraising cause, please contact our team via the <strong>Contact</strong> tab in the Assistant (chat widget) at the bottom-right of the site. Include the proposed cause name, a short description, and a suggested fundraising goal so our team can review and respond promptly.
+                </p>
+              </div>
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

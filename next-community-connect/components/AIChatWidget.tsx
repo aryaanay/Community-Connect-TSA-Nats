@@ -130,6 +130,13 @@ export function AIChatWidget() {
     if (hiddenByFooter && isOpen) setIsOpen(false)
   }, [hiddenByFooter, isOpen])
 
+  // Detect if we're on the home page to use a quicker fade there
+  const [isHome, setIsHome] = useState(false)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setIsHome(window.location.pathname === '/')
+  }, [])
+
   const sendMessage = async (override?: string) => {
     const text = (override ?? input).trim()
     if (!text || isLoading) return
@@ -239,8 +246,8 @@ export function AIChatWidget() {
       {/* Floating Button */}
       <motion.button
         initial={{ scale: 0, y: 20, opacity: 0 }}
-        animate={hiddenByFooter ? { scale: 0.8, y: -40, opacity: 0 } : { scale: 1, y: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 22, duration: 0.28 }}
+        animate={hiddenByFooter ? { scale: 0.8, y: -48, opacity: 0 } : { scale: 1, y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22, duration: isHome ? 0.12 : 0.28 }}
         whileHover={hiddenByFooter ? {} : { scale: 1.08, y: -3 }}
         whileTap={hiddenByFooter ? {} : { scale: 0.95 }}
         onClick={() => {
@@ -258,7 +265,7 @@ export function AIChatWidget() {
         className="fixed bottom-6 right-6 z-50 group"
         aria-hidden={hiddenByFooter}
         aria-label={isOpen ? 'Close community assistant' : 'Open community assistant'}
-        style={{ pointerEvents: hiddenByFooter ? 'none' : undefined }}
+        style={{ pointerEvents: hiddenByFooter ? 'none' : undefined, visibility: hiddenByFooter ? 'hidden' : 'visible' }}
       >
         <span className="absolute inset-[-8px] rounded-full bg-sky-300/25 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
         <span className="absolute inset-[-3px] rounded-full border border-sky-200/40 animate-ping" />

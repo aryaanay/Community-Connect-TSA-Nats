@@ -145,6 +145,12 @@ export default function LostFoundPage() {
     if (!form.title.trim()) { setError('Title is required.'); return }
     if (aiApproval === 'rejected') { setError('Please remove the rejected photo before posting.'); return }
     if (user!.id === 'demo-judge-001') { setError('The judge demo account cannot create posts.'); return }
+    // Prevent future dates for date_occurred
+    const todayIso = new Date().toISOString().split('T')[0]
+    if (form.date_occurred && form.date_occurred > todayIso) {
+      setError('Date cannot be in the future. Please choose today or a past date.')
+      return
+    }
     setError('')
     startTransition(async () => {
       // Ensure session JWT is attached before writing
@@ -282,6 +288,7 @@ export default function LostFoundPage() {
                   <div className="relative">
                     <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'rgba(198,235,255,0.35)' }} />
                     <input type="date" value={form.date_occurred} onChange={e => setForm(p => ({ ...p, date_occurred: e.target.value }))}
+                      max={new Date().toISOString().split('T')[0]}
                       className="w-full pl-8 pr-3 py-2.5 rounded-xl font-outfit text-sm text-white outline-none focus:ring-1 focus:ring-amber-400/35"
                       style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(245,158,11,0.2)', colorScheme: 'dark' }} />
                   </div>
