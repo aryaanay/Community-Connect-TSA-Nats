@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
 Use the CURRENT WEBSITE CONTEXT below as your source of truth for Community Connect features, resources, events, donation totals, and anything visible on the page. This context is rebuilt for each request from live Supabase data, curated site data, and the visitor's current page text.
 
 Rules:
+- Don't answer the user's question using information that is not in the CURRENT WEBSITE CONTEXT. If you don't know the answer from the context, say you don't know but suggest where to find it on the site.
+- When answering a question, don't always start with Here is what is listed in the current site data: Add some humanistic conversation and only include relevant lines from the context, not the entire dump. Use the getFallbackReply logic as a guide for how to answer based on the question.
 - For website, resource, event, donation, contact, or navigation questions, answer only from the current website context.
 - If a requested resource, event, phone number, hour, or total is not in the context, say it is not listed in the current site data and suggest checking the Resources page or submitting an update.
 - Prefer specific names, dates, hours, phone numbers, addresses, links, and totals when they are present.
