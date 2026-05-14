@@ -71,6 +71,22 @@ const CAT_COLORS: Record<string, string> = {
   Volunteer: '#56BBF0', Animals: '#F59E0B',
 }
 
+// Parse short date strings like "May 25" or "Jun 2" into a Date in the current year.
+function parseEventDate(dateStr: string): Date | null {
+  if (!dateStr) return null
+  const MONTHS: Record<string, number> = {
+    jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+  }
+  const cleaned = dateStr.replace(',', '').trim()
+  const parts = cleaned.split(/\s+/)
+  if (parts.length < 2) return null
+  const monthToken = parts[0].slice(0, 3).toLowerCase()
+  const day = parseInt(parts[1], 10)
+  if (Number.isNaN(day) || !(monthToken in MONTHS)) return null
+  const year = new Date().getFullYear()
+  return new Date(year, MONTHS[monthToken], day)
+}
+
 // ─── Features section ─────────────────────────────────────────────────────────
 
 const FEATURES = [
@@ -203,7 +219,14 @@ function FeaturesSection() {
 function LocationEvents() {
   const t = useT()
   const [loc, setLoc] = useState('bothell')
-  const events = EVENTS[loc] ?? []
+  const rawEvents = EVENTS[loc] ?? []
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const parsed = rawEvents.map((ev) => ({ ...ev, parsedDate: parseEventDate(ev.date) })) as (Evt & { parsedDate?: Date | null })[]
+  const events = parsed
+    .filter((ev) => ev.parsedDate && ev.parsedDate >= today)
+    .sort((a, b) => (a.parsedDate!.getTime() - b.parsedDate!.getTime()))
 
   return (
     <section id="events" className="lev-section py-20 px-4">
